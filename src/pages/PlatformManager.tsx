@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -838,3 +837,4 @@ const PlatformManager = () => {
 };
 
 export default PlatformManager;
+</
