@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-// Platform integration types
+// Platform integration types - Define as a union of string literals to make TypeScript happy
 type PlatformStatus = "connected" | "disconnected" | "connecting";
 
 type Platform = {
@@ -164,7 +164,7 @@ const PlatformManager = () => {
   const handleConnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" as const } 
+        ? { ...p, status: "connecting" } 
         : p
     ));
 
@@ -172,7 +172,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "connected" as const } 
+          ? { ...p, status: "connected" } 
           : p
       ));
 
@@ -186,7 +186,7 @@ const PlatformManager = () => {
   const handleDisconnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" as const } 
+        ? { ...p, status: "connecting" } 
         : p
     ));
 
@@ -194,7 +194,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "disconnected" as const, products: 0, revenue: 0 } 
+          ? { ...p, status: "disconnected", products: 0, revenue: 0 } 
           : p
       ));
 
@@ -274,6 +274,7 @@ const PlatformManager = () => {
   return (
     <Layout>
       <div className="space-y-4 animate-fade">
+        {/* Header section */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <h1 className="font-bold text-2xl sm:text-3xl">Platform Manager</h1>
