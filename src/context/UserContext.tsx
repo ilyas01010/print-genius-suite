@@ -10,6 +10,7 @@ type UserContextType = {
   isAuthenticated: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<{error?: any}>;
 };
 
 const UserContext = createContext<UserContextType>({
@@ -18,6 +19,7 @@ const UserContext = createContext<UserContextType>({
   isAuthenticated: false,
   setUser: () => {},
   logout: async () => {},
+  deleteAccount: async () => ({ error: null }),
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
@@ -50,6 +52,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               toast({
                 title: 'Signed out',
                 description: 'You have been signed out.',
+              });
+            }
+
+            if (event === 'USER_DELETED') {
+              setUser(null);
+              toast({
+                title: 'Account deleted',
+                description: 'Your account has been permanently deleted.',
               });
             }
           }
@@ -86,12 +96,40 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      if (!user) {
+        throw new Error('You must be logged in to delete your account');
+      }
+      
+      // Delete user data associated with this account
+      // First step is to delete any designs
+      const { error: dataError } = await supabase
+        .from('designs')
+        .delete()
+        .eq('user_id', user.id);
+        
+      if (dataError) throw dataError;
+      
+      // Second, delete the user auth account
+      const { error } = await supabase.auth.admin.deleteUser(user.id);
+      if (error) throw error;
+      
+      setUser(null);
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      return { error };
+    }
+  };
+
   const contextValue = {
     user,
     setUser,
     isLoading,
     isAuthenticated: !!user,
     logout,
+    deleteAccount,
   };
 
   return (

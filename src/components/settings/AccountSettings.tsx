@@ -4,6 +4,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import AccountCard from "./account/AccountCard";
 import ProfileForm from "./account/ProfileForm";
 import RegionSettings from "./account/RegionSettings";
+import DeleteAccountButton from "./account/DeleteAccountButton";
 
 interface AccountSettingsProps {
   user: any;
@@ -72,6 +73,23 @@ const AccountSettings = ({
           setTimezone={setTimezone}
           languages={languages}
         />
+      </AccountCard>
+      
+      <AccountCard
+        title="Danger Zone"
+        description="Permanent account actions"
+        variant="destructive"
+        showSaveButton={false}
+      >
+        <div className="px-6 py-4">
+          <div className="flex flex-col space-y-2">
+            <h4 className="font-medium">Delete account</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Permanently delete your account and all associated data
+            </p>
+            <DeleteAccountButton />
+          </div>
+        </div>
       </AccountCard>
     </div>
   );

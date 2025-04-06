@@ -138,3 +138,18 @@ export const getSession = async () => {
     return { data: { session: null }, error };
   }
 };
+
+export const deleteUser = async (userId: string) => {
+  try {
+    // Use admin functions when available, or a server-side function as fallback
+    if (supabase.auth.admin) {
+      return await supabase.auth.admin.deleteUser(userId);
+    } else {
+      // Fallback to calling an edge function if needed
+      throw new Error("Admin functions not available - please use an edge function for account deletion");
+    }
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    return { error };
+  }
+};
