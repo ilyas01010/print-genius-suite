@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,11 +12,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 // Platform integration types
+type PlatformStatus = "connected" | "disconnected" | "connecting";
+
 type Platform = {
   id: string;
   name: string;
   logo: string;
-  status: "connected" | "disconnected" | "connecting";
+  status: PlatformStatus;
   products: number;
   revenue: number;
 };
