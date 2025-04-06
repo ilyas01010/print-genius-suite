@@ -1,94 +1,91 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { toast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
 
-// Initialize the Supabase client with the environment variables provided by the Supabase integration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Use the values from the Supabase integration
+const SUPABASE_URL = "https://kdpsyldycxyxmmxkjnai.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcHN5bGR5Y3h5eG1teGtqbmFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5MDE0NzMsImV4cCI6MjA1OTQ3NzQ3M30._PFaKbXh3tIpD2ot7owbElGmi1xj1XOYM6oYvOZsbdw";
 
-// Check if Supabase environment variables are set
-const isSupabaseConfigured = !!supabaseUrl && !!supabaseAnonKey;
-
-if (!isSupabaseConfigured) {
-  console.warn('Supabase environment variables are missing. Some features may not work properly.');
-}
-
-// Create a mock client if Supabase is not configured
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : createClient('https://placeholder.supabase.co', 'placeholder-key', {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    });
+// Create the Supabase client
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+  },
+});
 
 export const getSupabaseReadyStatus = (): boolean => {
-  return isSupabaseConfigured;
+  return true; // We are using the integration values, so Supabase is always ready
 };
 
 export const initializeSupabase = async (): Promise<void> => {
-  const isReady = getSupabaseReadyStatus();
-  if (isReady) {
-    console.info('Supabase is properly configured and ready to use.');
-  } else {
-    console.warn('Supabase is not properly configured. Please check your Supabase connection in the Lovable interface.');
-    toast({
-      title: 'Supabase Connection Issue',
-      description: 'Please make sure Supabase is properly connected in the Lovable interface.',
-      variant: 'destructive',
-    });
-  }
+  console.info('Supabase is properly configured and ready to use.');
 };
 
 // Authentication helper functions with error handling
 export const signUpWithEmail = async (email: string, password: string) => {
-  if (!isSupabaseConfigured) {
-    const error = new Error('Supabase is not properly configured');
+  try {
+    return await supabase.auth.signUp({
+      email,
+      password,
+    });
+  } catch (error: any) {
+    console.error('Error signing up:', error);
+    toast({
+      title: 'Error signing up',
+      description: error.message || 'Please try again later.',
+      variant: 'destructive',
+    });
     return { data: null, error };
   }
-  
-  return await supabase.auth.signUp({
-    email,
-    password,
-  });
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
-  if (!isSupabaseConfigured) {
-    const error = new Error('Supabase is not properly configured');
+  try {
+    return await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+  } catch (error: any) {
+    console.error('Error signing in:', error);
+    toast({
+      title: 'Error signing in',
+      description: error.message || 'Please try again later.',
+      variant: 'destructive',
+    });
     return { data: null, error };
   }
-  
-  return await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
 };
 
 export const signOut = async () => {
-  if (!isSupabaseConfigured) {
-    const error = new Error('Supabase is not properly configured');
+  try {
+    return await supabase.auth.signOut();
+  } catch (error: any) {
+    console.error('Error signing out:', error);
+    toast({
+      title: 'Error signing out',
+      description: error.message || 'Please try again later.',
+      variant: 'destructive',
+    });
     return { error };
   }
-  
-  return await supabase.auth.signOut();
 };
 
 export const getCurrentUser = async () => {
-  if (!isSupabaseConfigured) {
-    const error = new Error('Supabase is not properly configured');
+  try {
+    return await supabase.auth.getUser();
+  } catch (error: any) {
+    console.error('Error getting current user:', error);
     return { data: { user: null }, error };
   }
-  
-  return await supabase.auth.getUser();
 };
 
 export const getSession = async () => {
-  if (!isSupabaseConfigured) {
-    const error = new Error('Supabase is not properly configured');
+  try {
+    return await supabase.auth.getSession();
+  } catch (error: any) {
+    console.error('Error getting session:', error);
     return { data: { session: null }, error };
   }
-  
-  return await supabase.auth.getSession();
 };
