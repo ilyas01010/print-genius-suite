@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
-import Sidebar from "./Sidebar";
 import MobileSidebar from "./MobileSidebar";
+import NewSidebar, { SidebarWrapper } from "./NewSidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,18 +31,25 @@ const Layout = ({ children }: LayoutProps) => {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header onToggleSidebar={() => setSidebarOpen(true)} className={scrolled ? 'shadow-sm' : ''} />
-      <div className="flex flex-1">
-        <Sidebar />
-        <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className={`flex-1 overflow-auto p-4 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="mx-auto max-w-6xl animate-fade-in">
-            {children}
-          </div>
-        </main>
+    <SidebarWrapper>
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="hidden md:block">
+          <NewSidebar />
+        </div>
+        <div className="flex flex-1 flex-col">
+          <Header 
+            onToggleSidebar={() => setSidebarOpen(true)} 
+            className={scrolled ? 'shadow-sm' : ''} 
+          />
+          <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <main className={`flex-1 overflow-auto md:pl-0 p-4 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="mx-auto max-w-6xl animate-fade-in">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarWrapper>
   );
 };
 
