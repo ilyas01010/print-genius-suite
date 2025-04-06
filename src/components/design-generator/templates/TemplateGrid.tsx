@@ -31,7 +31,9 @@ const TemplateGrid = ({
     ? templates.filter(template => template.category === selectedCategory)
     : templates;
 
-  const handleDownload = (template: DesignTemplate, format: string) => {
+  const handleDownload = (template: DesignTemplate, format: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent bubbling up to parent elements
+    
     // In a real implementation, this would generate the appropriate file format
     toast({
       title: `Downloading template as ${format}`,
@@ -47,7 +49,9 @@ const TemplateGrid = ({
     }, 1000);
   };
 
-  const handleShareTemplate = (template: DesignTemplate) => {
+  const handleShareTemplate = (template: DesignTemplate, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent bubbling up to parent elements
+    
     // Copy share URL to clipboard
     navigator.clipboard.writeText(`https://printgenius.app/shared-template/${template.id}`);
     
@@ -76,13 +80,13 @@ const TemplateGrid = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleDownload(template, "PNG")}>
+                  <DropdownMenuItem onClick={(e) => handleDownload(template, "PNG", e)}>
                     PNG Image
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDownload(template, "JPG")}>
+                  <DropdownMenuItem onClick={(e) => handleDownload(template, "JPG", e)}>
                     JPG Image
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDownload(template, "SVG")}>
+                  <DropdownMenuItem onClick={(e) => handleDownload(template, "SVG", e)}>
                     SVG Vector
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -92,10 +96,7 @@ const TemplateGrid = ({
                 variant="secondary" 
                 size="icon" 
                 className="h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShareTemplate(template);
-                }}
+                onClick={(e) => handleShareTemplate(template, e)}
               >
                 <Share className="h-4 w-4" />
               </Button>

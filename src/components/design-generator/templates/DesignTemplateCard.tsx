@@ -22,6 +22,12 @@ const DesignTemplateCard = ({
   onSelect,
   categoryIcons 
 }: DesignTemplateCardProps) => {
+  // Handle click separately to prevent event propagation issues
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect(template.id);
+  };
+  
   return (
     <div 
       key={template.id}
@@ -53,10 +59,7 @@ const DesignTemplateCard = ({
             variant="outline" 
             size="sm" 
             className="w-full text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(template.id);
-            }}
+            onClick={handleButtonClick}
           >
             Use Template
           </Button>
