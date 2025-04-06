@@ -34,3 +34,19 @@ export interface IntegrationConfig {
   isPopular?: boolean;
   status: ConnectionStatus;
 }
+
+export interface PlatformMetric {
+  name: string;
+  value: number | string;
+  change?: {
+    value: number;
+    trend: "up" | "down" | "neutral";
+  };
+}
+
+export interface PlatformSummary {
+  totalRevenue: number;
+  totalProducts: number;
+  connectedCount: number;
+  topPlatform?: Platform;
+}
