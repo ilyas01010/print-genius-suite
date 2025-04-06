@@ -1,13 +1,12 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, RefreshCw, Download, ImageIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { useUser } from "@/context/UserContext";
 import { useDesigns } from "@/hooks/use-designs";
+import PromptInput from "./text-to-image/PromptInput";
+import GeneratedImagePreview from "./text-to-image/GeneratedImagePreview";
 
 const TextToImage = () => {
   const [prompt, setPrompt] = useState("");
@@ -123,79 +122,21 @@ const TextToImage = () => {
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
-        <div className="space-y-4">
-          <div>
-            <Textarea
-              placeholder="Describe the design you want to create... (e.g., 'A minimalist t-shirt design with mountains silhouette and sunset')"
-              className="resize-none h-24"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              disabled={isGenerating || loadingImage}
-            />
-          </div>
+        <PromptInput 
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handleGenerate={handleGenerate}
+          isGenerating={isGenerating}
+          loadingImage={loadingImage}
+        />
 
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleGenerate} 
-              disabled={isGenerating || loadingImage || !prompt.trim()}
-              className="gap-2"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4" />
-                  Generate Design
-                </>
-              )}
-            </Button>
-          </div>
-
-          {(loadingImage || generatedImage) && (
-            <div className="mt-6 space-y-4">
-              <div className="border rounded-md overflow-hidden bg-muted/30 relative">
-                {loadingImage && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      <p className="text-sm text-muted-foreground">Loading your design...</p>
-                    </div>
-                  </div>
-                )}
-                
-                {generatedImage ? (
-                  <img
-                    src={generatedImage}
-                    alt="Generated design"
-                    className="w-full h-auto object-contain"
-                  />
-                ) : (
-                  <div className="aspect-square flex items-center justify-center text-muted-foreground">
-                    <ImageIcon className="h-16 w-16 opacity-20" />
-                  </div>
-                )}
-              </div>
-              
-              {generatedImage && (
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={handleDownload}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-                  {isAuthenticated && (
-                    <Button onClick={handleSaveDesign}>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save to My Designs
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <GeneratedImagePreview 
+          generatedImage={generatedImage}
+          loadingImage={loadingImage}
+          handleDownload={handleDownload}
+          handleSaveDesign={handleSaveDesign}
+          isAuthenticated={isAuthenticated}
+        />
       </CardContent>
     </Card>
   );
