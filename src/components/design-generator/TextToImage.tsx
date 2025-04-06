@@ -7,8 +7,9 @@ import { useUser } from "@/context/UserContext";
 import { useDesigns } from "@/hooks/use-designs";
 import PromptInput from "./text-to-image/PromptInput";
 import GeneratedImagePreview from "./text-to-image/GeneratedImagePreview";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon, AlertTriangleIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const TextToImage = () => {
   const [prompt, setPrompt] = useState("");
@@ -20,6 +21,7 @@ const TextToImage = () => {
   const { uploadDesign } = useDesigns();
   const [loadingImage, setLoadingImage] = useState(false);
   const [apiNote, setApiNote] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -35,12 +37,28 @@ const TextToImage = () => {
       setIsGenerating(true);
       setGeneratedImage(null);
       setApiNote(null);
+      setApiError(null);
 
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { prompt: prompt.trim() },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase function error:", error);
+        throw new Error(error.message || "Failed to connect to image generation service");
+      }
+
+      if (data?.error) {
+        console.error("API error:", data.error);
+        
+        // Check for API key-specific issues
+        if (data.code === "invalid_api_key") {
+          setApiError("The OpenAI API key is invalid or missing. Please configure a valid API key in Supabase.");
+          throw new Error("Invalid OpenAI API key");
+        }
+        
+        throw new Error(data.error);
+      }
 
       if (data?.imageUrl) {
         setLoadingImage(true);
@@ -129,9 +147,31 @@ const TextToImage = () => {
     });
   };
 
+  const openSupabaseSettings = () => {
+    window.open(`https://supabase.com/dashboard/project/kdpsyldycxyxmmxkjnai/settings/functions`, "_blank");
+  };
+
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
+        {apiError && (
+          <Alert className="mb-4 bg-red-50">
+            <AlertTriangleIcon className="h-4 w-4 text-red-500" />
+            <AlertTitle className="text-red-500">API Key Error</AlertTitle>
+            <AlertDescription className="flex flex-col gap-3">
+              <div>{apiError}</div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-fit"
+                onClick={openSupabaseSettings}
+              >
+                Configure OpenAI API Key
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         {apiNote && (
           <Alert className="mb-4 bg-yellow-50">
             <InfoIcon className="h-4 w-4" />

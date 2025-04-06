@@ -28,7 +28,7 @@ serve(async (req) => {
     
     console.log(`Generating image for prompt: ${prompt}`);
     
-    // If OpenAI API key is not available, use placeholder image service
+    // Check if OpenAI API key is available and valid
     if (!OPENAI_API_KEY) {
       console.log("No OPENAI_API_KEY found, using placeholder image service");
       
@@ -42,6 +42,67 @@ serve(async (req) => {
           imageUrl: placeholderUrl,
           prompt,
           note: "Using placeholder image as OPENAI_API_KEY is not configured"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Test the API key validity with a simple request
+    try {
+      const testResponse = await fetch('https://api.openai.com/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+      });
+      
+      if (!testResponse.ok) {
+        const error = await testResponse.json();
+        console.error("OpenAI API key validation error:", error);
+        
+        // Specific error for invalid API key
+        if (error.error?.type === "invalid_request_error" || error.error?.code === "invalid_api_key") {
+          return new Response(
+            JSON.stringify({ 
+              success: false,
+              error: "Invalid OpenAI API key. Please check your API key and try again.",
+              code: "invalid_api_key"
+            }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Check for billing issues
+        if (error.error?.code === "billing_hard_limit_reached") {
+          // Fallback to placeholder
+          const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+          const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true,
+              imageUrl: placeholderUrl,
+              prompt,
+              note: "OpenAI billing limit reached. Using placeholder image instead."
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        throw new Error(`API key validation failed: ${error.error?.message || 'Unknown error'}`);
+      }
+    } catch (validationError) {
+      console.error("Error validating API key:", validationError);
+      
+      // Fallback to placeholder
+      const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+      const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          imageUrl: placeholderUrl,
+          prompt,
+          note: "Error validating OpenAI API key. Using placeholder image."
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -67,7 +128,23 @@ serve(async (req) => {
         const error = await openaiResponse.json();
         console.error("OpenAI API error:", error);
         
-        // Fallback to placeholder if OpenAI call fails
+        // Check specifically for billing issues
+        if (error.error?.code === "billing_hard_limit_reached") {
+          const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+          const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true,
+              imageUrl: placeholderUrl,
+              prompt,
+              note: "OpenAI billing limit reached. Using placeholder image instead."
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Generic fallback
         const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
         const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
         
@@ -76,7 +153,7 @@ serve(async (req) => {
             success: true,
             imageUrl: placeholderUrl,
             prompt,
-            note: "Using placeholder image due to OpenAI API error"
+            note: `Using placeholder image due to OpenAI API error: ${error.error?.message || 'Unknown error'}`
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
