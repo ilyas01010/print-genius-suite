@@ -2,7 +2,7 @@
 import React from "react";
 import DesignTemplateCard, { DesignTemplate } from "./DesignTemplateCard";
 import { Button } from "@/components/ui/button";
-import { Download, Share, Link, Users } from "lucide-react";
+import { Download, Share } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,13 +77,13 @@ const TemplateGrid = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleDownload(template, "PNG")}>
-                    <span>PNG Image</span>
+                    PNG Image
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleDownload(template, "JPG")}>
-                    <span>JPG Image</span>
+                    JPG Image
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleDownload(template, "SVG")}>
-                    <span>SVG Vector</span>
+                    SVG Vector
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -92,7 +92,10 @@ const TemplateGrid = ({
                 variant="secondary" 
                 size="icon" 
                 className="h-8 w-8"
-                onClick={() => handleShareTemplate(template)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareTemplate(template);
+                }}
               >
                 <Share className="h-4 w-4" />
               </Button>
@@ -100,8 +103,13 @@ const TemplateGrid = ({
             
             <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <div className="bg-secondary/80 backdrop-blur-sm text-secondary-foreground rounded-full px-2 py-1 text-xs flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                <span>{Math.floor(Math.random() * 5) + 1} editing</span>
+                <span className="inline-flex items-center">
+                  <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                    <path d="M3 21C3 17.134 7.13401 14 12 14C16.866 14 21 17.134 21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
+                  {Math.floor(Math.random() * 5) + 1} editing
+                </span>
               </div>
             </div>
           </div>

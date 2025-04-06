@@ -53,6 +53,10 @@ const DesignTemplateCard = ({
             variant="outline" 
             size="sm" 
             className="w-full text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(template.id);
+            }}
           >
             Use Template
           </Button>
