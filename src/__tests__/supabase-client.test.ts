@@ -6,23 +6,20 @@ import { toast } from "@/hooks/use-toast";
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
     auth: {
-      signUp: jest.fn(),
-      signInWithPassword: jest.fn(),
-      signOut: jest.fn(),
-      getUser: jest.fn(),
-      getSession: jest.fn(),
-      admin: {
-        deleteUser: jest.fn(),
-      },
+      signUp: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
+      signInWithPassword: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
+      signOut: jest.fn().mockImplementation(() => Promise.resolve({ error: null })),
+      getUser: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
+      getSession: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
     },
     from: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
     functions: {
-      invoke: jest.fn(),
+      invoke: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
     },
     storage: {
-      listBuckets: jest.fn(),
-      createBucket: jest.fn(),
+      listBuckets: jest.fn().mockImplementation(() => Promise.resolve({ data: [], error: null })),
+      createBucket: jest.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null })),
     },
   })),
 }));
@@ -39,7 +36,7 @@ describe("Supabase Client", () => {
   describe("signUpWithEmail", () => {
     it("successfully signs up a user", async () => {
       const mockResponse = { data: { user: { id: "123" } }, error: null };
-      supabase.auth.signUp.mockResolvedValue(mockResponse);
+      supabase.auth.signUp = jest.fn().mockResolvedValue(mockResponse);
 
       const result = await signUpWithEmail("test@example.com", "password");
       
@@ -52,7 +49,7 @@ describe("Supabase Client", () => {
 
     it("handles signup errors", async () => {
       const mockError = new Error("Email already in use");
-      supabase.auth.signUp.mockRejectedValue(mockError);
+      supabase.auth.signUp = jest.fn().mockRejectedValue(mockError);
 
       const result = await signUpWithEmail("test@example.com", "password");
       
@@ -68,7 +65,7 @@ describe("Supabase Client", () => {
   describe("signInWithEmail", () => {
     it("successfully signs in a user", async () => {
       const mockResponse = { data: { user: { id: "123" } }, error: null };
-      supabase.auth.signInWithPassword.mockResolvedValue(mockResponse);
+      supabase.auth.signInWithPassword = jest.fn().mockResolvedValue(mockResponse);
 
       const result = await signInWithEmail("test@example.com", "password");
       
@@ -81,7 +78,7 @@ describe("Supabase Client", () => {
 
     it("handles signin errors", async () => {
       const mockError = new Error("Invalid credentials");
-      supabase.auth.signInWithPassword.mockRejectedValue(mockError);
+      supabase.auth.signInWithPassword = jest.fn().mockRejectedValue(mockError);
 
       const result = await signInWithEmail("test@example.com", "password");
       
@@ -97,7 +94,7 @@ describe("Supabase Client", () => {
   describe("signOut", () => {
     it("successfully signs out a user", async () => {
       const mockResponse = { error: null };
-      supabase.auth.signOut.mockResolvedValue(mockResponse);
+      supabase.auth.signOut = jest.fn().mockResolvedValue(mockResponse);
 
       const result = await signOut();
       
@@ -107,7 +104,7 @@ describe("Supabase Client", () => {
 
     it("handles signout errors", async () => {
       const mockError = new Error("Error signing out");
-      supabase.auth.signOut.mockRejectedValue(mockError);
+      supabase.auth.signOut = jest.fn().mockRejectedValue(mockError);
 
       const result = await signOut();
       
@@ -123,7 +120,7 @@ describe("Supabase Client", () => {
   describe("getCurrentUser", () => {
     it("successfully gets current user", async () => {
       const mockResponse = { data: { user: { id: "123" } }, error: null };
-      supabase.auth.getUser.mockResolvedValue(mockResponse);
+      supabase.auth.getUser = jest.fn().mockResolvedValue(mockResponse);
 
       const result = await getCurrentUser();
       
@@ -133,7 +130,7 @@ describe("Supabase Client", () => {
 
     it("handles errors", async () => {
       const mockError = new Error("Error getting user");
-      supabase.auth.getUser.mockRejectedValue(mockError);
+      supabase.auth.getUser = jest.fn().mockRejectedValue(mockError);
 
       const result = await getCurrentUser();
       
@@ -144,7 +141,7 @@ describe("Supabase Client", () => {
   describe("getSession", () => {
     it("successfully gets session", async () => {
       const mockResponse = { data: { session: { user: { id: "123" } } }, error: null };
-      supabase.auth.getSession.mockResolvedValue(mockResponse);
+      supabase.auth.getSession = jest.fn().mockResolvedValue(mockResponse);
 
       const result = await getSession();
       
@@ -154,7 +151,7 @@ describe("Supabase Client", () => {
 
     it("handles errors", async () => {
       const mockError = new Error("Error getting session");
-      supabase.auth.getSession.mockRejectedValue(mockError);
+      supabase.auth.getSession = jest.fn().mockRejectedValue(mockError);
 
       const result = await getSession();
       

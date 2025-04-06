@@ -6,8 +6,8 @@ import { supabase, getSession } from "@/lib/supabase-client";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock dependencies
-jest.mock("@/lib/supabase-client", () => ({
-  supabase: {
+jest.mock("@/lib/supabase-client", () => {
+  const mockSupabase = {
     auth: {
       onAuthStateChange: jest.fn(() => ({
         data: {
@@ -16,19 +16,15 @@ jest.mock("@/lib/supabase-client", () => ({
           },
         },
       })),
-      signOut: jest.fn(),
-      admin: {
-        deleteUser: jest.fn(),
-      },
+      signOut: jest.fn().mockResolvedValue({ error: null }),
     },
-    from: jest.fn(() => ({
-      delete: jest.fn(() => ({
-        eq: jest.fn(() => ({ error: null })),
-      })),
-    })),
-  },
-  getSession: jest.fn(),
-}));
+  };
+  
+  return {
+    supabase: mockSupabase,
+    getSession: jest.fn(),
+  };
+});
 
 jest.mock("@/hooks/use-toast", () => ({
   useToast: jest.fn(() => ({
@@ -104,6 +100,8 @@ describe("UserContext", () => {
     });
     
     (supabase.auth.signOut as jest.Mock).mockResolvedValue({ error: null });
+    const mockToast = jest.fn();
+    (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
 
     render(
       <UserProvider>
@@ -126,8 +124,7 @@ describe("UserContext", () => {
     expect(supabase.auth.signOut).toHaveBeenCalled();
     
     // Toast should have been called for logout
-    const { toast } = useToast() as { toast: jest.Mock };
-    expect(toast).toHaveBeenCalledWith({
+    expect(mockToast).toHaveBeenCalledWith({
       title: "Signed out",
       description: "You have been signed out successfully.",
     });
@@ -152,6 +149,9 @@ describe("UserContext", () => {
       };
     });
 
+    const mockToast = jest.fn();
+    (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
+
     render(
       <UserProvider>
         <TestComponent />
@@ -174,8 +174,7 @@ describe("UserContext", () => {
     });
     
     // Toast should have been called for sign in
-    const { toast } = useToast() as { toast: jest.Mock };
-    expect(toast).toHaveBeenCalledWith({
+    expect(mockToast).toHaveBeenCalledWith({
       title: "Signed in successfully",
       description: "Welcome, signed-in@example.com!",
     });
@@ -192,7 +191,7 @@ describe("UserContext", () => {
     });
     
     // Toast should have been called for sign out
-    expect(toast).toHaveBeenCalledWith({
+    expect(mockToast).toHaveBeenCalledWith({
       title: "Signed out",
       description: "You have been signed out.",
     });

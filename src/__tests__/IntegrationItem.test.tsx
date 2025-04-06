@@ -6,9 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 
 // Mock the useToast hook
 jest.mock("@/hooks/use-toast", () => ({
-  useToast: jest.fn().mockReturnValue({
+  useToast: jest.fn(() => ({
     toast: jest.fn(),
-  }),
+  })),
 }));
 
 describe("IntegrationItem Component", () => {
