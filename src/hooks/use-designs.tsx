@@ -4,6 +4,7 @@ import { useUser } from "@/context/UserContext";
 import { supabase } from "@/lib/supabase-client";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
+import type { Database } from "@/integrations/supabase/types";
 
 export type Design = {
   id: string;
@@ -13,6 +14,7 @@ export type Design = {
   storage_path: string;
   created_at: string;
   updated_at: string;
+  publicUrl?: string;
 };
 
 export const useDesigns = () => {
@@ -68,8 +70,7 @@ export const useDesigns = () => {
       const { data, error } = await supabase
         .from('designs')
         .insert(designData)
-        .select()
-        .single();
+        .select();
         
       if (error) {
         throw error;
@@ -80,10 +81,13 @@ export const useDesigns = () => {
         description: "Your design has been saved successfully",
       });
       
-      return {
-        ...data,
-        publicUrl: publicUrlData.publicUrl,
-      };
+      if (data && data.length > 0) {
+        return {
+          ...data[0],
+          publicUrl: publicUrlData.publicUrl,
+        };
+      }
+      return null;
     } catch (error: any) {
       console.error("Error uploading design:", error);
       toast({
