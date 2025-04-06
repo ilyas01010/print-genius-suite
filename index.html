@@ -3,104 +3,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Print Genius Suite - On-demand Print Design Tools</title>
-    <meta name="description" content="Professional print design tools for creating, optimizing, and managing print-on-demand products. Generate designs, check copyright, research niches, and more." />
-    <meta name="author" content="Print Genius Suite" />
-    <link rel="canonical" href="https://print-genius-suite.com/" />
-
-    <!-- Open Graph meta tags for social sharing -->
-    <meta property="og:title" content="Print Genius Suite - On-demand Print Design Tools" />
-    <meta property="og:description" content="Professional print design tools for creating, optimizing, and managing print-on-demand products." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://print-genius-suite.com/og-image.png" />
-    <meta property="og:url" content="https://print-genius-suite.com/" />
-    <meta property="og:site_name" content="Print Genius Suite" />
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@printgeniussuite" />
-    <meta name="twitter:title" content="Print Genius Suite - On-demand Print Design Tools" />
-    <meta name="twitter:description" content="Professional print design tools for creating, optimizing, and managing print-on-demand products." />
-    <meta name="twitter:image" content="https://print-genius-suite.com/og-image.png" />
-    
-    <!-- DNS prefetching -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="https://kdpsyldycxyxmmxkjnai.supabase.co" />
-    
-    <!-- Preconnect to critical origins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://kdpsyldycxyxmmxkjnai.supabase.co" crossorigin />
-    
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/src/main.tsx" as="script" />
-    <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
-    
-    <!-- Meta theme color for browser UI -->
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1a1b1e" media="(prefers-color-scheme: dark)" />
-    
-    <!-- Prevent render blocking -->
-    <link rel="stylesheet" href="/src/index.css" media="print" onload="this.media='all'" />
-
-    <!-- Inline critical CSS -->
-    <style>
-      /* Critical CSS for initial paint */
-      :root {
-        --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      }
-      body { font-family: var(--font-sans); margin: 0; }
-      .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #fff; z-index: 9999; }
-      .dark .loader { background-color: #1a1b1e; }
-      @media (prefers-color-scheme: dark) { .loader { background-color: #1a1b1e; } }
-    </style>
-
-    <!-- Prevent flash of unstyled content -->
-    <script>
-      (function() {
-        const storedTheme = localStorage.getItem('theme') || 'system';
-        const darkModeEnabled = storedTheme === 'dark' || 
-          (storedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        
-        if (darkModeEnabled) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      })();
-    </script>
+    <title>Print Genius Suite</title>
+    <meta name="description" content="AI-powered print-on-demand design solution for creators" />
   </head>
-
   <body>
-    <div id="root">
-      <!-- Initial loading state -->
-      <div class="loader">
-        <svg width="50" height="50" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" stroke="#E2E8F0" stroke-width="8" fill="none" />
-          <circle cx="50" cy="50" r="40" stroke="#3B82F6" stroke-width="8" fill="none" stroke-dasharray="251.2" stroke-dashoffset="125.6" transform="rotate(-90 50 50)">
-            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite" />
-          </circle>
-        </svg>
-      </div>
-    </div>
-    
+    <div id="root"></div>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Preload key routes for faster navigation -->
-    <script type="module">
-      // Use dynamic import with prefetch
-      if ('connection' in navigator && (navigator.connection.saveData === false)) {
-        // Only prefetch if user is not on data-save mode
-        const prefetchRoutes = ['/design-generator', '/dashboard', '/settings'];
-        prefetchRoutes.forEach(route => {
-          const link = document.createElement('link');
-          link.rel = 'prefetch';
-          link.href = route;
-          document.head.appendChild(link);
-        });
-      }
-    </script>
   </body>
 </html>
