@@ -7,20 +7,35 @@ import type { Database } from '@/integrations/supabase/types';
 const SUPABASE_URL = "https://kdpsyldycxyxmmxkjnai.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcHN5bGR5Y3h5eG1teGtqbmFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5MDE0NzMsImV4cCI6MjA1OTQ3NzQ3M30._PFaKbXh3tIpD2ot7owbElGmi1xj1XOYM6oYvOZsbdw";
 
+// Create a single Supabase client instance
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
+
 // Create the Supabase client with proper type definition
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-  },
-});
+export const supabase = (() => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+      }
+    });
+  }
+  return supabaseInstance;
+})();
 
 export const getSupabaseReadyStatus = (): boolean => {
   return true; // We are using the integration values, so Supabase is always ready
 };
 
 export const initializeSupabase = async (): Promise<void> => {
-  console.info('Supabase is properly configured and ready to use.');
+  try {
+    // Verify connection
+    const { error } = await supabase.from('designs').select('count', { count: 'exact', head: true });
+    if (error) throw error;
+    console.info('Supabase is properly configured and ready to use.');
+  } catch (error) {
+    console.error('Error initializing Supabase:', error);
+  }
 };
 
 // Authentication helper functions with error handling

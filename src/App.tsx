@@ -56,12 +56,12 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <UserProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+          <UserProvider>
+            <Toaster />
+            <Sonner />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
@@ -70,10 +70,10 @@ const App = () => {
               <Route path="/copyright-checker" element={<CopyrightChecker />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </UserProvider>
         </TooltipProvider>
-      </UserProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 };
 

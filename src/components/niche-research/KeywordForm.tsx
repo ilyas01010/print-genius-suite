@@ -30,13 +30,16 @@ const KeywordForm = () => {
 
     setIsLoading(true);
     
-    // Simulate API request
+    // Simulate API request - in a real app, this would call an actual API
     setTimeout(() => {
       setIsLoading(false);
       toast({
         title: "Search Complete",
         description: `Niche research results for "${keyword}" are ready.`,
       });
+      
+      // Here you would typically update some state or trigger a data fetch
+      console.log(`Searching for: ${keyword}`);
     }, 1500);
   };
 

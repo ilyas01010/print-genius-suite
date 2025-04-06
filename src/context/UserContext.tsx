@@ -1,8 +1,8 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { supabase, signOut as supabaseSignOut } from '@/lib/supabase-client';
+import { supabase, getSession } from '@/lib/supabase-client';
 import { User } from '@supabase/supabase-js';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 type UserContextType = {
   user: User | null;
@@ -12,16 +12,23 @@ type UserContextType = {
   logout: () => Promise<void>;
 };
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType>({
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  setUser: () => {},
+  logout: async () => {},
+});
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        const { data } = await getSession();
         
         if (data.session?.user) {
           setUser(data.session.user);
@@ -48,23 +55,27 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
 
+        setIsLoading(false);
         return () => {
           authListener.subscription.unsubscribe();
         };
       } catch (error) {
         console.error('Auth error:', error);
-      } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [toast]);
 
   const logout = async () => {
     try {
-      await supabaseSignOut();
+      await supabase.auth.signOut();
       setUser(null);
+      toast({
+        title: 'Signed out',
+        description: 'You have been signed out successfully.',
+      });
     } catch (error) {
       console.error('Error signing out:', error);
       toast({
@@ -75,24 +86,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const contextValue = {
+    user,
+    setUser,
+    isLoading,
+    isAuthenticated: !!user,
+    logout,
+  };
+
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        isLoading,
-        isAuthenticated: !!user,
-        logout,
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUser = (): UserContextType => {
+export const useUser = () => {
   const context = useContext(UserContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;
