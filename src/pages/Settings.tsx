@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
-import { useLanguage, languages } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext";
 import AccountSettings from "@/components/settings/AccountSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import ReferralSettings from "@/components/settings/ReferralSettings";
@@ -13,7 +12,7 @@ import IntegrationSettings from "@/components/settings/IntegrationSettings";
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useUser();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -25,9 +24,7 @@ const Settings = () => {
   const [publicProfile, setPublicProfile] = useState(false);
   const [timezone, setTimezone] = useState("utc");
 
-  // Initialize user settings
   useEffect(() => {
-    // Load settings from localStorage or set defaults
     const loadSettings = () => {
       const storedSettings = localStorage.getItem('userSettings');
       if (storedSettings) {
@@ -39,12 +36,10 @@ const Settings = () => {
         setPublicProfile(settings.publicProfile || false);
       }
 
-      // Load user profile data if available
       if (user) {
         setDisplayName(user.user_metadata?.display_name || "");
         setDisplayBio(user.user_metadata?.bio || "");
         
-        // Generate referral code based on user id if not already set
         const storedReferralCode = localStorage.getItem('referralCode');
         if (storedReferralCode) {
           setReferralCode(storedReferralCode);
@@ -59,14 +54,12 @@ const Settings = () => {
     loadSettings();
   }, [user]);
 
-  // Update affiliate link when referral code changes
   useEffect(() => {
     if (referralCode) {
       setAffiliateLink(`https://printgenius.com/ref/${referralCode}`);
     }
   }, [referralCode]);
 
-  // Apply dark mode when it changes
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -74,18 +67,15 @@ const Settings = () => {
       document.documentElement.classList.remove('dark');
     }
     
-    // Store setting
     updateLocalStorage();
   }, [darkMode]);
 
-  // Generate a unique referral code
   const generateReferralCode = () => {
     const prefix = "PRINT";
     const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
     return `${prefix}${randomPart}`;
   };
 
-  // Regenerate referral code
   const handleRegenerateReferralCode = () => {
     const newReferralCode = generateReferralCode();
     setReferralCode(newReferralCode);
@@ -97,7 +87,6 @@ const Settings = () => {
     });
   };
 
-  // Update localStorage with current settings
   const updateLocalStorage = () => {
     const settings = {
       darkMode,
@@ -110,15 +99,11 @@ const Settings = () => {
     localStorage.setItem('userSettings', JSON.stringify(settings));
   };
 
-  // Save settings
   const handleSaveSettings = () => {
-    // Save all settings
     updateLocalStorage();
     
-    // Apply language change
     document.documentElement.setAttribute('lang', language);
     
-    // Apply notification settings
     if (Notification && Notification.permission !== "denied") {
       if (pushNotifications) {
         Notification.requestPermission();
@@ -136,12 +121,10 @@ const Settings = () => {
     }, 3000);
   };
 
-  // Handle language change
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
   };
 
-  // Copy referral code to clipboard
   const handleCopyReferral = () => {
     navigator.clipboard.writeText(referralCode);
     toast({
@@ -150,7 +133,6 @@ const Settings = () => {
     });
   };
 
-  // Copy affiliate link to clipboard
   const handleCopyAffiliate = () => {
     navigator.clipboard.writeText(affiliateLink);
     toast({
@@ -191,7 +173,7 @@ const Settings = () => {
               setTimezone={setTimezone}
               savedSettings={savedSettings}
               handleSaveSettings={handleSaveSettings}
-              languages={languages}
+              languages={availableLanguages}
             />
             
             <ReferralSettings 
