@@ -40,6 +40,18 @@ import {
   SelectValue
 } from "@/components/ui/select";
 
+// Create a language context to manage language settings
+const languages = {
+  en: "English",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  it: "Italian",
+  pt: "Portuguese",
+  zh: "Chinese",
+  ja: "Japanese"
+};
+
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useUser();
@@ -48,18 +60,114 @@ const Settings = () => {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [language, setLanguage] = useState("en");
   const [savedSettings, setSavedSettings] = useState(false);
-  const [referralCode, setReferralCode] = useState("PRINT" + Math.random().toString(36).substring(2, 7).toUpperCase());
+  const [referralCode, setReferralCode] = useState("");
   const [affiliateLink, setAffiliateLink] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setDisplayBio] = useState("");
+  const [publicProfile, setPublicProfile] = useState(false);
+  const [timezone, setTimezone] = useState("utc");
 
-  // Set default affiliate link
+  // Initialize user settings
   useEffect(() => {
-    if (user) {
+    // Load settings from localStorage or set defaults
+    const loadSettings = () => {
+      const storedSettings = localStorage.getItem('userSettings');
+      if (storedSettings) {
+        const settings = JSON.parse(storedSettings);
+        setDarkMode(settings.darkMode || false);
+        setEmailNotifications(settings.emailNotifications || true);
+        setPushNotifications(settings.pushNotifications || true);
+        setLanguage(settings.language || "en");
+        setTimezone(settings.timezone || "utc");
+        setPublicProfile(settings.publicProfile || false);
+      }
+
+      // Load user profile data if available
+      if (user) {
+        setDisplayName(user.user_metadata?.display_name || "");
+        setDisplayBio(user.user_metadata?.bio || "");
+        
+        // Generate referral code based on user id if not already set
+        const storedReferralCode = localStorage.getItem('referralCode');
+        if (storedReferralCode) {
+          setReferralCode(storedReferralCode);
+        } else {
+          const newReferralCode = generateReferralCode();
+          setReferralCode(newReferralCode);
+          localStorage.setItem('referralCode', newReferralCode);
+        }
+      }
+    };
+
+    loadSettings();
+  }, [user]);
+
+  // Update affiliate link when referral code changes
+  useEffect(() => {
+    if (referralCode) {
       setAffiliateLink(`https://printgenius.com/ref/${referralCode}`);
     }
-  }, [user, referralCode]);
+  }, [referralCode]);
+
+  // Apply dark mode when it changes
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Store setting
+    updateLocalStorage();
+  }, [darkMode]);
+
+  // Generate a unique referral code
+  const generateReferralCode = () => {
+    const prefix = "PRINT";
+    const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
+    return `${prefix}${randomPart}`;
+  };
+
+  // Regenerate referral code
+  const handleRegenerateReferralCode = () => {
+    const newReferralCode = generateReferralCode();
+    setReferralCode(newReferralCode);
+    localStorage.setItem('referralCode', newReferralCode);
+    
+    toast({
+      title: "Referral Code Updated",
+      description: "Your referral code has been regenerated successfully.",
+    });
+  };
+
+  // Update localStorage with current settings
+  const updateLocalStorage = () => {
+    const settings = {
+      darkMode,
+      emailNotifications,
+      pushNotifications,
+      language,
+      timezone,
+      publicProfile
+    };
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+  };
 
   // Save settings
   const handleSaveSettings = () => {
+    // Save all settings
+    updateLocalStorage();
+    
+    // Apply language change
+    document.documentElement.setAttribute('lang', language);
+    
+    // Apply notification settings
+    if (Notification && Notification.permission !== "denied") {
+      if (pushNotifications) {
+        Notification.requestPermission();
+      }
+    }
+    
     toast({
       title: "Settings Saved",
       description: "Your preferences have been updated successfully.",
@@ -69,6 +177,16 @@ const Settings = () => {
     setTimeout(() => {
       setSavedSettings(false);
     }, 3000);
+  };
+
+  // Handle language change
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage);
+    // In a real app, this would update the app's translations
+    toast({
+      title: `Language Changed to ${languages[newLanguage as keyof typeof languages]}`,
+      description: "Please note that full language support is still under development.",
+    });
   };
 
   // Copy referral code to clipboard
@@ -132,7 +250,9 @@ const Settings = () => {
                     <Label htmlFor="displayName">Display Name</Label>
                     <Input 
                       id="displayName" 
-                      placeholder="Your display name" 
+                      placeholder="Your display name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
                     />
                     <p className="text-sm text-muted-foreground">The name displayed to others</p>
                   </div>
@@ -142,13 +262,19 @@ const Settings = () => {
                   <Label htmlFor="bio">Bio</Label>
                   <Input 
                     id="bio" 
-                    placeholder="A short bio about yourself" 
+                    placeholder="A short bio about yourself"
+                    value={bio}
+                    onChange={(e) => setDisplayBio(e.target.value)}
                   />
                   <p className="text-sm text-muted-foreground">A brief description visible on your profile</p>
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <Switch id="account-status" />
+                  <Switch 
+                    id="account-status" 
+                    checked={publicProfile}
+                    onCheckedChange={setPublicProfile}
+                  />
                   <Label htmlFor="account-status">Make my profile public</Label>
                 </div>
               </CardContent>
@@ -174,7 +300,7 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
-                    <Select value={language} onValueChange={setLanguage}>
+                    <Select value={language} onValueChange={handleLanguageChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
@@ -193,7 +319,7 @@ const Settings = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Time Zone</Label>
-                    <Select defaultValue="utc">
+                    <Select value={timezone} onValueChange={setTimezone}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select time zone" />
                       </SelectTrigger>
@@ -236,8 +362,17 @@ const Settings = () => {
                       readOnly
                       className="rounded-r-none"
                     />
-                    <Button variant="outline" onClick={handleCopyReferral} className="rounded-l-none">
+                    <Button variant="outline" onClick={handleCopyReferral} className="rounded-l-none border-l-0">
                       <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex justify-end mt-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleRegenerateReferralCode}
+                    >
+                      Generate New Code
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">Share this code to earn rewards when new users sign up</p>
@@ -252,7 +387,7 @@ const Settings = () => {
                       readOnly
                       className="rounded-r-none"
                     />
-                    <Button variant="outline" onClick={handleCopyAffiliate} className="rounded-l-none">
+                    <Button variant="outline" onClick={handleCopyAffiliate} className="rounded-l-none border-l-0">
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
@@ -299,7 +434,10 @@ const Settings = () => {
                   </div>
                   <Switch 
                     checked={darkMode} 
-                    onCheckedChange={setDarkMode} 
+                    onCheckedChange={(checked) => {
+                      setDarkMode(checked);
+                      // Dark mode is applied in useEffect
+                    }} 
                   />
                 </div>
                 
@@ -313,7 +451,15 @@ const Settings = () => {
                   </div>
                   <Switch 
                     checked={pushNotifications} 
-                    onCheckedChange={setPushNotifications} 
+                    onCheckedChange={(checked) => {
+                      setPushNotifications(checked);
+                      if (checked && Notification && Notification.permission !== 'granted') {
+                        toast({
+                          title: "Permission Required",
+                          description: "Please allow notifications in your browser settings.",
+                        });
+                      }
+                    }}
                   />
                 </div>
                 
@@ -422,7 +568,17 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Upload designs directly to Etsy listings</p>
                       </div>
                     </div>
-                    <Button variant="outline">Connect</Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        toast({
+                          title: "Integration Coming Soon",
+                          description: "Etsy integration will be available soon.",
+                        });
+                      }}
+                    >
+                      Connect
+                    </Button>
                   </div>
                   
                   {/* Shopify Integration */}
@@ -438,7 +594,17 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Sync product listings with Shopify store</p>
                       </div>
                     </div>
-                    <Button variant="outline">Connect</Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        toast({
+                          title: "Integration Coming Soon",
+                          description: "Shopify integration will be available soon.",
+                        });
+                      }}
+                    >
+                      Connect
+                    </Button>
                   </div>
                   
                   {/* Printful Integration */}
@@ -454,7 +620,17 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Connect with Printful for print-on-demand</p>
                       </div>
                     </div>
-                    <Button variant="outline">Connect</Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        toast({
+                          title: "Integration Coming Soon",
+                          description: "Printful integration will be available soon.",
+                        });
+                      }}
+                    >
+                      Connect
+                    </Button>
                   </div>
                   
                   <Separator className="my-4" />
@@ -467,7 +643,19 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Use this key to access Print Genius API</p>
                       </div>
                     </div>
-                    <Button variant="secondary">Generate Key</Button>
+                    <Button 
+                      variant="secondary"
+                      onClick={() => {
+                        const apiKey = `pg_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+                        navigator.clipboard.writeText(apiKey);
+                        toast({
+                          title: "API Key Generated",
+                          description: "Your new API key has been copied to clipboard.",
+                        });
+                      }}
+                    >
+                      Generate Key
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -494,7 +682,17 @@ const Settings = () => {
                       <p className="text-sm text-muted-foreground">Not Connected</p>
                     </div>
                   </div>
-                  <Button variant="outline">Connect</Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Integration Coming Soon",
+                        description: "Facebook integration will be available soon.",
+                      });
+                    }}
+                  >
+                    Connect
+                  </Button>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -509,7 +707,17 @@ const Settings = () => {
                       <p className="text-sm text-muted-foreground">Not Connected</p>
                     </div>
                   </div>
-                  <Button variant="outline">Connect</Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Integration Coming Soon",
+                        description: "GitHub integration will be available soon.",
+                      });
+                    }}
+                  >
+                    Connect
+                  </Button>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -526,7 +734,17 @@ const Settings = () => {
                       <p className="text-sm text-muted-foreground">Not Connected</p>
                     </div>
                   </div>
-                  <Button variant="outline">Connect</Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Integration Coming Soon",
+                        description: "LinkedIn integration will be available soon.",
+                      });
+                    }}
+                  >
+                    Connect
+                  </Button>
                 </div>
               </CardContent>
             </Card>
