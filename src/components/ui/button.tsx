@@ -85,34 +85,39 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     ) : children;
 
-    // For asChild case, we must ensure there's exactly one React element child
+    // For asChild case, we need to handle the props properly
     if (asChild) {
       if (!React.isValidElement(children)) {
         console.error("Button with asChild prop must have a single valid React element child");
         return null;
       }
       
-      const childElement = React.Children.only(children as React.ReactElement);
-      
-      // Clone the child element to pass our props
-      return (
-        <Comp
-          className={cn(buttonVariants({ variant, size, loading, className }))}
-          ref={ref}
-          disabled={disabled}
-          {...props}
-        >
-          {React.cloneElement(childElement, {
-            // We don't pass all props here - just className and disabled
-            // since the child should define its own onClick etc.
-            className: cn(
-              childElement.props.className,
-              "w-full h-full"
-            ),
-            disabled
-          })}
-        </Comp>
-      );
+      try {
+        const childElement = React.Children.only(children as React.ReactElement);
+        
+        // Clone the child element to pass our props
+        return (
+          <Comp
+            className={cn(buttonVariants({ variant, size, loading, className }))}
+            ref={ref}
+            disabled={disabled}
+            {...props}
+          >
+            {React.cloneElement(childElement, {
+              // We don't pass all props here - just className and disabled
+              // since the child should define its own onClick etc.
+              className: cn(
+                childElement.props.className,
+                "w-full h-full"
+              ),
+              disabled
+            })}
+          </Comp>
+        );
+      } catch (error) {
+        console.error("Button with asChild prop must have exactly one child", error);
+        return null;
+      }
     }
 
     // Normal button case

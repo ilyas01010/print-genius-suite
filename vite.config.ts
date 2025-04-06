@@ -89,5 +89,9 @@ export default defineConfig(({ mode }) => ({
       'lucide-react'
     ],
     exclude: ['lovable-tagger'],
+  },
+  // Handle Vercel serverless function builds
+  ssr: {
+    noExternal: ['@supabase/supabase-js']
   }
 }));
