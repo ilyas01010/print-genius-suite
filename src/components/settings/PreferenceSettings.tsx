@@ -41,7 +41,10 @@ const PreferenceSettings = ({
 
   const handleDarkModeChange = (checked: boolean) => {
     try {
-      setDarkMode(checked);
+      // Prevent multiple rapid changes
+      setTimeout(() => {
+        setDarkMode(checked);
+      }, 0);
     } catch (error) {
       console.error("Error changing dark mode:", error);
       toast({

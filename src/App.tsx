@@ -125,16 +125,21 @@ function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    if (userSettings.darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    // Use requestAnimationFrame for smoother transitions when changing class
+    const applyDarkMode = () => {
+      if (userSettings.darkMode) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    };
+    
+    window.requestAnimationFrame(applyDarkMode);
   }, [userSettings.darkMode]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class">
+      <ThemeProvider attribute="class" defaultTheme={userSettings.darkMode ? "dark" : "light"}>
         <LanguageProvider>
           <UserProvider>
             <Router>

@@ -52,19 +52,50 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [referralCode]);
 
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const loadSettings = () => {
+      try {
+        if (typeof window !== 'undefined') {
+          const storedSettings = localStorage.getItem('userSettings');
+          if (storedSettings) {
+            const settings = JSON.parse(storedSettings);
+            // Only update if the values exist in storage
+            if (typeof settings.darkMode === 'boolean') {
+              setDarkMode(settings.darkMode);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
   // Apply dark mode when it changes
   useEffect(() => {
-    try {
-      if (typeof document !== 'undefined') {
-        if (darkMode) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+    const applyDarkMode = () => {
+      try {
+        if (typeof document !== 'undefined') {
+          if (darkMode) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          updateLocalStorage();
         }
-        updateLocalStorage();
+      } catch (error) {
+        console.error("Error applying dark mode:", error);
       }
-    } catch (error) {
-      console.error("Error applying dark mode:", error);
+    };
+    
+    // Use requestAnimationFrame for smoother transitions
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(applyDarkMode);
+    } else {
+      applyDarkMode();
     }
   }, [darkMode]);
 
