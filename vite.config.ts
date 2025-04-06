@@ -15,8 +15,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react({
       jsxImportSource: mode === 'development' ? undefined : undefined,
-      // Enable Fast Refresh only in development
-      devTarget: 'browserslist',
+      // Use a valid target value instead of 'browserslist'
+      devTarget: undefined, // Remove devTarget or use a valid value
       // Optimized production build
       plugins: mode === 'production' ? [] : undefined,
     }),

@@ -46,10 +46,18 @@ const ImagePreview = ({
           variant="secondary" 
           onClick={handleSaveDesign}
           disabled={isLoading || !isAuthenticated}
-          loading={isLoading}
         >
-          <Save className="mr-2 h-4 w-4" />
-          Save Design
+          {isLoading ? (
+            <>
+              <span className="mr-2 h-4 w-4 animate-spin">⏳</span>
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Save Design
+            </>
+          )}
         </Button>
       </div>
     </div>
