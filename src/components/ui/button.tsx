@@ -56,7 +56,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const disabled = props.disabled || loading
     
     // Create the content, including the loading spinner if needed
-    const content = (
+    const content = React.useMemo(() => (
       <>
         {loading && (
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -65,6 +65,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               xmlns="http://www.w3.org/2000/svg" 
               fill="none" 
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <circle 
                 className="opacity-25" 
@@ -84,22 +85,30 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {children}
       </>
-    )
+    ), [loading, children]);
 
-    // If asChild is true, we need to handle children differently to avoid the React.Children.only error
-    if (asChild && React.isValidElement(children)) {
+    // When asChild is true, we need a different approach
+    if (asChild) {
+      if (!React.isValidElement(children)) {
+        return null; // Or some fallback UI
+      }
+
       return (
-        <Slot 
-          className={cn(buttonVariants({ variant, size, loading, className }))} 
+        <Comp
+          className={cn(buttonVariants({ variant, size, loading, className }))}
           ref={ref}
           disabled={disabled}
           {...props}
         >
-          {React.cloneElement(children as React.ReactElement, {
+          {React.cloneElement(children, {
+            // Pass any additional props to the child
+            // But don't override existing ones
+            ...children.props,
+            // Except for the children prop, which we replace with our content
             children: content
           })}
-        </Slot>
-      )
+        </Comp>
+      );
     }
     
     // Standard button rendering

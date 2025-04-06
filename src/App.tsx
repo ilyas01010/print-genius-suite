@@ -1,6 +1,6 @@
 
 import { useState, useEffect, lazy, Suspense } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase, initializeSupabase } from "@/lib/supabase-client";
 import { UserProvider } from "@/context/UserContext";
@@ -11,10 +11,23 @@ import { Loader2 } from "lucide-react";
 
 // Eagerly loaded components
 import Index from "@/pages/Index";
-import NotFound from "@/pages/NotFound";
 
-// Lazy loaded pages
-const DesignGenerator = lazy(() => import("@/pages/DesignGenerator"));
+// Lazy loaded pages with improved loading boundary
+const PageLoader = () => (
+  <div className="h-screen w-full flex flex-col items-center justify-center">
+    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    <p className="mt-4 text-muted-foreground">Loading...</p>
+  </div>
+);
+
+// Lazy loaded routes with aggressive prefetching
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const DesignGenerator = lazy(() => {
+  const promise = import("@/pages/DesignGenerator");
+  // Prefetch related components
+  import("@/components/design-generator/DesignUploader");
+  return promise;
+});
 const NicheResearch = lazy(() => import("@/pages/NicheResearch"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const CopyrightChecker = lazy(() => import("@/pages/CopyrightChecker"));
@@ -25,14 +38,18 @@ const MarketingPlanner = lazy(() => import("@/pages/MarketingPlanner"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const LearningHub = lazy(() => import("@/pages/LearningHub"));
 
-// Create a loading component for Suspense fallback
-const PageLoader = () => (
-  <div className="h-screen w-full flex items-center justify-center">
-    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-  </div>
-);
+// ScrollToTop component to handle scroll restoration on route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+}
 
-// Configure React Query
+// Configure React Query with performance optimizations
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,17 +57,24 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
+      // Avoid suspense as it's not fully supported yet
+      suspense: false,
     },
   },
 });
 
 function App() {
-  // Load settings from localStorage
+  // Load settings from localStorage with memoization
   const [userSettings, setUserSettings] = useState(() => {
-    const storedSettings = localStorage.getItem("userSettings");
-    if (storedSettings) {
-      return JSON.parse(storedSettings);
+    try {
+      const storedSettings = localStorage.getItem("userSettings");
+      if (storedSettings) {
+        return JSON.parse(storedSettings);
+      }
+    } catch (error) {
+      console.error("Error parsing settings from localStorage:", error);
     }
+    
     return {
       darkMode: false,
       language: "en",
@@ -85,7 +109,11 @@ function App() {
 
   // Update settings in localStorage when they change
   useEffect(() => {
-    localStorage.setItem("userSettings", JSON.stringify(userSettings));
+    try {
+      localStorage.setItem("userSettings", JSON.stringify(userSettings));
+    } catch (error) {
+      console.error("Error saving settings to localStorage:", error);
+    }
   }, [userSettings]);
 
   // Apply dark mode class based on setting
@@ -103,6 +131,7 @@ function App() {
         <LanguageProvider>
           <UserProvider>
             <Router>
+              <ScrollToTop />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" />} />

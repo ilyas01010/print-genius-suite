@@ -16,6 +16,12 @@ export const compressImage = async (
   quality: number = 0.8
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
+    // Skip SVG files as they're already optimized
+    if (file.type === 'image/svg+xml') {
+      resolve(file);
+      return;
+    }
+    
     const reader = new FileReader();
     reader.readAsDataURL(file);
     
@@ -49,7 +55,8 @@ export const compressImage = async (
               reject(new Error('Canvas to Blob conversion failed'));
             }
           },
-          'image/jpeg',
+          // Use WebP if supported, otherwise revert to JPEG/PNG
+          'image/webp',
           quality
         );
       };
@@ -104,4 +111,28 @@ export const addImagePlaceholder = (
     imgElement.src = placeholderUrl;
     imgElement.style.filter = 'blur(0)';
   };
+};
+
+/**
+ * Check if WebP format is supported in current browser
+ * @returns Promise that resolves to true if WebP is supported
+ */
+export const isWebPSupported = async (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const webP = new Image();
+    webP.onload = () => resolve(webP.height === 2);
+    webP.onerror = () => resolve(false);
+    webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+  });
+};
+
+/**
+ * Preload images for faster rendering
+ * @param urls Array of image URLs to preload
+ */
+export const preloadImages = (urls: string[]): void => {
+  urls.forEach(url => {
+    const img = new Image();
+    img.src = url;
+  });
 };
