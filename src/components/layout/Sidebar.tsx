@@ -1,121 +1,96 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { NavLink } from "react-router-dom";
 import { 
-  BarChart3, 
-  Search, 
+  LayoutDashboard, 
   Palette, 
+  Search, 
   ShieldCheck, 
   Store, 
   MessageSquare, 
-  BookOpen,
+  BarChart3,
   Settings,
-  Home
+  HelpCircle,
+  Book
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type SidebarItem = {
-  name: string;
-  path: string;
-  icon: React.ReactNode;
-};
-
-const sidebarItems: SidebarItem[] = [
+const navItems = [
   {
-    name: "Dashboard",
-    path: "/",
-    icon: <Home className="h-5 w-5" />,
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />
   },
   {
-    name: "Niche Research",
-    path: "/niche-research",
-    icon: <Search className="h-5 w-5" />,
+    title: "Design Generator",
+    href: "/design-generator",
+    icon: <Palette className="h-5 w-5" />
   },
   {
-    name: "Design Generator",
-    path: "/design-generator",
-    icon: <Palette className="h-5 w-5" />,
+    title: "Niche Research",
+    href: "/niche-research",
+    icon: <Search className="h-5 w-5" />
   },
   {
-    name: "Copyright Checker",
-    path: "/copyright-checker",
-    icon: <ShieldCheck className="h-5 w-5" />,
+    title: "Copyright Checker",
+    href: "/copyright-checker",
+    icon: <ShieldCheck className="h-5 w-5" />
   },
   {
-    name: "Platform Manager",
-    path: "/platform-manager",
-    icon: <Store className="h-5 w-5" />,
+    title: "Platform Manager",
+    href: "/platform-manager",
+    icon: <Store className="h-5 w-5" />
   },
   {
-    name: "Marketing Planner",
-    path: "/marketing-planner",
-    icon: <MessageSquare className="h-5 w-5" />,
+    title: "Marketing Planner",
+    href: "/marketing-planner",
+    icon: <MessageSquare className="h-5 w-5" />
   },
   {
-    name: "Analytics",
-    path: "/analytics",
-    icon: <BarChart3 className="h-5 w-5" />,
+    title: "Analytics",
+    href: "/analytics",
+    icon: <BarChart3 className="h-5 w-5" />
   },
   {
-    name: "Learning Hub",
-    path: "/learning-hub",
-    icon: <BookOpen className="h-5 w-5" />,
+    title: "Learning Hub",
+    href: "/learning-hub",
+    icon: <Book className="h-5 w-5" />
   },
   {
-    name: "Settings",
-    path: "/settings",
-    icon: <Settings className="h-5 w-5" />,
+    title: "Support",
+    href: "/support",
+    icon: <HelpCircle className="h-5 w-5" />
   },
+  {
+    title: "Settings",
+    href: "/settings",
+    icon: <Settings className="h-5 w-5" />
+  }
 ];
 
 const Sidebar = () => {
-  const location = useLocation();
-
   return (
-    <div className="hidden md:flex h-screen w-64 flex-col border-r bg-sidebar">
-      <div className="h-16 flex items-center border-b px-6">
-        <Link to="/" className="flex items-center gap-2 font-heading font-bold text-lg">
-          <div className="bg-primary/10 text-primary p-1 rounded-md">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <span>Print Genius</span>
-        </Link>
-      </div>
-      <div className="flex-1 overflow-auto py-6 px-3">
-        <nav className="space-y-1">
-          {sidebarItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              aria-current={location.pathname === item.path ? "page" : undefined}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                location.pathname === item.path &&
-                  "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+    <aside className="hidden md:flex border-r border-border w-64 flex-col fixed inset-y-0 pt-16 bg-background">
+      <div className="flex flex-col flex-1 p-4">
+        <nav className="mt-4 flex-1 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              className={({ isActive }) => cn(
+                "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
+                isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
               )}
             >
               {item.icon}
-              {item.name}
-            </Link>
+              <span className="ml-3 font-medium">{item.title}</span>
+            </NavLink>
           ))}
         </nav>
       </div>
-      <div className="border-t p-4">
-        <div className="rounded-lg bg-primary/10 p-4">
-          <h4 className="text-sm font-medium mb-2">Need Help?</h4>
-          <p className="text-xs text-muted-foreground mb-3">
-            Visit our support center for tutorials and FAQs.
-          </p>
-          <Link to="/support" className="text-xs text-primary font-medium flex items-center">
-            Visit Support Center
-          </Link>
-        </div>
-      </div>
-    </div>
+    </aside>
   );
 };
 

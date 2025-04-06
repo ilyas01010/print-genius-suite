@@ -153,10 +153,11 @@ function App() {
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/copyright-checker" element={<CopyrightChecker />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/platform" element={<PlatformManager />} />
-                  <Route path="/customer" element={<CustomerService />} />
-                  <Route path="/marketing" element={<MarketingPlanner />} />
-                  <Route path="/learning" element={<LearningHub />} />
+                  <Route path="/platform-manager" element={<PlatformManager />} />
+                  <Route path="/customer-service" element={<CustomerService />} />
+                  <Route path="/marketing-planner" element={<MarketingPlanner />} />
+                  <Route path="/learning-hub" element={<LearningHub />} />
+                  <Route path="/support" element={<CustomerService />} /> {/* Adding support route that points to CustomerService */}
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

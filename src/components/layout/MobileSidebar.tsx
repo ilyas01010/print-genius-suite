@@ -1,133 +1,146 @@
 
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+import React, { useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import { 
-  BarChart3, 
-  Search, 
+  LayoutDashboard, 
   Palette, 
+  Search, 
   ShieldCheck, 
   Store, 
-  MessageSquare,  
-  BookOpen,
+  MessageSquare, 
+  BarChart3,
   Settings,
-  Home
+  HelpCircle,
+  X,
+  Book
 } from "lucide-react";
-
-type SidebarItem = {
-  name: string;
-  path: string;
-  icon: React.ReactNode;
-};
-
-const sidebarItems: SidebarItem[] = [
-  {
-    name: "Dashboard",
-    path: "/",
-    icon: <Home className="h-5 w-5" />,
-  },
-  {
-    name: "Niche Research",
-    path: "/niche-research",
-    icon: <Search className="h-5 w-5" />,
-  },
-  {
-    name: "Design Generator",
-    path: "/design-generator",
-    icon: <Palette className="h-5 w-5" />,
-  },
-  {
-    name: "Copyright Checker",
-    path: "/copyright-checker",
-    icon: <ShieldCheck className="h-5 w-5" />,
-  },
-  {
-    name: "Platform Manager",
-    path: "/platform-manager",
-    icon: <Store className="h-5 w-5" />,
-  },
-  {
-    name: "Marketing Planner",
-    path: "/marketing-planner",
-    icon: <MessageSquare className="h-5 w-5" />,
-  },
-  {
-    name: "Analytics",
-    path: "/analytics",
-    icon: <BarChart3 className="h-5 w-5" />,
-  },
-  {
-    name: "Learning Hub",
-    path: "/learning-hub",
-    icon: <BookOpen className="h-5 w-5" />,
-  },
-  {
-    name: "Settings",
-    path: "/settings",
-    icon: <Settings className="h-5 w-5" />,
-  },
-];
+import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
-  const location = useLocation();
+const navItems = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />
+  },
+  {
+    title: "Design Generator",
+    href: "/design-generator",
+    icon: <Palette className="h-5 w-5" />
+  },
+  {
+    title: "Niche Research",
+    href: "/niche-research",
+    icon: <Search className="h-5 w-5" />
+  },
+  {
+    title: "Copyright Checker",
+    href: "/copyright-checker",
+    icon: <ShieldCheck className="h-5 w-5" />
+  },
+  {
+    title: "Platform Manager",
+    href: "/platform-manager",
+    icon: <Store className="h-5 w-5" />
+  },
+  {
+    title: "Marketing Planner",
+    href: "/marketing-planner",
+    icon: <MessageSquare className="h-5 w-5" />
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",
+    icon: <BarChart3 className="h-5 w-5" />
+  },
+  {
+    title: "Learning Hub",
+    href: "/learning-hub",
+    icon: <Book className="h-5 w-5" />
+  },
+  {
+    title: "Support",
+    href: "/support",
+    icon: <HelpCircle className="h-5 w-5" />
+  },
+  {
+    title: "Settings",
+    href: "/settings",
+    icon: <Settings className="h-5 w-5" />
+  }
+];
+
+const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
+  // Close sidebar when clicking outside or on escape key
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = ''; // Re-enable scrolling
+    };
+  }, [isOpen, onClose]);
+  
+  // Close sidebar when navigating to a new page
+  const handleNavigation = () => {
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="h-16 border-b p-4">
-          <SheetTitle className="flex items-center gap-2">
-            <div className="bg-primary/10 text-primary p-1 rounded-md">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="font-heading font-semibold">Print Genius</span>
-          </SheetTitle>
-        </SheetHeader>
-        <div className="p-6 space-y-1">
-          {sidebarItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={onClose}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                location.pathname === item.path &&
-                  "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+    <>
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border p-4 shadow-lg transform transition-transform duration-300 ease-in-out">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-semibold text-lg">Print Genius</h2>
+          <button 
+            onClick={onClose}
+            className="rounded-full p-1 hover:bg-muted"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <nav className="space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              onClick={handleNavigation}
+              className={({ isActive }) => cn(
+                "flex items-center py-2 px-3 text-sm rounded-md transition-colors",
+                isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
               )}
             >
               {item.icon}
-              {item.name}
-            </Link>
+              <span className="ml-3 font-medium">{item.title}</span>
+            </NavLink>
           ))}
-          
-          <div className="mt-6 pt-4 border-t">
-            <div className="rounded-lg bg-primary/10 p-4">
-              <h4 className="text-sm font-medium mb-2">Need Help?</h4>
-              <p className="text-xs text-muted-foreground mb-3">
-                Visit our support center for tutorials and FAQs.
-              </p>
-              <Link to="/support" onClick={onClose} className="text-xs text-primary font-medium flex items-center">
-                Visit Support Center
-              </Link>
-            </div>
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </nav>
+      </aside>
+    </>
   );
 };
 
