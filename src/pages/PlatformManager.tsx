@@ -6,15 +6,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check, ChevronRight, ExternalLink, Plus, Store, Trash2, XCircle } from "lucide-react";
+import { Check, ChevronRight, ExternalLink, Plus, Store, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ConnectionStatus } from "@/components/settings/integration/IntegrationItem";
 
-// Platform integration types - Define as a union of string literals to make TypeScript happy
-type PlatformStatus = "connected" | "disconnected" | "connecting";
+// Define platform status type
+type PlatformStatus = ConnectionStatus;
 
 interface Product {
   id: string;
@@ -163,7 +164,7 @@ const PlatformManager = () => {
       ...platforms,
       {
         ...platform,
-        status: "disconnected",
+        status: "disconnected" as PlatformStatus,
         products: 0,
         revenue: 0
       }
@@ -180,7 +181,7 @@ const PlatformManager = () => {
   const handleConnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" } 
+        ? { ...p, status: "connecting" as PlatformStatus } 
         : p
     ));
 
@@ -188,7 +189,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "connected" } 
+          ? { ...p, status: "connected" as PlatformStatus } 
           : p
       ));
 
@@ -202,7 +203,7 @@ const PlatformManager = () => {
   const handleDisconnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" } 
+        ? { ...p, status: "connecting" as PlatformStatus } 
         : p
     ));
 
@@ -210,7 +211,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "disconnected", products: 0, revenue: 0 } 
+          ? { ...p, status: "disconnected" as PlatformStatus, products: 0, revenue: 0 } 
           : p
       ));
 
