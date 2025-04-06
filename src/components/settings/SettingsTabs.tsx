@@ -8,6 +8,7 @@ import AccountSettings from "@/components/settings/AccountSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import ReferralSettings from "@/components/settings/ReferralSettings";
 import IntegrationSettings from "@/components/settings/IntegrationSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const SettingsTabs = () => {
   const { user } = useUser();
@@ -36,19 +37,21 @@ const SettingsTabs = () => {
     handleRegenerateReferralCode
   } = useSettings();
 
+  const isMobile = useIsMobile();
+
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
   };
 
   return (
     <Tabs defaultValue="account" className="w-full">
-      <TabsList className="grid w-full max-w-md grid-cols-3">
-        <TabsTrigger value="account">{t('common.account')}</TabsTrigger>
-        <TabsTrigger value="preferences">{t('common.preferences')}</TabsTrigger>
-        <TabsTrigger value="integrations">{t('common.integrations')}</TabsTrigger>
+      <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+        <TabsTrigger value="account" className="text-xs md:text-sm">{t('common.account')}</TabsTrigger>
+        <TabsTrigger value="preferences" className="text-xs md:text-sm">{t('common.preferences')}</TabsTrigger>
+        <TabsTrigger value="integrations" className="text-xs md:text-sm">{t('common.integrations')}</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="account" className="mt-6 space-y-4">
+      <TabsContent value="account" className="space-y-6">
         <AccountSettings 
           user={user}
           displayName={displayName}
@@ -75,7 +78,7 @@ const SettingsTabs = () => {
         />
       </TabsContent>
       
-      <TabsContent value="preferences" className="mt-6 space-y-4">
+      <TabsContent value="preferences" className="space-y-6">
         <PreferenceSettings 
           darkMode={darkMode}
           setDarkMode={setDarkMode}
@@ -88,7 +91,7 @@ const SettingsTabs = () => {
         />
       </TabsContent>
       
-      <TabsContent value="integrations" className="mt-6 space-y-4">
+      <TabsContent value="integrations" className="space-y-6">
         <IntegrationSettings />
       </TabsContent>
     </Tabs>
