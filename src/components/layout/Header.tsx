@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -20,6 +21,8 @@ interface HeaderProps {
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
   const { user, isAuthenticated, logout } = useUser();
+  const { toast } = useToast();
+  const [hasUnreadNotifications] = useState(true);
 
   const handleLogout = async () => {
     await logout();
@@ -28,6 +31,13 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
   const getUserInitials = () => {
     if (!user?.email) return "U";
     return user.email.charAt(0).toUpperCase();
+  };
+
+  const handleNotificationClick = () => {
+    toast({
+      title: "Notifications",
+      description: "You have no new notifications",
+    });
   };
 
   return (
@@ -47,10 +57,34 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
       </div>
       
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={handleNotificationClick}>
+              <div className="relative">
+                <Bell className="h-5 w-5" />
+                {hasUnreadNotifications && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                )}
+              </div>
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-80 overflow-auto py-2">
+              <div className="px-4 py-2 text-sm text-center text-muted-foreground">
+                No notifications at the moment
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <div className="p-2">
+              <Button variant="outline" size="sm" className="w-full">
+                Mark all as read
+              </Button>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         {isAuthenticated ? (
           <DropdownMenu>
@@ -68,7 +102,9 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/settings" className="flex w-full">Settings</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">

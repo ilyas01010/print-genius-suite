@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -10,15 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
+import { useLanguage, languages } from "@/context/LanguageContext";
 import {
   Globe,
   Mail,
   Bell,
   Moon,
   Settings2,
-  Languages,
   Users,
-  Link,
+  Link as LinkIcon,
   Copy,
   ChevronRight,
   Check
@@ -40,25 +39,13 @@ import {
   SelectValue
 } from "@/components/ui/select";
 
-// Create a language context to manage language settings
-const languages = {
-  en: "English",
-  es: "Spanish",
-  fr: "French",
-  de: "German",
-  it: "Italian",
-  pt: "Portuguese",
-  zh: "Chinese",
-  ja: "Japanese"
-};
-
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useUser();
+  const { language, setLanguage, t } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
-  const [language, setLanguage] = useState("en");
   const [savedSettings, setSavedSettings] = useState(false);
   const [referralCode, setReferralCode] = useState("");
   const [affiliateLink, setAffiliateLink] = useState("");
@@ -77,7 +64,6 @@ const Settings = () => {
         setDarkMode(settings.darkMode || false);
         setEmailNotifications(settings.emailNotifications || true);
         setPushNotifications(settings.pushNotifications || true);
-        setLanguage(settings.language || "en");
         setTimezone(settings.timezone || "utc");
         setPublicProfile(settings.publicProfile || false);
       }
@@ -135,7 +121,7 @@ const Settings = () => {
     localStorage.setItem('referralCode', newReferralCode);
     
     toast({
-      title: "Referral Code Updated",
+      title: t('common.referral'),
       description: "Your referral code has been regenerated successfully.",
     });
   };
@@ -169,7 +155,7 @@ const Settings = () => {
     }
     
     toast({
-      title: "Settings Saved",
+      title: t('common.settings'),
       description: "Your preferences have been updated successfully.",
     });
     setSavedSettings(true);
@@ -182,11 +168,6 @@ const Settings = () => {
   // Handle language change
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
-    // In a real app, this would update the app's translations
-    toast({
-      title: `Language Changed to ${languages[newLanguage as keyof typeof languages]}`,
-      description: "Please note that full language support is still under development.",
-    });
   };
 
   // Copy referral code to clipboard
@@ -211,7 +192,7 @@ const Settings = () => {
     <Layout>
       <div className="space-y-6 animate-fade">
         <div className="flex flex-col gap-2">
-          <h1 className="font-bold text-3xl">Settings</h1>
+          <h1 className="font-bold text-3xl">{t('common.settings')}</h1>
           <p className="text-muted-foreground">
             Configure your account and application preferences
           </p>
@@ -219,15 +200,15 @@ const Settings = () => {
 
         <Tabs defaultValue="account" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="account">Account</TabsTrigger>
-            <TabsTrigger value="preferences">Preferences</TabsTrigger>
-            <TabsTrigger value="integrations">Integrations</TabsTrigger>
+            <TabsTrigger value="account">{t('common.account')}</TabsTrigger>
+            <TabsTrigger value="preferences">{t('common.preferences')}</TabsTrigger>
+            <TabsTrigger value="integrations">{t('common.integrations')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="account" className="mt-6 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+                <CardTitle>{t('common.profile')}</CardTitle>
                 <CardDescription>
                   Update your personal information and account settings
                 </CardDescription>
@@ -235,7 +216,7 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('common.email')}</Label>
                     <Input 
                       id="email" 
                       placeholder="Email address" 
@@ -247,7 +228,7 @@ const Settings = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="displayName">Display Name</Label>
+                    <Label htmlFor="displayName">{t('common.name')}</Label>
                     <Input 
                       id="displayName" 
                       placeholder="Your display name"
@@ -259,7 +240,7 @@ const Settings = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t('common.bio')}</Label>
                   <Input 
                     id="bio" 
                     placeholder="A short bio about yourself"
@@ -282,9 +263,9 @@ const Settings = () => {
                 <Button onClick={handleSaveSettings} disabled={savedSettings}>
                   {savedSettings ? (
                     <>
-                      <Check className="mr-2 h-4 w-4" /> Saved
+                      <Check className="mr-2 h-4 w-4" /> {t('common.save')}
                     </>
-                  ) : "Save Changes"}
+                  ) : t('common.save')}
                 </Button>
               </CardFooter>
             </Card>
@@ -299,20 +280,15 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="language">Language</Label>
+                    <Label htmlFor="language">{t('common.language')}</Label>
                     <Select value={language} onValueChange={handleLanguageChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es">Spanish</SelectItem>
-                        <SelectItem value="fr">French</SelectItem>
-                        <SelectItem value="de">German</SelectItem>
-                        <SelectItem value="it">Italian</SelectItem>
-                        <SelectItem value="pt">Portuguese</SelectItem>
-                        <SelectItem value="zh">Chinese</SelectItem>
-                        <SelectItem value="ja">Japanese</SelectItem>
+                        {Object.entries(languages).map(([code, name]) => (
+                          <SelectItem key={code} value={code}>{name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -338,9 +314,9 @@ const Settings = () => {
                 <Button onClick={handleSaveSettings} disabled={savedSettings}>
                   {savedSettings ? (
                     <>
-                      <Check className="mr-2 h-4 w-4" /> Saved
+                      <Check className="mr-2 h-4 w-4" /> {t('common.save')}
                     </>
-                  ) : "Save Changes"}
+                  ) : t('common.save')}
                 </Button>
               </CardFooter>
             </Card>
@@ -428,7 +404,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-4">
                     <Moon className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">Dark Mode</p>
+                      <p className="font-medium">{t('common.darkMode')}</p>
                       <p className="text-sm text-muted-foreground">Switch to dark theme</p>
                     </div>
                   </div>
@@ -445,7 +421,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-4">
                     <Bell className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">Push Notifications</p>
+                      <p className="font-medium">Push {t('common.notifications')}</p>
                       <p className="text-sm text-muted-foreground">Receive browser notifications</p>
                     </div>
                   </div>
@@ -467,7 +443,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-4">
                     <Mail className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">Email Notifications</p>
+                      <p className="font-medium">Email {t('common.notifications')}</p>
                       <p className="text-sm text-muted-foreground">Receive email updates</p>
                     </div>
                   </div>
@@ -481,9 +457,9 @@ const Settings = () => {
                 <Button onClick={handleSaveSettings} disabled={savedSettings}>
                   {savedSettings ? (
                     <>
-                      <Check className="mr-2 h-4 w-4" /> Saved
+                      <Check className="mr-2 h-4 w-4" /> {t('common.save')}
                     </>
-                  ) : "Save Changes"}
+                  ) : t('common.save')}
                 </Button>
               </CardFooter>
             </Card>
@@ -537,9 +513,9 @@ const Settings = () => {
                 <Button onClick={handleSaveSettings} disabled={savedSettings}>
                   {savedSettings ? (
                     <>
-                      <Check className="mr-2 h-4 w-4" /> Saved
+                      <Check className="mr-2 h-4 w-4" /> {t('common.save')}
                     </>
-                  ) : "Save Changes"}
+                  ) : t('common.save')}
                 </Button>
               </CardFooter>
             </Card>
@@ -637,7 +613,7 @@ const Settings = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <Link className="h-5 w-5 text-muted-foreground" />
+                      <LinkIcon className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Your API Key</p>
                         <p className="text-sm text-muted-foreground">Use this key to access Print Genius API</p>
@@ -674,7 +650,7 @@ const Settings = () => {
                     <div className="h-10 w-10 rounded bg-blue-100 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" height="24" width="24">
                         <path fill="#039BE5" d="M24 5A19 19 0 1 0 24 43A19 19 0 1 0 24 5Z"/>
-                        <path fill="#FFF" d="M26.572,29.036h4.917l0.772-4.995h-5.69v-2.73c0-2.075,0.678-3.915,2.619-3.915h3.119v-4.359c-0.548-0.074-1.707-0.236-3.897-0.236c-4.573,0-7.254,2.415-7.254,7.917v3.323h-4.701v4.995h4.701v13.729C22.089,42.905,23.032,43,24,43c0.875,0,1.729-0.08,2.572-0.194V29.036z"/>
+                        <path fill="#FFF" d="M26.572,29.036h4.917l0,0C11.263,29.036,13,27.036,13,19.036C12.948,16.432,11.263,14.432,8.526,14.432S4,16.432,4,19.036C4,21.636,5.736,23.636,8.421,23.636z"/>
                       </svg>
                     </div>
                     <div>
