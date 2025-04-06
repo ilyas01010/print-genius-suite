@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -22,20 +24,54 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    console.log(`Generating image with DALL-E for prompt: ${prompt}`);
+    
+    if (!OPENAI_API_KEY) {
+      console.error("OPENAI_API_KEY is not set in environment variables");
+      // Fallback to placeholder if API key is not available
+      const mockImageUrl = `https://via.placeholder.com/512x512?text=${encodeURIComponent(prompt)}`;
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          imageUrl: mockImageUrl,
+          prompt,
+          note: "Using placeholder image as OPENAI_API_KEY is not configured"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    // Use a default placeholder image for now
-    // In a real implementation, this would call an AI service API
-    const mockImageUrl = `https://via.placeholder.com/512x512?text=${encodeURIComponent(prompt)}`;
+    // Call OpenAI's DALL-E API
+    const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: "dall-e-3",
+        prompt: prompt,
+        n: 1,
+        size: "1024x1024",
+      }),
+    });
     
-    console.log(`Generated image for prompt: ${prompt}`);
+    if (!openaiResponse.ok) {
+      const error = await openaiResponse.json();
+      console.error("OpenAI API error:", error);
+      throw new Error(`OpenAI API error: ${JSON.stringify(error)}`);
+    }
+
+    const data = await openaiResponse.json();
+    const imageUrl = data.data[0].url;
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(`Successfully generated image for prompt: ${prompt}`);
     
     return new Response(
       JSON.stringify({ 
         success: true,
-        imageUrl: mockImageUrl,
+        imageUrl,
         prompt,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
