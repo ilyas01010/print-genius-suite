@@ -69,7 +69,7 @@ const PreferenceSettings = ({
             <div className="flex items-center space-x-4">
               <Moon className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium">{t('common.darkMode')}</p>
+                <p className="font-medium">Dark Mode</p>
                 <p className="text-sm text-muted-foreground">Switch to dark theme</p>
               </div>
             </div>
