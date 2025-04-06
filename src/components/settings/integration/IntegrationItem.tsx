@@ -13,12 +13,22 @@ interface IntegrationItemProps {
   icon: React.ReactNode;
   bgColor: string;
   isPopular?: boolean;
+  initialStatus?: ConnectionStatus;
+  onStatusChange?: (status: ConnectionStatus) => void;
 }
 
-const IntegrationItem = ({ name, description, icon, bgColor, isPopular }: IntegrationItemProps) => {
+const IntegrationItem = ({ 
+  name, 
+  description, 
+  icon, 
+  bgColor, 
+  isPopular,
+  initialStatus = "disconnected",
+  onStatusChange 
+}: IntegrationItemProps) => {
   const { toast } = useToast();
   const [connecting, setConnecting] = useState(false);
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(initialStatus === "connected");
 
   const handleConnect = async () => {
     if (connected) {
@@ -35,11 +45,19 @@ const IntegrationItem = ({ name, description, icon, bgColor, isPopular }: Integr
         title: "Disconnected",
         description: `${name} has been disconnected.`,
       });
+      
+      if (onStatusChange) {
+        onStatusChange("disconnected");
+      }
       return;
     }
     
     // Handle connect
     setConnecting(true);
+    
+    if (onStatusChange) {
+      onStatusChange("connecting");
+    }
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -51,7 +69,16 @@ const IntegrationItem = ({ name, description, icon, bgColor, isPopular }: Integr
       title: "Connected",
       description: `${name} has been successfully connected.`,
     });
+    
+    if (onStatusChange) {
+      onStatusChange("connected");
+    }
   };
+
+  // Get status from state
+  const status: ConnectionStatus = connecting 
+    ? "connecting" 
+    : connected ? "connected" : "disconnected";
 
   return (
     <div className="flex items-center justify-between">
@@ -72,17 +99,17 @@ const IntegrationItem = ({ name, description, icon, bgColor, isPopular }: Integr
         </div>
       </div>
       <Button 
-        variant={connected ? "subtle" : "outline"} 
+        variant={status === "connected" ? "subtle" : "outline"} 
         size="sm"
         onClick={handleConnect}
-        disabled={connecting}
+        disabled={status === "connecting"}
       >
-        {connecting ? (
+        {status === "connecting" ? (
           <>
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             {connected ? "Disconnecting..." : "Connecting..."}
           </>
-        ) : connected ? (
+        ) : status === "connected" ? (
           <>
             <Check className="h-3 w-3 mr-1" />
             Connected

@@ -24,3 +24,13 @@ export type NewPlatform = {
   name: string;
   logo: string;
 };
+
+export interface IntegrationConfig {
+  id: string;
+  name: string;
+  description: string;
+  icon: JSX.Element;
+  bgColor: string;
+  isPopular?: boolean;
+  status: ConnectionStatus;
+}
