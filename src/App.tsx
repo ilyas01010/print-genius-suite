@@ -1,4 +1,3 @@
-
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -27,7 +26,6 @@ const NicheResearch = lazy(() => import("@/pages/NicheResearch"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const CopyrightChecker = lazy(() => import("@/pages/CopyrightChecker"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
-const PlatformManager = lazy(() => import("@/pages/PlatformManager"));
 const PlatformDashboard = lazy(() => import("@/pages/PlatformDashboard"));
 const CustomerService = lazy(() => import("@/pages/CustomerService"));
 const MarketingPlanner = lazy(() => import("@/pages/MarketingPlanner"));
@@ -170,7 +168,7 @@ function App() {
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/copyright-checker" element={<CopyrightChecker />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/platform-manager" element={<PlatformManager />} />
+                  <Route path="/platform-manager" element={<Navigate to="/platform-dashboard" />} />
                   <Route path="/platform-dashboard" element={<PlatformDashboard />} />
                   <Route path="/customer-service" element={<CustomerService />} />
                   <Route path="/marketing-planner" element={<MarketingPlanner />} />

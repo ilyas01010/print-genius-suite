@@ -76,10 +76,10 @@ const Index = () => {
               path="/copyright-checker"
             />
             <ModuleCard 
-              title="Platform Manager" 
+              title="Platform Dashboard" 
               description="Manage listings across multiple POD platforms in one place" 
               icon={<Store className="h-6 w-6" />}
-              path="/platform-manager"
+              path="/platform-dashboard"
             />
             <ModuleCard 
               title="Marketing Planner" 
