@@ -1,3 +1,4 @@
+
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,14 +20,11 @@ const PageLoader = () => (
   </div>
 );
 
+// Load DesignGenerator component eagerly to avoid issues with dynamic imports
+import DesignGenerator from "@/pages/DesignGenerator";
+
 // Lazy loaded routes with aggressive prefetching
 const NotFound = lazy(() => import("@/pages/NotFound"));
-const DesignGenerator = lazy(() => {
-  const promise = import("@/pages/DesignGenerator");
-  // Prefetch related components
-  import("@/components/design-generator/DesignUploader");
-  return promise;
-});
 const NicheResearch = lazy(() => import("@/pages/NicheResearch"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const CopyrightChecker = lazy(() => import("@/pages/CopyrightChecker"));
