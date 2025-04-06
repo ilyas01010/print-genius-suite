@@ -1,12 +1,18 @@
 import React, { useState } from "react";
+import { format } from "date-fns";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import PlatformDashboardOverview from "@/components/platform-manager/PlatformDashboardOverview";
 import PlatformsList from "@/components/platform-manager/PlatformsList";
 import ProductsList from "@/components/platform-manager/ProductsList";
 import AnalyticsSection from "@/components/platform-manager/AnalyticsSection";
 import { useToast } from "@/hooks/use-toast";
-import { Platform, Product, NewPlatform } from "@/components/platform-manager/types";
+import { Platform, Product, NewPlatform, DateRangeFilter } from "@/components/platform-manager/types";
 
 const PlatformDashboard = () => {
   const { toast } = useToast();
@@ -102,6 +108,11 @@ const PlatformDashboard = () => {
     }
   ]);
 
+  const [dateRange, setDateRange] = useState<DateRangeFilter>({
+    startDate: null,
+    endDate: null,
+  });
+
   const [showAddPlatformDialog, setShowAddPlatformDialog] = useState(false);
   const [showAddProductDialog, setShowAddProductDialog] = useState(false);
   const [newProductName, setNewProductName] = useState('');
@@ -111,11 +122,57 @@ const PlatformDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("overview");
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const totalProducts = platforms.reduce((sum, platform) => sum + platform.products, 0);
-  const totalRevenue = platforms.reduce((sum, platform) => sum + platform.revenue, 0);
-  const connectedPlatforms = platforms.filter(p => p.status === "connected").length;
+  const filteredPlatforms = dateRange.startDate && dateRange.endDate 
+    ? platforms.filter(p => {
+        if (!p.createdAt) return true;
+        const date = new Date(p.createdAt);
+        return date >= dateRange.startDate! && date <= dateRange.endDate!;
+      })
+    : platforms;
 
-  // Handler functions
+  const filteredProducts = dateRange.startDate && dateRange.endDate 
+    ? products.filter(p => {
+        if (!p.createdAt) return true;
+        const date = new Date(p.createdAt);
+        return date >= dateRange.startDate! && date <= dateRange.endDate!;
+      })
+    : products;
+
+  const totalProducts = filteredPlatforms.reduce((sum, platform) => sum + platform.products, 0);
+  const totalRevenue = filteredPlatforms.reduce((sum, platform) => sum + platform.revenue, 0);
+  const connectedPlatforms = filteredPlatforms.filter(p => p.status === "connected").length;
+
+  const resetDateFilters = () => {
+    setDateRange({ startDate: null, endDate: null });
+    toast({
+      title: "Filters Reset",
+      description: "Date range filters have been cleared.",
+    });
+  };
+
+  const handleDateRangeSelect = (date: Date | null) => {
+    if (!date) return;
+    
+    setDateRange(prev => {
+      if (!prev.startDate || (prev.startDate && prev.endDate)) {
+        return { startDate: date, endDate: null };
+      }
+      
+      if (date < prev.startDate) {
+        return { startDate: date, endDate: prev.startDate };
+      }
+      
+      return { startDate: prev.startDate, endDate: date };
+    });
+    
+    if (dateRange.startDate && !dateRange.endDate) {
+      toast({
+        title: "Date Range Applied",
+        description: `Filtering data between ${format(dateRange.startDate, 'PP')} and ${format(date, 'PP')}.`,
+      });
+    }
+  };
+
   const handleAddNewPlatform = (platform: NewPlatform) => {
     if (platforms.some(p => p.id === platform.id)) {
       toast({
@@ -287,16 +344,77 @@ const PlatformDashboard = () => {
   return (
     <Layout>
       <Tabs defaultValue="overview" value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 animate-fade">
-        <TabsList className="grid w-full max-w-md grid-cols-4 mb-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="platforms">Platforms</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+          <TabsList className="grid w-full max-w-md grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="platforms">Platforms</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+          
+          <div className="flex flex-col sm:flex-row gap-2 items-center">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !dateRange.startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange.startDate ? (
+                    dateRange.endDate ? (
+                      <>
+                        {format(dateRange.startDate, "MMM d")} - {format(dateRange.endDate, "MMM d")}
+                      </>
+                    ) : (
+                      format(dateRange.startDate, "MMM d, yyyy")
+                    )
+                  ) : (
+                    <span>Filter by date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={{
+                    from: dateRange.startDate || undefined,
+                    to: dateRange.endDate || undefined,
+                  }}
+                  onSelect={(range) => {
+                    setDateRange({
+                      startDate: range?.from || null,
+                      endDate: range?.to || null,
+                    });
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+                <div className="flex items-center justify-between p-3 border-t">
+                  <span className="text-sm text-muted-foreground">
+                    {dateRange.startDate && dateRange.endDate 
+                      ? `${format(dateRange.startDate, "PP")} - ${format(dateRange.endDate, "PP")}`
+                      : "Select a date range"}
+                  </span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={resetDateFilters}
+                    disabled={!dateRange.startDate && !dateRange.endDate}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
         
         <TabsContent value="overview" className="space-y-4">
           <PlatformDashboardOverview 
-            platforms={platforms}
+            platforms={filteredPlatforms}
             onViewAllPlatforms={() => setSelectedTab("platforms")}
             onViewAllProducts={() => setSelectedTab("products")}
           />
@@ -314,7 +432,7 @@ const PlatformDashboard = () => {
             </div>
             
             <PlatformsList 
-              platforms={platforms}
+              platforms={filteredPlatforms}
               availablePlatforms={availablePlatforms}
               onAddPlatform={handleAddNewPlatform}
               onConnectPlatform={handleConnectPlatform}
@@ -328,8 +446,8 @@ const PlatformDashboard = () => {
         
         <TabsContent value="products" className="space-y-4">
           <ProductsList 
-            platforms={platforms}
-            products={products}
+            platforms={filteredPlatforms}
+            products={filteredProducts}
             connectedPlatforms={connectedPlatforms}
             totalProducts={totalProducts}
             selectedPlatform={selectedPlatform}
@@ -350,7 +468,7 @@ const PlatformDashboard = () => {
         
         <TabsContent value="analytics" className="space-y-4">
           <AnalyticsSection 
-            platforms={platforms}
+            platforms={filteredPlatforms}
             connectedPlatforms={connectedPlatforms}
             isAnalyticsLoading={isAnalyticsLoading}
             setSelectedTab={setSelectedTab}

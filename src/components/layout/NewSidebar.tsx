@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Book,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  PieChart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,11 @@ const navItems = [
     title: "Platform Manager",
     href: "/platform-manager",
     icon: <Store className="h-5 w-5" />
+  },
+  {
+    title: "Platform Dashboard",
+    href: "/platform-dashboard",
+    icon: <PieChart className="h-5 w-5" />
   },
   {
     title: "Marketing Planner",

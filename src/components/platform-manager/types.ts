@@ -8,6 +8,7 @@ export interface Product {
   name: string;
   price: number;
   platformId: string;
+  createdAt?: string; // Add date field
 }
 
 export type Platform = {
@@ -17,6 +18,7 @@ export type Platform = {
   status: PlatformStatus;
   products: number;
   revenue: number;
+  createdAt?: string; // Add date field
 };
 
 export type NewPlatform = {
@@ -49,4 +51,10 @@ export interface PlatformSummary {
   totalProducts: number;
   connectedCount: number;
   topPlatform?: Platform;
+}
+
+// New interface for date filters
+export interface DateRangeFilter {
+  startDate: Date | null;
+  endDate: Date | null;
 }

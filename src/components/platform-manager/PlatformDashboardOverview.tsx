@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,26 +82,26 @@ const PlatformDashboardOverview: React.FC<PlatformDashboardOverviewProps> = ({
             summary.connectedCount === 1 ? "1 platform connected" :
             `${summary.connectedCount} platforms connected`
           }
-          trend={summary.connectedCount > 0 ? { value: 100, direction: "up" } : undefined}
+          trend={summary.connectedCount > 0 ? { value: "100", direction: "up" } : undefined}
         />
         <StatCard
           title="Total Products"
           value={summary.totalProducts}
           description="Across all platforms"
-          trend={summary.totalProducts > 0 ? { value: 12, direction: "up" } : undefined}
+          trend={summary.totalProducts > 0 ? { value: "12", direction: "up" } : undefined}
         />
         <StatCard
           title="Total Revenue"
           value={summary.totalRevenue.toFixed(2)}
           prefix="$"
           description="Last 30 days"
-          trend={summary.totalRevenue > 0 ? { value: 8.5, direction: "up" } : undefined}
+          trend={summary.totalRevenue > 0 ? { value: "8.5", direction: "up" } : undefined}
         />
         <StatCard
           title="Conversion Rate"
           value="3.2%"
           description="from last month"
-          trend={{ value: 0.5, direction: "up" }}
+          trend={{ value: "0.5", direction: "up" }}
         />
       </div>
 
