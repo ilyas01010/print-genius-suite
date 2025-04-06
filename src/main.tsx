@@ -9,15 +9,19 @@ if (import.meta.env.PROD) {
   Sentry.init({
     dsn: "https://public@sentry.example.com/1", // Replace with actual Sentry DSN in production
     integrations: [
-      // Use the modern approach for browser tracing without explicit imports
       Sentry.browserTracingIntegration(), 
-      // Replay integration is now available separately
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
     ],
-    // Performance monitoring
-    tracesSampleRate: 0.1, // Capture 10% of transactions
-    // Session replay settings (if needed can be configured differently)
-    replaysSessionSampleRate: 0.1, 
-    replaysOnErrorSampleRate: 1.0,
+    // Performance monitoring (reduced in production to minimize overhead)
+    tracesSampleRate: 0.05, // Capture 5% of transactions
+    // Session replay settings
+    replaysSessionSampleRate: 0.05, // Sample 5% of sessions
+    replaysOnErrorSampleRate: 1.0,  // Record 100% of sessions with errors
+    // Environment setting
+    environment: 'production',
   });
 }
 

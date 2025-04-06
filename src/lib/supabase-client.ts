@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { toast } from '@/hooks/use-toast';
 import type { Database } from '@/integrations/supabase/types';
@@ -7,17 +6,42 @@ import type { Database } from '@/integrations/supabase/types';
 const SUPABASE_URL = "https://kdpsyldycxyxmmxkjnai.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcHN5bGR5Y3h5eG1teGtqbmFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5MDE0NzMsImV4cCI6MjA1OTQ3NzQ3M30._PFaKbXh3tIpD2ot7owbElGmi1xj1XOYM6oYvOZsbdw";
 
-// Create a single Supabase client instance
+// Create a single Supabase client instance with optimized settings for production
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
 
-// Create the Supabase client with proper type definition
+// Create the Supabase client with proper type definition and production optimizations
 export const supabase = (() => {
   if (!supabaseInstance) {
     supabaseInstance = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-      }
+        detectSessionInUrl: false, // Disable for security in production
+        storage: window.localStorage // Use localStorage for session persistence
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 5 // Limit realtime events for better performance
+        }
+      },
+      global: {
+        // Production-optimized fetch options
+        fetch: (url, options) => {
+          const fetchOptions = {
+            ...options,
+            headers: {
+              ...options?.headers,
+              'Cache-Control': 'no-cache',
+            },
+          };
+          return fetch(url, fetchOptions);
+        },
+      },
+    });
+    
+    // Initialize storage and perform startup checks
+    initializeSupabase().catch(error => {
+      console.error('Error during Supabase initialization:', error);
     });
   }
   return supabaseInstance;
