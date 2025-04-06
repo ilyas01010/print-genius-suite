@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
 import {
@@ -15,7 +16,7 @@ import {
   Bell,
   Moon,
   Settings2,
-  Language,
+  Languages,
   Users,
   Link,
   Copy,
