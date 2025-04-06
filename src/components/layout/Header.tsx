@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, User, LogOut, Languages, Globe } from "lucide-react";
+import { Menu, Bell, User, LogOut, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import {
@@ -11,15 +11,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
-import { Separator } from "@/components/ui/separator";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -43,10 +38,6 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
     if (!user?.email) return "U";
     return user.email.charAt(0).toUpperCase();
   };
-
-  const handleNotificationClick = () => {
-    // This function just opens the dropdown now
-  };
   
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
@@ -57,7 +48,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-6 sm:px-8">
       <Button
         variant="ghost"
         size="icon"
@@ -69,26 +60,35 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
       </Button>
       
       <div className="flex-1">
-        <h2 className="text-lg font-semibold">Print Genius Suite</h2>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="bg-primary/10 text-primary p-1 rounded-md">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <span className="font-heading font-semibold text-lg hidden md:inline-block">Print Genius</span>
+        </Link>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {/* Language Selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <Globe className="h-5 w-5" />
               <span className="sr-only">{t("common.language")}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>{t("common.language")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {Object.entries(availableLanguages).map(([code, name]) => (
               <DropdownMenuItem 
                 key={code}
                 onClick={() => handleLanguageChange(code)}
-                className={language === code ? "bg-accent" : ""}
+                className={language === code ? "bg-accent text-accent-foreground" : ""}
               >
                 <span className="mr-2">{code === "en" ? "🇺🇸" : code === "fr" ? "🇫🇷" : code === "es" ? "🇪🇸" : "🌐"}</span>
                 {name}
@@ -100,11 +100,11 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" onClick={handleNotificationClick}>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <div className="relative">
                 <Bell className="h-5 w-5" />
                 {hasUnreadNotifications && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background"></span>
                 )}
               </div>
               <span className="sr-only">{t("common.notifications")}</span>
@@ -131,32 +131,38 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0">
+                <Avatar className="h-9 w-9 border">
                   <AvatarImage src={user?.user_metadata?.avatar_url} />
                   <AvatarFallback>{getUserInitials()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 {user?.email || t("common.account")}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>{t("common.profile")}</DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/settings" className="flex w-full">{t("common.settings")}</Link>
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="flex w-full cursor-pointer">
+                  {t("common.settings")}
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>
+                {t("common.profile")}
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                {t("common.support")}
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 {t("common.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button asChild variant="default" size="sm">
+          <Button asChild variant="default" size="sm" className="rounded-full">
             <Link to="/auth">{t("common.signIn")}</Link>
           </Button>
         )}

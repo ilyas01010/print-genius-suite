@@ -9,8 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette } from "lucide-react";
-import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +17,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { isAuthenticated } = useUser();
+  const { t } = useLanguage();
 
   // Redirect if already authenticated
   if (isAuthenticated) {
@@ -29,8 +29,8 @@ const AuthPage = () => {
     e.preventDefault();
     if (!email || !password) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: t("auth.error"),
+        description: t("auth.fillAllFields"),
         variant: "destructive",
       });
       return;
@@ -49,8 +49,8 @@ const AuthPage = () => {
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast({
-        title: "Sign in failed",
-        description: error.message || "Please check your credentials and try again.",
+        title: t("auth.signInFailed"),
+        description: error.message || t("auth.checkCredentials"),
         variant: "destructive",
       });
     } finally {
@@ -62,8 +62,8 @@ const AuthPage = () => {
     e.preventDefault();
     if (!email || !password) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: t("auth.error"),
+        description: t("auth.fillAllFields"),
         variant: "destructive",
       });
       return;
@@ -71,8 +71,8 @@ const AuthPage = () => {
 
     if (password.length < 6) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters long",
+        title: t("auth.passwordTooShort"),
+        description: t("auth.passwordRequirement"),
         variant: "destructive",
       });
       return;
@@ -87,8 +87,8 @@ const AuthPage = () => {
       }
 
       toast({
-        title: "Success!",
-        description: "Registration successful. Please check your email for confirmation.",
+        title: t("auth.success"),
+        description: t("auth.registrationSuccess"),
       });
       
       // Go to sign in tab
@@ -96,8 +96,8 @@ const AuthPage = () => {
     } catch (error: any) {
       console.error("Sign up error:", error);
       toast({
-        title: "Registration failed",
-        description: error.message || "An error occurred during registration.",
+        title: t("auth.registrationFailed"),
+        description: error.message || t("auth.errorOccurred"),
         variant: "destructive",
       });
     } finally {
@@ -106,113 +106,121 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 bg-gradient-to-b from-background to-secondary/20">
+      <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center space-y-2 text-center">
-          <div className="rounded-full bg-primary/10 p-3">
-            <Palette className="h-10 w-10 text-primary" />
+          <div className="flex items-center gap-2 font-heading font-bold text-2xl">
+            <div className="bg-primary/10 text-primary p-1.5 rounded-md">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span>Print Genius</span>
           </div>
-          <h1 className="text-3xl font-bold">Print Genius Suite</h1>
-          <p className="text-muted-foreground">Sign in to manage your POD business</p>
+          <p className="text-muted-foreground">{t("auth.subtitle")}</p>
         </div>
 
-        <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger id="signin-tab" value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="signin">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>
-                  Enter your credentials to access your account
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignIn}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            <Card>
-              <CardHeader>
-                <CardTitle>Create an Account</CardTitle>
-                <CardDescription>
-                  Enter your details to create a new account
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignUp}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input 
-                      id="signup-email" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input 
-                      id="signup-password" 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Password must be at least 6 characters long
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+        <Card className="border-none shadow-soft">
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger id="signin-tab" value="signin">{t("auth.signIn")}</TabsTrigger>
+              <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
+                <CardHeader className="px-6">
+                  <CardTitle>{t("auth.welcome")}</CardTitle>
+                  <CardDescription>
+                    {t("auth.enterCredentials")}
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleSignIn}>
+                  <CardContent className="space-y-4 px-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t("auth.email")}</Label>
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        placeholder="name@example.com" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="password">{t("auth.password")}</Label>
+                        <a href="#" className="text-xs text-primary hover:underline underline-offset-4">
+                          {t("auth.forgot")}
+                        </a>
+                      </div>
+                      <Input 
+                        id="password" 
+                        type="password" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex flex-col px-6 pb-6">
+                    <Button type="submit" className="w-full h-12" disabled={isLoading}>
+                      {isLoading ? t("auth.signingIn") : t("auth.signIn")}
+                    </Button>
+                  </CardFooter>
+                </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+                <CardHeader className="px-6">
+                  <CardTitle>{t("auth.createAccount")}</CardTitle>
+                  <CardDescription>
+                    {t("auth.enterDetails")}
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleSignUp}>
+                  <CardContent className="space-y-4 px-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">{t("auth.email")}</Label>
+                      <Input 
+                        id="signup-email" 
+                        type="email" 
+                        placeholder="name@example.com" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">{t("auth.password")}</Label>
+                      <Input 
+                        id="signup-password" 
+                        type="password" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-12"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t("auth.passwordRequirement")}
+                      </p>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex flex-col px-6 pb-6">
+                    <Button type="submit" className="w-full h-12" disabled={isLoading}>
+                      {isLoading ? t("auth.creating") : t("auth.create")}
+                    </Button>
+                  </CardFooter>
+                </form>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
     </div>
   );
 };

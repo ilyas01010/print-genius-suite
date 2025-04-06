@@ -24,8 +24,8 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="flex flex-1">
         <Sidebar />
         <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className={`flex-1 overflow-auto p-4 md:p-6 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="mx-auto max-w-7xl">
+        <main className={`flex-1 overflow-auto p-6 md:p-8 lg:p-10 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="mx-auto max-w-6xl">
             {children}
           </div>
         </main>
