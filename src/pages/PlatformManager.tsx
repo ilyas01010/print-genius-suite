@@ -6,14 +6,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check, ChevronRight, ExternalLink, Plus, Store, XCircle } from "lucide-react";
+import { Check, ChevronRight, ExternalLink, Plus, Store, Trash2, XCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 // Platform integration types - Define as a union of string literals to make TypeScript happy
 type PlatformStatus = "connected" | "disconnected" | "connecting";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  platformId: string;
+}
 
 type Platform = {
   id: string;
@@ -57,6 +65,13 @@ const PlatformManager = () => {
       products: 0,
       revenue: 0
     }
+  ]);
+
+  const [products, setProducts] = useState<Product[]>([
+    { id: "p1", name: "Graphic Tee", price: 24.99, platformId: "etsy" },
+    { id: "p2", name: "Coffee Mug", price: 14.99, platformId: "etsy" },
+    { id: "p3", name: "Phone Case", price: 19.99, platformId: "etsy" },
+    { id: "p4", name: "Art Print", price: 29.99, platformId: "etsy" },
   ]);
 
   // Additional POD platforms
@@ -125,6 +140,7 @@ const PlatformManager = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState("platforms");
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   // Calculate totals
   const totalProducts = platforms.reduce((sum, platform) => sum + platform.products, 0);
@@ -198,6 +214,9 @@ const PlatformManager = () => {
           : p
       ));
 
+      // Also remove all products for this platform
+      setProducts(products.filter(product => product.platformId !== platformId));
+
       toast({
         title: "Disconnection Successful",
         description: `Successfully disconnected from ${platforms.find(p => p.id === platformId)?.name}.`,
@@ -234,7 +253,18 @@ const PlatformManager = () => {
       return;
     }
 
-    // Add product to the selected platform
+    // Create new product
+    const newProduct: Product = {
+      id: `p${Date.now()}`,
+      name: newProductName,
+      price: price,
+      platformId: selectedPlatform.id
+    };
+
+    // Add product to state
+    setProducts([...products, newProduct]);
+
+    // Update platform stats
     setPlatforms(platforms.map(p => 
       p.id === selectedPlatform.id 
         ? { 
@@ -257,6 +287,33 @@ const PlatformManager = () => {
     setSelectedPlatform(null);
   };
 
+  const handleDeleteProduct = (product: Product) => {
+    // Find the platform this product belongs to
+    const platform = platforms.find(p => p.id === product.platformId);
+    if (!platform) return;
+
+    // Remove product
+    setProducts(products.filter(p => p.id !== product.id));
+
+    // Update platform stats
+    setPlatforms(platforms.map(p => 
+      p.id === product.platformId 
+        ? { 
+            ...p, 
+            products: p.products - 1,
+            revenue: p.revenue - product.price
+          } 
+        : p
+    ));
+
+    toast({
+      title: "Product Deleted",
+      description: `${product.name} has been removed from ${platform.name}.`,
+    });
+
+    setProductToDelete(null);
+  };
+
   const handleViewAnalytics = () => {
     setIsAnalyticsLoading(true);
     setSelectedTab("analytics");
@@ -269,6 +326,10 @@ const PlatformManager = () => {
         description: "Platform analytics data has been loaded successfully.",
       });
     }, 1500);
+  };
+
+  const getProductsByPlatform = (platformId: string) => {
+    return products.filter(product => product.platformId === platformId);
   };
 
   return (
@@ -418,57 +479,22 @@ const PlatformManager = () => {
                         </div>
                       </CardContent>
                       <CardFooter className="flex justify-between pt-0">
-                        <Dialog open={showAddProductDialog && selectedPlatform?.id === platform.id} 
-                          onOpenChange={(open) => {
-                            setShowAddProductDialog(open);
-                            if (open) setSelectedPlatform(platform);
-                          }}
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          className="text-xs" 
+                          onClick={() => handleDisconnectPlatform(platform.id)} 
+                          disabled={platform.status === "connecting"}
                         >
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-xs">
-                              <Plus className="mr-1 h-3 w-3" /> Add Product
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Add New Product to {platform.name}</DialogTitle>
-                              <DialogDescription>Enter the details of the new product.</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="product-name">Product Name</Label>
-                                <Input 
-                                  id="product-name"
-                                  placeholder="Enter product name"
-                                  value={newProductName}
-                                  onChange={(e) => setNewProductName(e.target.value)}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="product-price">Price ($)</Label>
-                                <Input 
-                                  id="product-price"
-                                  placeholder="Enter price"
-                                  type="number"
-                                  min="0.01"
-                                  step="0.01"
-                                  value={newProductPrice}
-                                  onChange={(e) => setNewProductPrice(e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button variant="outline" onClick={() => setShowAddProductDialog(false)}>Cancel</Button>
-                              <Button onClick={handleAddProduct}>Add Product</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        
-                        <Button variant="secondary" size="sm" className="text-xs" onClick={() => handleDisconnectPlatform(platform.id)} disabled={platform.status === "connecting"}>
                           Disconnect
                         </Button>
                         
-                        <Button variant="ghost" size="sm" className="text-xs flex items-center" onClick={handleViewAnalytics}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs flex items-center" 
+                          onClick={handleViewAnalytics}
+                        >
                           View Details <ChevronRight className="h-3 w-3 ml-1" />
                         </Button>
                       </CardFooter>
@@ -505,49 +531,149 @@ const PlatformManager = () => {
           
           <TabsContent value="products" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Products</CardTitle>
-                <CardDescription>Manage your product listings across all platforms</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Products</CardTitle>
+                  <CardDescription>Manage your product listings across all platforms</CardDescription>
+                </div>
+                {connectedPlatforms > 0 && (
+                  <Dialog open={showAddProductDialog} onOpenChange={(open) => {
+                    setShowAddProductDialog(open);
+                    if (open && !selectedPlatform) {
+                      // Default to first connected platform
+                      setSelectedPlatform(platforms.find(p => p.status === "connected") || null);
+                    }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="mr-1 h-3.5 w-3.5" /> Add Product
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add New Product</DialogTitle>
+                        <DialogDescription>Enter the details of the new product.</DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="platform-select">Select Platform</Label>
+                          <select 
+                            id="platform-select"
+                            className="w-full border border-gray-300 rounded px-3 py-2"
+                            value={selectedPlatform?.id || ""}
+                            onChange={(e) => {
+                              const platform = platforms.find(p => p.id === e.target.value);
+                              setSelectedPlatform(platform || null);
+                            }}
+                          >
+                            <option value="" disabled>Select a platform</option>
+                            {platforms
+                              .filter(p => p.status === "connected")
+                              .map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="product-name">Product Name</Label>
+                          <Input 
+                            id="product-name"
+                            placeholder="Enter product name"
+                            value={newProductName}
+                            onChange={(e) => setNewProductName(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="product-price">Price ($)</Label>
+                          <Input 
+                            id="product-price"
+                            placeholder="Enter price"
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            value={newProductPrice}
+                            onChange={(e) => setNewProductPrice(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowAddProductDialog(false)}>Cancel</Button>
+                        <Button onClick={handleAddProduct}>Add Product</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </CardHeader>
               <CardContent>
                 {totalProducts > 0 ? (
                   <div className="space-y-4">
-                    {platforms.filter(p => p.products > 0).map((platform) => (
-                      <div key={platform.id} className="border rounded-md p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 overflow-hidden">
-                              <img 
-                                src={platform.logo} 
-                                alt={`${platform.name} logo`} 
-                                className="h-full w-full object-contain"
-                              />
+                    {platforms
+                      .filter(p => p.status === "connected" && p.products > 0)
+                      .map((platform) => (
+                        <div key={platform.id} className="border rounded-md p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="h-5 w-5 overflow-hidden">
+                                <img 
+                                  src={platform.logo} 
+                                  alt={`${platform.name} logo`} 
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                              <h3 className="font-medium text-sm">{platform.name}</h3>
                             </div>
-                            <h3 className="font-medium text-sm">{platform.name}</h3>
+                            <Badge variant="outline" className="text-xs">{platform.products} products</Badge>
                           </div>
-                          <Badge variant="outline" className="text-xs">{platform.products} products</Badge>
+                          <Separator className="my-2" />
+                          
+                          {/* Products list */}
+                          <div className="space-y-2 mt-2">
+                            {getProductsByPlatform(platform.id).map(product => (
+                              <div key={product.id} className="flex items-center justify-between bg-muted/30 p-2 rounded-md">
+                                <div>
+                                  <p className="text-sm font-medium">{product.name}</p>
+                                  <p className="text-xs text-muted-foreground">${product.price.toFixed(2)}</p>
+                                </div>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => setProductToDelete(product)}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        onClick={() => handleDeleteProduct(product)}
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="flex justify-between mt-3">
+                            <p className="text-sm text-muted-foreground">Total Revenue</p>
+                            <p className="font-medium text-sm">${platform.revenue.toFixed(2)}</p>
+                          </div>
                         </div>
-                        <Separator className="my-2" />
-                        <div className="flex justify-between">
-                          <p className="text-sm text-muted-foreground">Total Revenue</p>
-                          <p className="font-medium text-sm">${platform.revenue.toFixed(2)}</p>
-                        </div>
-                        <div className="mt-3 flex justify-end">
-                          <Dialog open={showAddProductDialog && selectedPlatform?.id === platform.id} 
-                            onOpenChange={(open) => {
-                              setShowAddProductDialog(open);
-                              if (open) setSelectedPlatform(platform);
-                            }}
-                          >
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-xs">
-                                <Plus className="mr-1 h-3 w-3" /> Add Product
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    }
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-64 border rounded-md bg-muted/30">
