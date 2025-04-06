@@ -1,6 +1,6 @@
-
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/browser';
 import App from './App.tsx'
 import './index.css'
 
@@ -9,13 +9,13 @@ if (import.meta.env.PROD) {
   Sentry.init({
     dsn: "https://public@sentry.example.com/1", // Replace with actual Sentry DSN in production
     integrations: [
-      new Sentry.BrowserTracing(),
-      new Sentry.Replay(),
+      new BrowserTracing(),
+      // Replay integration is now available separately
     ],
     // Performance monitoring
     tracesSampleRate: 0.1, // Capture 10% of transactions
-    // Session replay for errors
-    replaysSessionSampleRate: 0.1,
+    // Session replay settings (if needed can be configured differently)
+    replaysSessionSampleRate: 0.1, 
     replaysOnErrorSampleRate: 1.0,
   });
 }
