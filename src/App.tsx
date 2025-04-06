@@ -60,9 +60,12 @@ function App() {
   // Load settings from localStorage with memoization
   const [userSettings, setUserSettings] = useState(() => {
     try {
-      const storedSettings = localStorage.getItem("userSettings");
-      if (storedSettings) {
-        return JSON.parse(storedSettings);
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const storedSettings = localStorage.getItem("userSettings");
+        if (storedSettings) {
+          return JSON.parse(storedSettings);
+        }
       }
     } catch (error) {
       console.error("Error parsing settings from localStorage:", error);
@@ -78,29 +81,39 @@ function App() {
     };
   });
   
-  // Initialize Supabase storage on app mount
+  // Initialize Supabase storage on app mount only in browser environment
   useEffect(() => {
+    // Skip initialization if not in browser environment or supabase is not initialized
+    if (typeof window === 'undefined' || !supabase) {
+      return;
+    }
+    
     const initStorage = async () => {
       try {
-        // No need to call initializeSupabase here, as it's already called during supabase client initialization
-        
-        // Call the edge function to create buckets if needed
-        if (supabase) {
-          const { error } = await supabase.functions.invoke('initialize-storage');
-          if (error) {
-            console.error("Error initializing storage via edge function:", error);
+        // Don't try to call edge functions during build time
+        if (process.env.NODE_ENV !== 'production' || typeof window !== 'undefined') {
+          // Safely handle edge function errors
+          try {
+            const { error } = await supabase.functions.invoke('initialize-storage');
+            if (error) {
+              console.warn("Edge function error, falling back to client initialization:", error);
+            }
+          } catch (err) {
+            console.warn("Could not invoke edge function, continuing with client-side fallback");
           }
         }
       } catch (error) {
-        console.error("Error during initialization:", error);
+        console.warn("Error during initialization, continuing with application:", error);
       }
     };
     
     initStorage();
   }, []);
 
-  // Update settings in localStorage when they change
+  // Update settings in localStorage when they change - only in browser environment
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     try {
       localStorage.setItem("userSettings", JSON.stringify(userSettings));
     } catch (error) {
@@ -108,8 +121,10 @@ function App() {
     }
   }, [userSettings]);
 
-  // Apply dark mode class based on setting
+  // Apply dark mode class based on setting - only in browser environment
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (userSettings.darkMode) {
       document.documentElement.classList.add("dark");
     } else {

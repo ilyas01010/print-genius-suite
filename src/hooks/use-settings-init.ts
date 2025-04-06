@@ -21,29 +21,36 @@ export const useSettingsInit = () => {
 
   // Initialize user settings
   useEffect(() => {
+    // Skip if not in browser environment
+    if (typeof window === 'undefined') return;
+    
     const loadSettings = () => {
-      const storedSettings = localStorage.getItem('userSettings');
-      if (storedSettings) {
-        const settings = JSON.parse(storedSettings);
-        setDarkMode(settings.darkMode || false);
-        setEmailNotifications(settings.emailNotifications || true);
-        setPushNotifications(settings.pushNotifications || true);
-        setTimezone(settings.timezone || "utc");
-        setPublicProfile(settings.publicProfile || false);
-      }
-
-      if (user) {
-        setDisplayName(user.user_metadata?.display_name || "");
-        setDisplayBio(user.user_metadata?.bio || "");
-        
-        const storedReferralCode = localStorage.getItem('referralCode');
-        if (storedReferralCode) {
-          setReferralCode(storedReferralCode);
-        } else {
-          const newReferralCode = generateReferralCode();
-          setReferralCode(newReferralCode);
-          localStorage.setItem('referralCode', newReferralCode);
+      try {
+        const storedSettings = localStorage.getItem('userSettings');
+        if (storedSettings) {
+          const settings = JSON.parse(storedSettings);
+          setDarkMode(settings.darkMode || false);
+          setEmailNotifications(settings.emailNotifications || true);
+          setPushNotifications(settings.pushNotifications || true);
+          setTimezone(settings.timezone || "utc");
+          setPublicProfile(settings.publicProfile || false);
         }
+
+        if (user) {
+          setDisplayName(user.user_metadata?.display_name || "");
+          setDisplayBio(user.user_metadata?.bio || "");
+          
+          const storedReferralCode = localStorage.getItem('referralCode');
+          if (storedReferralCode) {
+            setReferralCode(storedReferralCode);
+          } else {
+            const newReferralCode = generateReferralCode();
+            setReferralCode(newReferralCode);
+            localStorage.setItem('referralCode', newReferralCode);
+          }
+        }
+      } catch (error) {
+        console.warn('Error loading settings:', error);
       }
     };
 
@@ -53,7 +60,9 @@ export const useSettingsInit = () => {
 
   // Apply language change
   useEffect(() => {
-    document.documentElement.setAttribute('lang', language);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', language);
+    }
   }, [language]);
 
   return null;
