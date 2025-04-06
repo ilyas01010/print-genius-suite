@@ -2,9 +2,13 @@
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import DesignUploader from "@/components/design-generator/DesignUploader";
+import DesignGallery from "@/components/design-generator/DesignGallery";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useUser } from "@/context/UserContext";
 
 const DesignGenerator = () => {
+  const { isAuthenticated } = useUser();
+  
   // Mock design templates data
   const templates = [
     { id: 1, name: "Minimalist Typography", category: "Text" },
@@ -25,15 +29,17 @@ const DesignGenerator = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6">
           <DesignUploader />
+          
+          {isAuthenticated && <DesignGallery />}
           
           <Card>
             <CardHeader>
               <CardTitle>Templates</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {templates.map((template) => (
                   <div 
                     key={template.id}
