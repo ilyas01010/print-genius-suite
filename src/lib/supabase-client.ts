@@ -1,23 +1,55 @@
 
-// This file is a placeholder for the Supabase client
-// It will be properly implemented once the Supabase integration is activated
+import { createClient } from '@supabase/supabase-js';
 
-export const supabaseIntegrationMessage = `
-To fully implement backend functionality, please follow these steps:
+// Initialize the Supabase client with the environment variables provided by the Supabase integration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-1. Click on the green Supabase button in the top right corner
-2. Connect your Lovable project to Supabase
-3. Set up authentication, database tables, and storage buckets
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase environment variables are not set. Please check your configuration.');
+}
 
-Once connected, this client file will be updated with the proper configuration.
-`;
+export const supabase = createClient(
+  supabaseUrl || '',
+  supabaseAnonKey || ''
+);
 
 export const getSupabaseReadyStatus = (): boolean => {
-  // This is a placeholder function to check if Supabase is configured
-  return false;
+  return !!supabaseUrl && !!supabaseAnonKey;
 };
 
 export const initializeSupabase = async (): Promise<void> => {
-  console.info('Supabase integration not yet activated.');
-  console.info(supabaseIntegrationMessage);
+  const isReady = getSupabaseReadyStatus();
+  if (isReady) {
+    console.info('Supabase is properly configured and ready to use.');
+  } else {
+    console.error('Supabase is not properly configured.');
+  }
+};
+
+// Authentication helper functions
+export const signUpWithEmail = async (email: string, password: string) => {
+  return await supabase.auth.signUp({
+    email,
+    password,
+  });
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  return await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+};
+
+export const signOut = async () => {
+  return await supabase.auth.signOut();
+};
+
+export const getCurrentUser = async () => {
+  return await supabase.auth.getUser();
+};
+
+export const getSession = async () => {
+  return await supabase.auth.getSession();
 };

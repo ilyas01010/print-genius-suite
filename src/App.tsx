@@ -5,11 +5,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { UserProvider } from "@/context/UserContext";
+import { initializeSupabase } from "@/lib/supabase-client";
+
 import Index from "./pages/Index";
 import NicheResearch from "./pages/NicheResearch";
 import DesignGenerator from "./pages/DesignGenerator";
 import CopyrightChecker from "./pages/CopyrightChecker";
 import NotFound from "./pages/NotFound";
+import AuthPage from "./pages/AuthPage";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -26,12 +30,18 @@ const App = () => {
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    // Simulate app initialization
-    const timer = setTimeout(() => {
-      setAppReady(true);
-      console.log("Print Genius Suite initialized");
-    }, 500);
-    return () => clearTimeout(timer);
+    const initApp = async () => {
+      // Initialize Supabase
+      await initializeSupabase();
+      
+      // Simulate app initialization
+      setTimeout(() => {
+        setAppReady(true);
+        console.log("Print Genius Suite initialized");
+      }, 500);
+    };
+
+    initApp();
   }, []);
 
   if (!appReady) {
@@ -47,19 +57,22 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/niche-research" element={<NicheResearch />} />
-            <Route path="/design-generator" element={<DesignGenerator />} />
-            <Route path="/copyright-checker" element={<CopyrightChecker />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <UserProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/niche-research" element={<NicheResearch />} />
+              <Route path="/design-generator" element={<DesignGenerator />} />
+              <Route path="/copyright-checker" element={<CopyrightChecker />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </UserProvider>
     </QueryClientProvider>
   );
 };

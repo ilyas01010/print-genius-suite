@@ -1,19 +1,15 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-
-type User = {
-  id: string;
-  email: string;
-  name?: string;
-  avatarUrl?: string;
-};
+import { supabase, signOut as supabaseSignOut } from '@/lib/supabase-client';
+import { User } from '@supabase/supabase-js';
+import { toast } from '@/hooks/use-toast';
 
 type UserContextType = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -23,14 +19,38 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This would be replaced with actual Supabase auth check once integrated
     const checkAuth = async () => {
       try {
-        // Simulate auth check
-        const storedUser = localStorage.getItem('print-genius-user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
+        const { data } = await supabase.auth.getSession();
+        
+        if (data.session?.user) {
+          setUser(data.session.user);
         }
+
+        // Set up auth state listener
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user) {
+              setUser(session.user);
+              toast({
+                title: 'Signed in successfully',
+                description: `Welcome${session.user.email ? `, ${session.user.email}` : ''}!`,
+              });
+            }
+            
+            if (event === 'SIGNED_OUT') {
+              setUser(null);
+              toast({
+                title: 'Signed out',
+                description: 'You have been signed out.',
+              });
+            }
+          }
+        );
+
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
       } catch (error) {
         console.error('Auth error:', error);
       } finally {
@@ -41,10 +61,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuth();
   }, []);
 
-  const logout = () => {
-    // This would be replaced with actual Supabase logout once integrated
-    localStorage.removeItem('print-genius-user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await supabaseSignOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: 'Error signing out',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
