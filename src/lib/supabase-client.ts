@@ -24,7 +24,7 @@ export const supabase = (() => {
 })();
 
 export const getSupabaseReadyStatus = (): boolean => {
-  return true; // We are using the integration values, so Supabase is always ready
+  return supabaseInstance !== null;
 };
 
 export const initializeSupabase = async (): Promise<void> => {
@@ -37,6 +37,18 @@ export const initializeSupabase = async (): Promise<void> => {
     console.error('Error initializing Supabase:', error);
   }
 };
+
+// Define a Design type based on the database schema
+export interface Design {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  category: string | null;
+  storage_path: string;
+  name: string;
+  description: string | null;
+}
 
 // Authentication helper functions with error handling
 export const signUpWithEmail = async (email: string, password: string) => {
