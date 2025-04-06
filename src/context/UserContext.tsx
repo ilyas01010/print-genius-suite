@@ -33,6 +33,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // First check if Supabase client is properly initialized
+        if (!supabase) {
+          console.warn('Supabase client is not initialized - skipping auth check');
+          setIsLoading(false);
+          return;
+        }
+        
         const { data } = await getSession();
         
         if (data.session?.user) {
@@ -70,7 +77,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         setIsLoading(false);
         return () => {
-          authListener.subscription.unsubscribe();
+          if (authListener?.subscription) {
+            authListener.subscription.unsubscribe();
+          }
         };
       } catch (error) {
         console.error('Auth error:', error);
@@ -83,6 +92,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+      
       await supabase.auth.signOut();
       setUser(null);
       toast({
@@ -103,6 +116,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       if (!user) {
         throw new Error('You must be logged in to delete your account');
+      }
+      
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
       }
       
       // Delete user data associated with this account
