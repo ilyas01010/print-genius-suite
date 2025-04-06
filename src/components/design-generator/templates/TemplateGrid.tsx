@@ -33,6 +33,7 @@ const TemplateGrid = ({
 
   const handleDownload = (template: DesignTemplate, format: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent bubbling up to parent elements
+    e.preventDefault(); // Ensure the default action is prevented
     
     // In a real implementation, this would generate the appropriate file format
     toast({
@@ -51,6 +52,7 @@ const TemplateGrid = ({
 
   const handleShareTemplate = (template: DesignTemplate, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent bubbling up to parent elements
+    e.preventDefault(); // Ensure the default action is prevented
     
     // Copy share URL to clipboard
     navigator.clipboard.writeText(`https://printgenius.app/shared-template/${template.id}`);
@@ -75,11 +77,17 @@ const TemplateGrid = ({
             <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" className="h-8 w-8">
+                  <Button 
+                    variant="secondary" 
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={(e) => e.stopPropagation()} // Prevent card click
+                  >
                     <Download className="h-4 w-4" />
+                    <span className="sr-only">Download options</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenuItem onClick={(e) => handleDownload(template, "PNG", e)}>
                     PNG Image
                   </DropdownMenuItem>
@@ -96,9 +104,13 @@ const TemplateGrid = ({
                 variant="secondary" 
                 size="icon" 
                 className="h-8 w-8"
-                onClick={(e) => handleShareTemplate(template, e)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareTemplate(template, e);
+                }}
               >
                 <Share className="h-4 w-4" />
+                <span className="sr-only">Share template</span>
               </Button>
             </div>
             

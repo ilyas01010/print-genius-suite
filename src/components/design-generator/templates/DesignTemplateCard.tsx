@@ -22,9 +22,13 @@ const DesignTemplateCard = ({
   onSelect,
   categoryIcons 
 }: DesignTemplateCardProps) => {
-  // Handle click separately to prevent event propagation issues
+  // Use separate handlers to fix event propagation issues
+  const handleCardClick = () => {
+    onSelect(template.id);
+  };
+  
   const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent bubbling to parent
     onSelect(template.id);
   };
   
@@ -32,7 +36,7 @@ const DesignTemplateCard = ({
     <div 
       key={template.id}
       className="group overflow-hidden rounded-md border hover:border-primary/50 transition-all cursor-pointer"
-      onClick={() => onSelect(template.id)}
+      onClick={handleCardClick}
     >
       <div className="aspect-square bg-muted relative overflow-hidden">
         <img 
