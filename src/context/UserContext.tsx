@@ -1,8 +1,11 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase, getSession } from '@/lib/supabase-client';
-import { User } from '@supabase/supabase-js';
+import { User, AuthChangeEvent } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
+
+// Define custom auth event type that includes USER_DELETED
+type ExtendedAuthChangeEvent = AuthChangeEvent | 'USER_DELETED';
 
 type UserContextType = {
   user: User | null;
@@ -38,7 +41,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Set up auth state listener
         const { data: authListener } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
+          async (event: ExtendedAuthChangeEvent, session) => {
             if (event === 'SIGNED_IN' && session?.user) {
               setUser(session.user);
               toast({

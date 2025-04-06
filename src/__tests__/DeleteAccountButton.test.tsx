@@ -23,6 +23,9 @@ jest.mock("@/lib/supabase-client", () => ({
         deleteUser: jest.fn(),
       },
     },
+    functions: {
+      invoke: jest.fn().mockReturnValue({ error: null }),
+    },
   },
 }));
 
@@ -82,7 +85,7 @@ describe("DeleteAccountButton Component", () => {
 
   it("handles account deletion when confirmed", async () => {
     // Setup successful deletion
-    (supabase.auth.admin.deleteUser as jest.Mock).mockResolvedValue({ error: null });
+    (supabase.functions.invoke as jest.Mock).mockResolvedValue({ error: null });
     
     render(<DeleteAccountButton />);
     
@@ -99,9 +102,9 @@ describe("DeleteAccountButton Component", () => {
     
     // Check that the correct functions were called
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith("designs");
-      expect(supabase.delete).toHaveBeenCalled();
-      expect(supabase.auth.admin.deleteUser).toHaveBeenCalledWith(mockUser.id);
+      expect(supabase.functions.invoke).toHaveBeenCalledWith("delete-user", {
+        body: { userId: mockUser.id }
+      });
       expect(mockLogout).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith("/");
       expect(mockToast).toHaveBeenCalled();
@@ -111,7 +114,7 @@ describe("DeleteAccountButton Component", () => {
   it("handles errors during account deletion", async () => {
     // Setup error during deletion
     const mockError = new Error("Deletion failed");
-    (supabase.auth.admin.deleteUser as jest.Mock).mockRejectedValue(mockError);
+    (supabase.functions.invoke as jest.Mock).mockRejectedValue(mockError);
     
     render(<DeleteAccountButton />);
     
