@@ -33,7 +33,10 @@ const ImagePreview = ({
         />
       </div>
       <div className="flex flex-wrap justify-center gap-2">
-        <Button onClick={resetForm}>
+        <Button 
+          onClick={resetForm}
+          disabled={isLoading}
+        >
           Remove
         </Button>
         <Button 
