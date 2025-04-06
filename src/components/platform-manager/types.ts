@@ -1,7 +1,8 @@
 
 import { ConnectionStatus } from "@/components/settings/integration/IntegrationItem";
 
-export type PlatformStatus = ConnectionStatus;
+// Update PlatformStatus to include 'error' status
+export type PlatformStatus = ConnectionStatus | "error";
 
 export interface Product {
   id: string;
