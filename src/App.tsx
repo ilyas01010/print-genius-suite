@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 
 // Eagerly loaded components
 import Index from "@/pages/Index";
+import DesignGenerator from "@/pages/DesignGenerator";
 
 // Lazy loaded pages with improved loading boundary
 const PageLoader = () => (
@@ -19,9 +20,6 @@ const PageLoader = () => (
     <p className="mt-4 text-muted-foreground">Loading...</p>
   </div>
 );
-
-// Load DesignGenerator component eagerly to avoid issues with dynamic imports
-import DesignGenerator from "@/pages/DesignGenerator";
 
 // Lazy loaded routes with aggressive prefetching
 const NotFound = lazy(() => import("@/pages/NotFound"));

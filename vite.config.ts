@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react({
       jsxImportSource: mode === 'development' ? undefined : undefined,
-      // Remove invalid devTarget property
       // Optimized production build
       plugins: mode === 'production' ? [] : undefined,
     }),

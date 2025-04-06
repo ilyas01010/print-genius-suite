@@ -1,14 +1,11 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://print-genius-suite.com/sitemap.xml
+
+# Disallow admin or private routes
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+
