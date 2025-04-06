@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLink, AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
-import { Platform } from "./types";
+import { Platform, PlatformStatus } from "./types";
 import { Link } from "react-router-dom";
 
 interface PlatformCardProps {
@@ -24,13 +24,6 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
             Connected
           </Badge>
         );
-      case "error":
-        return (
-          <Badge variant="destructive">
-            <AlertCircle className="h-3 w-3 mr-1" />
-            Error
-          </Badge>
-        );
       case "disconnected":
         return (
           <Badge variant="outline" className="border-amber-500 text-amber-500">
@@ -44,6 +37,13 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
             Connecting
           </Badge>
         );
+      case "error":
+        return (
+          <Badge variant="destructive">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Error
+          </Badge>
+        );
       default:
         return (
           <Badge variant="outline">
@@ -55,8 +55,6 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
 
   const isDisconnectedOrError = platform.status === "disconnected" || platform.status === "error";
   const isConnected = platform.status === "connected";
-
-  // Using type guard for safer comparison
   const isConnecting = platform.status === "connecting";
 
   return (
@@ -66,7 +64,7 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded overflow-hidden">
               <img 
-                src={platform.icon || "/placeholder.svg"} 
+                src={platform.icon || platform.logo || "/placeholder.svg"} 
                 alt={platform.name} 
                 className="h-full w-full object-contain"
               />
@@ -79,24 +77,26 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
         </div>
       </CardHeader>
       <CardContent className="pb-3">
-        <CardDescription className="mb-2">{platform.description}</CardDescription>
+        <CardDescription className="mb-2">
+          {platform.description || `Manage your ${platform.name} products and sales`}
+        </CardDescription>
         
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div className="flex flex-col">
             <span className="text-muted-foreground">Products</span>
-            <span className="font-medium">{platform.productsCount}</span>
+            <span className="font-medium">{platform.productsCount || platform.products || 0}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Active</span>
-            <span className="font-medium">{platform.activeProductsCount}</span>
+            <span className="font-medium">{platform.activeProductsCount || 0}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Sales (30d)</span>
-            <span className="font-medium">{platform.sales30d}</span>
+            <span className="font-medium">{platform.sales30d || 0}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Revenue (30d)</span>
-            <span className="font-medium">${platform.revenue30d}</span>
+            <span className="font-medium">${platform.revenue30d || platform.revenue || 0}</span>
           </div>
         </div>
       </CardContent>
@@ -121,7 +121,7 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform, onReconnect, onVi
                     className="px-2"
                     asChild
                   >
-                    <Link to={platform.url} target="_blank" rel="noopener noreferrer">
+                    <Link to={platform.url || '#'} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>

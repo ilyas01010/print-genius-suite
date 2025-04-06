@@ -35,9 +35,8 @@ const PlatformsList = ({
         <PlatformCard
           key={platform.id}
           platform={platform}
-          onConnect={onConnectPlatform}
-          onDisconnect={onDisconnectPlatform}
-          onViewDetails={onViewAnalytics}
+          onReconnect={onConnectPlatform}
+          onViewDetails={() => onViewAnalytics()}
         />
       ))}
       

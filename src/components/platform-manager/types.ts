@@ -15,9 +15,16 @@ export type Platform = {
   id: string;
   name: string;
   logo: string;
+  icon?: string;
+  url?: string;
+  description?: string;
   status: PlatformStatus;
   products: number;
+  productsCount?: number;
+  activeProductsCount?: number;
+  sales30d?: number;
   revenue: number;
+  revenue30d?: number;
   createdAt?: string; // Add date field
 };
 
