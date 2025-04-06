@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { supabase, initializeSupabase } from "@/lib/supabase-client";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import DesignGenerator from "@/pages/DesignGenerator";
@@ -44,6 +45,28 @@ function App() {
       publicProfile: false
     };
   });
+  
+  // Initialize Supabase storage on app mount
+  useEffect(() => {
+    const initStorage = async () => {
+      try {
+        // Initialize Supabase and required storage buckets
+        await initializeSupabase();
+        
+        // Also call the edge function to create buckets if needed
+        if (supabase) {
+          const { error } = await supabase.functions.invoke('initialize-storage');
+          if (error) {
+            console.error("Error initializing storage via edge function:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Error during initialization:", error);
+      }
+    };
+    
+    initStorage();
+  }, []);
 
   // Update settings in localStorage when they change
   useEffect(() => {

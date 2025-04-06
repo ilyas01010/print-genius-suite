@@ -15,12 +15,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
+  className?: string;
 }
 
-const Header = ({ onToggleSidebar }: HeaderProps) => {
+const Header = ({ onToggleSidebar, className }: HeaderProps) => {
   const { user, isAuthenticated, logout } = useUser();
   const { toast } = useToast();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
@@ -48,7 +50,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-6 sm:px-8">
+    <header className={cn("sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 sm:px-6 lg:px-8 transition-all", className)}>
       <Button
         variant="ghost"
         size="icon"

@@ -3,5 +3,9 @@ project_id = "kdpsyldycxyxmmxkjnai"
 
 [functions]
 
+[functions.initialize-storage]
+verify_jwt = true
+
 [[functions.importer]]
 verify_jwt = true
+
