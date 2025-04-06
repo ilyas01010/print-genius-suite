@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, FileImage } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/image-utils";
 
 interface DropZoneProps {
   onFileSelected: (file: File) => void;
@@ -10,6 +10,7 @@ interface DropZoneProps {
 
 const DropZone = ({ onFileSelected }: DropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -38,7 +39,7 @@ const DropZone = ({ onFileSelected }: DropZoneProps) => {
     }
   };
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     const fileType = file.type;
     const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'];
     
@@ -60,7 +61,34 @@ const DropZone = ({ onFileSelected }: DropZoneProps) => {
       return;
     }
     
-    onFileSelected(file);
+    try {
+      setIsProcessing(true);
+      
+      // Only compress raster images (not SVGs)
+      if (fileType !== 'image/svg+xml' && file.size > 1024 * 1024) {
+        toast({
+          title: "Processing image",
+          description: "Optimizing your image for better performance...",
+        });
+        
+        // Compress the image to improve loading performance
+        const compressedBlob = await compressImage(file, 1600, 0.85);
+        const optimizedFile = new File([compressedBlob], file.name, {
+          type: fileType === 'image/png' ? 'image/png' : 'image/jpeg',
+        });
+        
+        onFileSelected(optimizedFile);
+      } else {
+        // Pass through SVGs and small files unchanged
+        onFileSelected(file);
+      }
+    } catch (error) {
+      console.error("Error processing image:", error);
+      // Fall back to the original file if compression fails
+      onFileSelected(file);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -76,7 +104,9 @@ const DropZone = ({ onFileSelected }: DropZoneProps) => {
         <FileImage className="h-16 w-16 text-muted-foreground" />
         <div className="space-y-2">
           <p className="text-sm font-medium">
-            Drag and drop your image here or click to browse
+            {isProcessing 
+              ? "Processing image..." 
+              : "Drag and drop your image here or click to browse"}
           </p>
           <p className="text-xs text-muted-foreground">
             Supports JPEG, PNG, SVG, and WEBP files (max 10MB)
@@ -85,6 +115,7 @@ const DropZone = ({ onFileSelected }: DropZoneProps) => {
         <Button
           variant="outline"
           onClick={() => document.getElementById("file-upload")?.click()}
+          disabled={isProcessing}
         >
           <Upload className="mr-2 h-4 w-4" />
           Browse Files
@@ -95,6 +126,7 @@ const DropZone = ({ onFileSelected }: DropZoneProps) => {
           accept="image/jpeg,image/png,image/svg+xml,image/webp"
           className="hidden"
           onChange={handleFileChange}
+          disabled={isProcessing}
         />
       </div>
     </div>

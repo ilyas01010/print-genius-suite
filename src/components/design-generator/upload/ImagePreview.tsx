@@ -25,6 +25,11 @@ const ImagePreview = ({
           src={preview}
           alt="Preview"
           className="mx-auto h-auto max-w-full object-contain"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
         />
       </div>
       <div className="flex flex-wrap justify-center gap-2">

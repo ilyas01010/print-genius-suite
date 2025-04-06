@@ -37,6 +37,11 @@ const GeneratedImagePreview = ({
             src={generatedImage}
             alt="Generated design"
             className="w-full h-auto object-contain"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
           />
         ) : (
           <div className="aspect-square flex items-center justify-center text-muted-foreground">

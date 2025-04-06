@@ -10,6 +10,7 @@ import GeneratedImagePreview from "./text-to-image/GeneratedImagePreview";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon, AlertTriangleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { compressImage } from "@/lib/image-utils";
 
 const TextToImage = () => {
   const [prompt, setPrompt] = useState("");
@@ -63,7 +64,18 @@ const TextToImage = () => {
         
         // Preload the image to ensure it's fully loaded before displaying
         const img = new Image();
+        
+        // Add timeout to prevent hanging on slow loads
+        const timeout = setTimeout(() => {
+          setLoadingImage(false);
+          toast({
+            title: "Image loading slow",
+            description: "The image generation is taking longer than expected. It will appear when ready.",
+          });
+        }, 15000);
+        
         img.onload = () => {
+          clearTimeout(timeout);
           setGeneratedImage(data.imageUrl);
           setGeneratedPrompt(prompt);
           setLoadingImage(false);
@@ -73,6 +85,7 @@ const TextToImage = () => {
           });
         };
         img.onerror = () => {
+          clearTimeout(timeout);
           setLoadingImage(false);
           throw new Error("Failed to load generated image");
         };
@@ -105,7 +118,17 @@ const TextToImage = () => {
       // Convert data URL to blob
       const response = await fetch(generatedImage);
       const blob = await response.blob();
-      const file = new File([blob], `ai-design-${Date.now()}.png`, { type: 'image/png' });
+      
+      // Compress the image before saving
+      const compressedBlob = await compressImage(
+        new File([blob], `ai-design-${Date.now()}.png`, { type: 'image/png' }),
+        1200, 
+        0.85
+      );
+      
+      const file = new File([compressedBlob], `ai-design-${Date.now()}.png`, { 
+        type: 'image/jpeg' 
+      });
 
       await uploadDesign(
         file, 
