@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { useSettings } from "@/context/SettingsContext";
 
 interface PreferenceSettingsProps {
   darkMode: boolean;
@@ -41,10 +42,8 @@ const PreferenceSettings = ({
 
   const handleDarkModeChange = (checked: boolean) => {
     try {
-      // Prevent multiple rapid changes
-      setTimeout(() => {
-        setDarkMode(checked);
-      }, 0);
+      // Apply immediately to prevent flickering
+      setDarkMode(checked);
     } catch (error) {
       console.error("Error changing dark mode:", error);
       toast({
@@ -83,7 +82,7 @@ const PreferenceSettings = ({
             <div className="flex items-center space-x-4">
               <Bell className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium">Push {t('common.notifications')}</p>
+                <p className="font-medium">Push Notifications</p>
                 <p className="text-sm text-muted-foreground">Receive browser notifications</p>
               </div>
             </div>
@@ -105,7 +104,7 @@ const PreferenceSettings = ({
             <div className="flex items-center space-x-4">
               <Mail className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium">Email {t('common.notifications')}</p>
+                <p className="font-medium">Email Notifications</p>
                 <p className="text-sm text-muted-foreground">Receive email updates</p>
               </div>
             </div>

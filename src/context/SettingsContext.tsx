@@ -44,6 +44,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [bio, setDisplayBio] = useState("");
   const [publicProfile, setPublicProfile] = useState(false);
   const [timezone, setTimezone] = useState("utc");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Update affiliate link when referral code changes
   useEffect(() => {
@@ -64,10 +65,24 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             if (typeof settings.darkMode === 'boolean') {
               setDarkMode(settings.darkMode);
             }
+            if (typeof settings.emailNotifications === 'boolean') {
+              setEmailNotifications(settings.emailNotifications);
+            }
+            if (typeof settings.pushNotifications === 'boolean') {
+              setPushNotifications(settings.pushNotifications);
+            }
+            if (settings.timezone) {
+              setTimezone(settings.timezone);
+            }
+            if (typeof settings.publicProfile === 'boolean') {
+              setPublicProfile(settings.publicProfile);
+            }
           }
         }
+        setIsInitialized(true);
       } catch (error) {
         console.error("Error loading settings:", error);
+        setIsInitialized(true);
       }
     };
 
@@ -76,6 +91,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Apply dark mode when it changes
   useEffect(() => {
+    if (!isInitialized) return;
+    
     const applyDarkMode = () => {
       try {
         if (typeof document !== 'undefined') {
@@ -97,7 +114,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } else {
       applyDarkMode();
     }
-  }, [darkMode]);
+  }, [darkMode, isInitialized]);
 
   const generateReferralCode = () => {
     const prefix = "PRINT";

@@ -33,6 +33,7 @@ const CustomerService = lazy(() => import("@/pages/CustomerService"));
 const MarketingPlanner = lazy(() => import("@/pages/MarketingPlanner"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const LearningHub = lazy(() => import("@/pages/LearningHub"));
+const Support = lazy(() => import("@/pages/Support"));
 
 // ScrollToTop component to handle scroll restoration on route changes
 function ScrollToTop() {
@@ -56,6 +57,21 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Theme initialization function to prevent flickering
+const initializeThemeFromStorage = () => {
+  if (typeof window === 'undefined') return 'light';
+  try {
+    const storedSettings = localStorage.getItem("userSettings");
+    if (storedSettings) {
+      const settings = JSON.parse(storedSettings);
+      return settings.darkMode ? 'dark' : 'light';
+    }
+  } catch (error) {
+    console.error("Error parsing settings from localStorage:", error);
+  }
+  return 'light';
+};
 
 function App() {
   // Load settings from localStorage with memoization
@@ -140,7 +156,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme={userSettings.darkMode ? "dark" : "light"}>
+      <ThemeProvider attribute="class" defaultTheme={initializeThemeFromStorage()}>
         <LanguageProvider>
           <UserProvider>
             <Router>
@@ -159,7 +175,7 @@ function App() {
                   <Route path="/customer-service" element={<CustomerService />} />
                   <Route path="/marketing-planner" element={<MarketingPlanner />} />
                   <Route path="/learning-hub" element={<LearningHub />} />
-                  <Route path="/support" element={<CustomerService />} />
+                  <Route path="/support" element={<Support />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
