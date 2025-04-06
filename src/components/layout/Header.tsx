@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, User, LogOut } from "lucide-react";
+import { Menu, Bell, User, LogOut, Languages, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import {
@@ -11,9 +11,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
+import { Separator } from "@/components/ui/separator";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -22,10 +28,15 @@ interface HeaderProps {
 const Header = ({ onToggleSidebar }: HeaderProps) => {
   const { user, isAuthenticated, logout } = useUser();
   const { toast } = useToast();
+  const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [hasUnreadNotifications] = useState(true);
 
   const handleLogout = async () => {
     await logout();
+    toast({
+      title: t("auth.logoutSuccess"),
+      description: "",
+    });
   };
 
   const getUserInitials = () => {
@@ -34,9 +45,14 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
   };
 
   const handleNotificationClick = () => {
+    // This function just opens the dropdown now
+  };
+  
+  const handleLanguageChange = (lang: string) => {
+    setLanguage(lang);
     toast({
-      title: "Notifications",
-      description: "You have no new notifications",
+      title: t("common.language"),
+      description: `${availableLanguages[lang]} ${t("common.success").toLowerCase()}`,
     });
   };
 
@@ -57,6 +73,31 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
       </div>
       
       <div className="flex items-center gap-2">
+        {/* Language Selector */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Globe className="h-5 w-5" />
+              <span className="sr-only">{t("common.language")}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{t("common.language")}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {Object.entries(availableLanguages).map(([code, name]) => (
+              <DropdownMenuItem 
+                key={code}
+                onClick={() => handleLanguageChange(code)}
+                className={language === code ? "bg-accent" : ""}
+              >
+                <span className="mr-2">{code === "en" ? "🇺🇸" : code === "fr" ? "🇫🇷" : code === "es" ? "🇪🇸" : "🌐"}</span>
+                {name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" onClick={handleNotificationClick}>
@@ -66,26 +107,27 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                   <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
                 )}
               </div>
-              <span className="sr-only">Notifications</span>
+              <span className="sr-only">{t("common.notifications")}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("common.notifications")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="max-h-80 overflow-auto py-2">
               <div className="px-4 py-2 text-sm text-center text-muted-foreground">
-                No notifications at the moment
+                {t("notifications.noNotifications")}
               </div>
             </div>
             <DropdownMenuSeparator />
             <div className="p-2">
               <Button variant="outline" size="sm" className="w-full">
-                Mark all as read
+                {t("notifications.markAllRead")}
               </Button>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
         
+        {/* User Menu */}
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -98,24 +140,24 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
-                {user?.email || "My Account"}
+                {user?.email || t("common.account")}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>{t("common.profile")}</DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to="/settings" className="flex w-full">Settings</Link>
+                <Link to="/settings" className="flex w-full">{t("common.settings")}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                {t("common.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
           <Button asChild variant="default" size="sm">
-            <Link to="/auth">Sign In</Link>
+            <Link to="/auth">{t("common.signIn")}</Link>
           </Button>
         )}
       </div>

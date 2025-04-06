@@ -29,24 +29,35 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  // Check for dark mode preference in localStorage
-  const [darkMode, setDarkMode] = useState(() => {
+  // Load settings from localStorage
+  const [userSettings, setUserSettings] = useState(() => {
     const storedSettings = localStorage.getItem("userSettings");
     if (storedSettings) {
-      const settings = JSON.parse(storedSettings);
-      return settings.darkMode || false;
+      return JSON.parse(storedSettings);
     }
-    return false;
+    return {
+      darkMode: false,
+      language: "en",
+      emailNotifications: true,
+      pushNotifications: true,
+      timezone: "utc",
+      publicProfile: false
+    };
   });
 
+  // Update settings in localStorage when they change
   useEffect(() => {
-    // Apply dark mode class based on localStorage setting
-    if (darkMode) {
+    localStorage.setItem("userSettings", JSON.stringify(userSettings));
+  }, [userSettings]);
+
+  // Apply dark mode class based on setting
+  useEffect(() => {
+    if (userSettings.darkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-  }, [darkMode]);
+  }, [userSettings.darkMode]);
 
   return (
     <QueryClientProvider client={queryClient}>

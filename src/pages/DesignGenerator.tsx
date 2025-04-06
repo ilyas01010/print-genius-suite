@@ -7,18 +7,20 @@ import { useUser } from "@/context/UserContext";
 import DesignTemplates from "@/components/design-generator/templates/DesignTemplates";
 import CollaborationPanel from "@/components/design-generator/collaboration/CollaborationPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/context/LanguageContext";
 
 const DesignGenerator = () => {
   const { isAuthenticated } = useUser();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"create" | "collaborate">("create");
   
   return (
     <Layout>
       <div className="space-y-6 animate-fade">
         <div className="flex flex-col gap-2">
-          <h1 className="font-bold text-3xl">Design Generator</h1>
+          <h1 className="font-bold text-3xl">{t("design.title")}</h1>
           <p className="text-muted-foreground">
-            Create and edit Print-on-Demand ready designs
+            {t("design.subtitle")}
           </p>
         </div>
 
@@ -29,8 +31,8 @@ const DesignGenerator = () => {
         >
           <div className="flex justify-between items-center">
             <TabsList>
-              <TabsTrigger value="create">Create & Edit</TabsTrigger>
-              <TabsTrigger value="collaborate">Collaborate</TabsTrigger>
+              <TabsTrigger value="create">{t("design.createNew")}</TabsTrigger>
+              <TabsTrigger value="collaborate">{t("design.collaborate")}</TabsTrigger>
             </TabsList>
           </div>
           
