@@ -85,8 +85,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     ) : children;
 
-    // Standard button rendering (not using asChild)
-    if (!asChild) {
+    // If asChild is true, we must ensure we're passing exactly one React element
+    if (asChild) {
+      // Radix UI's Slot requires exactly one React element child
+      if (!React.isValidElement(children)) {
+        console.error("Button with asChild prop must have a single valid React element child");
+        return null;
+      }
+
       return (
         <Comp
           className={cn(buttonVariants({ variant, size, loading, className }))}
@@ -94,19 +100,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           disabled={disabled}
           {...props}
         >
-          {content}
+          {children}
         </Comp>
       );
     }
-    
-    // For asChild implementation, we need special handling
-    // Radix UI's Slot expects exactly one React element child
-    if (!React.isValidElement(children)) {
-      console.error("Button with asChild prop must have a single valid React element child");
-      return null;
-    }
-    
-    // Clone the child element and merge our props with it
+
+    // Standard button rendering (not using asChild)
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, loading, className }))}
@@ -114,9 +113,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         {...props}
       >
-        {React.cloneElement(children as React.ReactElement, {
-          ...children.props
-        })}
+        {content}
       </Comp>
     );
   }
