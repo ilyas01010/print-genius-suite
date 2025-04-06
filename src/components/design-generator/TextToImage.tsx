@@ -8,7 +8,7 @@ import { useDesigns } from "@/hooks/use-designs";
 import PromptInput from "./text-to-image/PromptInput";
 import GeneratedImagePreview from "./text-to-image/GeneratedImagePreview";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoCircle } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 
 const TextToImage = () => {
   const [prompt, setPrompt] = useState("");
@@ -134,7 +134,7 @@ const TextToImage = () => {
       <CardContent className="pt-6">
         {apiNote && (
           <Alert className="mb-4 bg-yellow-50">
-            <InfoCircle className="h-4 w-4" />
+            <InfoIcon className="h-4 w-4" />
             <AlertDescription>
               {apiNote} - The images shown are placeholders.
             </AlertDescription>
