@@ -42,7 +42,7 @@ const Layout = ({ children }: LayoutProps) => {
             className={scrolled ? 'shadow-sm' : ''} 
           />
           <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <main className={`flex-1 overflow-auto p-4 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <main className={`flex-1 overflow-auto p-3 md:p-4 lg:p-5 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
             <div className="mx-auto max-w-6xl animate-fade-in">
               {children}
             </div>

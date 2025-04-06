@@ -75,11 +75,11 @@ const DesignTemplates = () => {
   ];
 
   const categoryIcons = {
-    "Text": <Text className="h-4 w-4" />,
-    "Illustration": <Palette className="h-4 w-4" />,
-    "Photo": <ImageIcon className="h-4 w-4" />,
-    "Pattern": <Shapes className="h-4 w-4" />,
-    "Logo": <Shapes className="h-4 w-4" />
+    "Text": <Text className="h-3.5 w-3.5" />,
+    "Illustration": <Palette className="h-3.5 w-3.5" />,
+    "Photo": <ImageIcon className="h-3.5 w-3.5" />,
+    "Pattern": <Shapes className="h-3.5 w-3.5" />,
+    "Logo": <Shapes className="h-3.5 w-3.5" />
   };
 
   // Filter templates by category
@@ -95,18 +95,18 @@ const DesignTemplates = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Design Templates</CardTitle>
+    <Card className="shadow-sm">
+      <CardHeader className="px-3 py-2.5 sm:px-4 sm:py-3">
+        <CardTitle className="text-lg">Design Templates</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 py-2.5 sm:px-4">
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="popular">Popular</TabsTrigger>
-            <TabsTrigger value="text">Text</TabsTrigger>
-            <TabsTrigger value="illustration">Illustration</TabsTrigger>
-            <TabsTrigger value="pattern">Patterns</TabsTrigger>
+          <TabsList className="mb-3 h-8">
+            <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+            <TabsTrigger value="popular" className="text-xs">Popular</TabsTrigger>
+            <TabsTrigger value="text" className="text-xs">Text</TabsTrigger>
+            <TabsTrigger value="illustration" className="text-xs">Illustration</TabsTrigger>
+            <TabsTrigger value="pattern" className="text-xs">Patterns</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all" className="mt-0">

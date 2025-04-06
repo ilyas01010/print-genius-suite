@@ -22,17 +22,18 @@ const IntegrationItem = ({ name, description, icon, bgColor }: IntegrationItemPr
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
-        <div className={`h-10 w-10 rounded ${bgColor} flex items-center justify-center`}>
+      <div className="flex items-center space-x-3">
+        <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded ${bgColor} flex items-center justify-center`}>
           {icon}
         </div>
         <div>
-          <p className="font-medium">{name}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="font-medium text-sm sm:text-base">{name}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
       <Button 
         variant="outline" 
+        size="sm"
         onClick={handleConnect}
       >
         Connect

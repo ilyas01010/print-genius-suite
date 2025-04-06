@@ -45,24 +45,24 @@ const DesignTemplateCard = ({
           className="object-cover w-full h-full transition-transform group-hover:scale-105"
         />
         {template.popular && (
-          <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs font-medium">
+          <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs font-medium">
             Popular
           </div>
         )}
       </div>
-      <div className="p-3">
+      <div className="p-2">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-sm">{template.name}</h3>
+          <h3 className="font-medium text-xs sm:text-sm">{template.name}</h3>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             {categoryIcons[template.category]}
-            <span>{template.category}</span>
+            <span className="hidden sm:inline">{template.category}</span>
           </div>
         </div>
-        <div className="mt-2">
+        <div className="mt-1.5">
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full text-xs"
+            className="w-full text-xs h-7"
             onClick={handleButtonClick}
           >
             Use Template

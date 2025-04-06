@@ -25,24 +25,26 @@ const AccountCard = ({
 }: AccountCardProps) => {
   return (
     <Card className={cn(
-      "animate-in fade-in-50 shadow-md", 
+      "animate-in fade-in-50 shadow-sm", 
       variant === "destructive" && "border-destructive/50"
     )}>
-      <CardHeader>
+      <CardHeader className="px-4 py-3 sm:px-5 sm:py-4">
         <CardTitle className={cn(
+          "text-lg",
           variant === "destructive" && "text-destructive"
         )}>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
       </CardHeader>
       
       {children}
       
       {showSaveButton && handleSaveSettings && (
-        <CardFooter className="flex justify-end border-t p-6 pt-4">
+        <CardFooter className="flex justify-end border-t px-4 py-3 sm:px-5 sm:py-3">
           <Button 
             onClick={handleSaveSettings} 
             disabled={savedSettings}
             variant="default"
+            size="sm"
           >
             {savedSettings ? "Saved" : "Save Changes"}
           </Button>

@@ -29,12 +29,12 @@ const RegionSettings = ({
   const { t } = useLanguage();
   
   return (
-    <CardContent className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="language">{t('common.language')}</Label>
+    <CardContent className="px-4 py-3 sm:px-5 sm:py-4 space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="language" className="text-xs sm:text-sm">{t('common.language')}</Label>
           <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="language" className="w-full h-8 sm:h-9 text-xs sm:text-sm">
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
             <SelectContent>
@@ -45,10 +45,10 @@ const RegionSettings = ({
           </Select>
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="timezone">Time Zone</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="timezone" className="text-xs sm:text-sm">Time Zone</Label>
           <Select value={timezone} onValueChange={setTimezone}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="timezone" className="w-full h-8 sm:h-9 text-xs sm:text-sm">
               <SelectValue placeholder="Select time zone" />
             </SelectTrigger>
             <SelectContent>
