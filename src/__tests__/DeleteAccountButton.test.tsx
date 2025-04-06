@@ -46,6 +46,7 @@ describe("DeleteAccountButton Component", () => {
   it("renders the delete button correctly", () => {
     render(<DeleteAccountButton />);
     
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByRole("button", { name: /delete account/i })).toBeInTheDocument();
   });
 
@@ -55,8 +56,11 @@ describe("DeleteAccountButton Component", () => {
     const deleteButton = screen.getByRole("button", { name: /delete account/i });
     fireEvent.click(deleteButton);
     
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByText("Are you absolutely sure?")).toBeInTheDocument();
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByText(/this action cannot be undone/i)).toBeInTheDocument();
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByPlaceholderText("DELETE")).toBeInTheDocument();
   });
 
@@ -69,6 +73,7 @@ describe("DeleteAccountButton Component", () => {
     
     // Check that the confirm button is disabled
     const confirmButton = screen.getByRole("button", { name: /delete account/i });
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(confirmButton).toBeDisabled();
     
     // Type DELETE in the input
@@ -76,6 +81,7 @@ describe("DeleteAccountButton Component", () => {
     fireEvent.change(input, { target: { value: "DELETE" } });
     
     // The button should now be enabled
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(confirmButton).not.toBeDisabled();
   });
 

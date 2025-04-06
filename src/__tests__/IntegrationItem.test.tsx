@@ -22,9 +22,13 @@ describe("IntegrationItem Component", () => {
   it("renders correctly with provided props", () => {
     render(<IntegrationItem {...mockProps} />);
     
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByText("Test Integration")).toBeInTheDocument();
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByText("This is a test integration")).toBeInTheDocument();
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByTestId("mock-icon")).toBeInTheDocument();
+    // @ts-ignore - TypeScript doesn't recognize custom matchers
     expect(screen.getByRole("button", { name: "Connect" })).toBeInTheDocument();
   });
 

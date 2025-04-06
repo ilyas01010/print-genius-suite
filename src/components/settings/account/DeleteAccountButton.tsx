@@ -10,7 +10,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/context/UserContext";
@@ -63,55 +64,54 @@ const DeleteAccountButton = () => {
   const isDeleteButtonDisabled = confirmText !== "DELETE" || isDeleting;
 
   return (
-    <>
-      <Button 
-        variant="destructive" 
-        size="sm" 
-        className="gap-2"
-        onClick={() => setOpen(true)}
-      >
-        <Trash2 className="h-4 w-4" />
-        Delete Account
-      </Button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete Account
+        </Button>
+      </AlertDialogTrigger>
       
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account
-              and remove all your data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="py-4">
-            <p className="text-sm font-medium mb-2">
-              Type "DELETE" to confirm:
-            </p>
-            <Input 
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              className="mb-4"
-              placeholder="DELETE"
-            />
-          </div>
-          
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDeleteAccount();
-              }}
-              disabled={isDeleteButtonDisabled}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? "Deleting..." : "Delete Account"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your account
+            and remove all your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <div className="py-4">
+          <p className="text-sm font-medium mb-2">
+            Type "DELETE" to confirm:
+          </p>
+          <Input 
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            className="mb-4"
+            placeholder="DELETE"
+          />
+        </div>
+        
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleDeleteAccount();
+            }}
+            disabled={isDeleteButtonDisabled}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            {isDeleting ? "Deleting..." : "Delete Account"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
