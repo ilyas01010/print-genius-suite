@@ -6,7 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, HelpCircle, Settings2, Info } from "lucide-react";
+import { 
+  CalendarIcon, 
+  HelpCircle, 
+  Settings2, 
+  Info, 
+  Store, 
+  ShoppingCart, 
+  BarChart3, 
+  MessageSquare, 
+  Plus 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import PlatformDashboardOverview from "@/components/platform-manager/PlatformDashboardOverview";
 import PlatformsList from "@/components/platform-manager/PlatformsList";
@@ -15,7 +25,6 @@ import AnalyticsSection from "@/components/platform-manager/AnalyticsSection";
 import { useToast } from "@/hooks/use-toast";
 import { Platform, Product, NewPlatform, DateRangeFilter } from "@/components/platform-manager/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const PlatformDashboard = () => {
