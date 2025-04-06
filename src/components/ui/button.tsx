@@ -92,6 +92,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return null;
       }
       
+      const childElement = React.Children.only(children as React.ReactElement);
+      
       // Clone the child element to pass our props
       return (
         <Comp
@@ -100,11 +102,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           disabled={disabled}
           {...props}
         >
-          {React.cloneElement(React.Children.only(children as React.ReactElement), {
+          {React.cloneElement(childElement, {
             // We don't pass all props here - just className and disabled
             // since the child should define its own onClick etc.
             className: cn(
-              (children as React.ReactElement).props.className,
+              childElement.props.className,
               "w-full h-full"
             ),
             disabled
