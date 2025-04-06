@@ -9,6 +9,7 @@ import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import ReferralSettings from "@/components/settings/ReferralSettings";
 import IntegrationSettings from "@/components/settings/IntegrationSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Card } from "@/components/ui/card";
 
 const SettingsTabs = () => {
   const { user } = useUser();
@@ -45,11 +46,13 @@ const SettingsTabs = () => {
 
   return (
     <Tabs defaultValue="account" className="w-full">
-      <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
-        <TabsTrigger value="account" className="text-xs md:text-sm">{t('common.account')}</TabsTrigger>
-        <TabsTrigger value="preferences" className="text-xs md:text-sm">{t('common.preferences')}</TabsTrigger>
-        <TabsTrigger value="integrations" className="text-xs md:text-sm">{t('common.integrations')}</TabsTrigger>
-      </TabsList>
+      <Card className="p-1 md:p-2 mb-6 border-border/50 bg-card/50 backdrop-blur rounded-lg flex justify-center">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsTrigger value="account" className="text-xs md:text-sm">{t('common.account')}</TabsTrigger>
+          <TabsTrigger value="preferences" className="text-xs md:text-sm">{t('common.preferences')}</TabsTrigger>
+          <TabsTrigger value="integrations" className="text-xs md:text-sm">{t('common.integrations')}</TabsTrigger>
+        </TabsList>
+      </Card>
       
       <TabsContent value="account" className="space-y-6">
         <AccountSettings 

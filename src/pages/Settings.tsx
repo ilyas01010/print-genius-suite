@@ -6,6 +6,7 @@ import SettingsTabs from "@/components/settings/SettingsTabs";
 import { SettingsProvider } from "@/context/SettingsContext";
 import { useSettingsInit } from "@/hooks/use-settings-init";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Card } from "@/components/ui/card";
 
 const SettingsContent = () => {
   const { t } = useLanguage();
@@ -14,12 +15,14 @@ const SettingsContent = () => {
   
   return (
     <div className="space-y-6 animate-fade">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-bold text-2xl md:text-3xl">{t('common.settings')}</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Configure your account and application preferences
-        </p>
-      </div>
+      <Card className="p-4 md:p-6 bg-card/50 backdrop-blur border border-border/50">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-bold text-2xl md:text-3xl">{t('common.settings')}</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Configure your account and application preferences
+          </p>
+        </div>
+      </Card>
 
       <SettingsTabs />
     </div>

@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, User, LogOut, Globe } from "lucide-react";
+import { Menu, Bell, User, LogOut, Globe, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import {
@@ -27,6 +27,19 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
   const { toast } = useToast();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [hasUnreadNotifications] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Add scroll detection for enhanced visual effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -50,11 +63,17 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
   };
 
   return (
-    <header className={cn("sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 sm:px-6 lg:px-8 transition-all", className)}>
+    <header 
+      className={cn(
+        "sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 sm:px-6 lg:px-8 transition-all duration-200",
+        scrolled ? "shadow-sm" : "",
+        className
+      )}
+    >
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
+        className="md:hidden text-muted-foreground hover:text-foreground"
         onClick={onToggleSidebar}
       >
         <Menu className="h-5 w-5" />
@@ -62,15 +81,13 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
       </Button>
       
       <div className="flex-1">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="bg-primary/10 text-primary p-1 rounded-md">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-1.5 rounded-md shadow-sm group-hover:shadow-md transition-all">
+            <Sparkles className="h-5 w-5" />
           </div>
-          <span className="font-heading font-semibold text-lg hidden md:inline-block">Print Genius</span>
+          <span className="font-heading font-semibold text-lg hidden md:inline-block bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Print Genius
+          </span>
         </Link>
       </div>
       
@@ -78,7 +95,7 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
         {/* Language Selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9">
               <Globe className="h-5 w-5" />
               <span className="sr-only">{t("common.language")}</span>
             </Button>
@@ -102,11 +119,11 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9">
               <div className="relative">
                 <Bell className="h-5 w-5" />
                 {hasUnreadNotifications && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background"></span>
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background animate-pulse"></span>
                 )}
               </div>
               <span className="sr-only">{t("common.notifications")}</span>
@@ -133,10 +150,10 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0">
-                <Avatar className="h-9 w-9 border">
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0 border-2 border-transparent hover:border-primary/20 transition-colors">
+                <Avatar className="h-full w-full">
                   <AvatarImage src={user?.user_metadata?.avatar_url} />
-                  <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary">{getUserInitials()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
