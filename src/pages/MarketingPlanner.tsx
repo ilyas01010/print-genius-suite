@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calendar as CalendarIcon, Plus, MessageSquare, ImageIcon, TrendingUp, Calendar, ArrowRight } from "lucide-react";
+import { CalendarIcon, Plus, MessageSquare, ImageIcon, TrendingUp, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -88,7 +88,8 @@ const contentIdeas = [
 const MarketingPlanner = () => {
   const { toast } = useToast();
   const [campaignName, setCampaignName] = useState("");
-  const [date, setDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [campaigns, setCampaigns] = useState(campaignsData);
   
   const handleCreateCampaign = () => {
@@ -165,23 +166,23 @@ const MarketingPlanner = () => {
                         <PopoverTrigger asChild>
                           <Button
                             id="start-date"
-                            variant={"outline"}
+                            variant="outline"
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !date && "text-muted-foreground"
+                              !startDate && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                            {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={date}
-                            onSelect={setDate}
+                            selected={startDate}
+                            onSelect={setStartDate}
                             initialFocus
-                            className={cn("p-3 pointer-events-auto")}
+                            className="p-3 pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -193,21 +194,23 @@ const MarketingPlanner = () => {
                         <PopoverTrigger asChild>
                           <Button
                             id="end-date"
-                            variant={"outline"}
+                            variant="outline"
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !date && "text-muted-foreground"
+                              !endDate && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            <span>Pick a date</span>
+                            {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
+                            selected={endDate}
+                            onSelect={setEndDate}
                             initialFocus
-                            className={cn("p-3 pointer-events-auto")}
+                            className="p-3 pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -339,7 +342,7 @@ const MarketingPlanner = () => {
               <CardContent>
                 <div className="flex items-center justify-center p-8 text-center">
                   <div className="space-y-3">
-                    <Calendar className="mx-auto h-12 w-12 text-muted-foreground/60" />
+                    <CalendarIcon className="mx-auto h-12 w-12 text-muted-foreground/60" />
                     <h3 className="text-lg font-medium">Calendar View Coming Soon</h3>
                     <p className="text-sm text-muted-foreground">
                       The ability to view and schedule content in a calendar format is coming soon. 
