@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -50,13 +49,6 @@ const TextToImage = () => {
 
       if (data?.error) {
         console.error("API error:", data.error);
-        
-        // Check for API key-specific issues
-        if (data.code === "invalid_api_key") {
-          setApiError("The OpenAI API key is invalid or missing. Please configure a valid API key in Supabase.");
-          throw new Error("Invalid OpenAI API key");
-        }
-        
         throw new Error(data.error);
       }
 
@@ -166,7 +158,7 @@ const TextToImage = () => {
                 className="w-fit"
                 onClick={openSupabaseSettings}
               >
-                Configure OpenAI API Key
+                Configure Hugging Face API Token
               </Button>
             </AlertDescription>
           </Alert>

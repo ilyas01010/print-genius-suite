@@ -1,14 +1,15 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { HfInference } from "https://esm.sh/@huggingface/inference@2.3.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const PLACEHOLDER_API = "https://loremflickr.com/1024/1024/";
+const HUGGING_FACE_ACCESS_TOKEN = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN');
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -28,9 +29,9 @@ serve(async (req) => {
     
     console.log(`Generating image for prompt: ${prompt}`);
     
-    // Check if OpenAI API key is available and valid
-    if (!OPENAI_API_KEY) {
-      console.log("No OPENAI_API_KEY found, using placeholder image service");
+    // Check if HuggingFace API token is available
+    if (!HUGGING_FACE_ACCESS_TOKEN) {
+      console.log("No HUGGING_FACE_ACCESS_TOKEN found, using placeholder image service");
       
       // Create a URL-friendly version of the prompt for the placeholder
       const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
@@ -41,59 +42,46 @@ serve(async (req) => {
           success: true,
           imageUrl: placeholderUrl,
           prompt,
-          note: "Using placeholder image as OPENAI_API_KEY is not configured"
+          note: "Using placeholder image as HUGGING_FACE_ACCESS_TOKEN is not configured"
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Test the API key validity with a simple request
     try {
-      const testResponse = await fetch('https://api.openai.com/v1/models', {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        },
+      console.log("Initializing Hugging Face inference with token");
+      const hf = new HfInference(HUGGING_FACE_ACCESS_TOKEN);
+      
+      console.log("Generating image with Hugging Face model...");
+      // Using the FLUX.1-schnell model which is fast and high quality
+      const imageBlob = await hf.textToImage({
+        inputs: prompt,
+        model: "black-forest-labs/FLUX.1-schnell",
+        parameters: {
+          negative_prompt: "blurry, bad quality, distorted, watermark",
+          guidance_scale: 7.5
+        }
       });
       
-      if (!testResponse.ok) {
-        const error = await testResponse.json();
-        console.error("OpenAI API key validation error:", error);
-        
-        // Specific error for invalid API key
-        if (error.error?.type === "invalid_request_error" || error.error?.code === "invalid_api_key") {
-          return new Response(
-            JSON.stringify({ 
-              success: false,
-              error: "Invalid OpenAI API key. Please check your API key and try again.",
-              code: "invalid_api_key"
-            }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        // Check for billing issues
-        if (error.error?.code === "billing_hard_limit_reached") {
-          // Fallback to placeholder
-          const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
-          const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
-          
-          return new Response(
-            JSON.stringify({ 
-              success: true,
-              imageUrl: placeholderUrl,
-              prompt,
-              note: "OpenAI billing limit reached. Using placeholder image instead."
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        throw new Error(`API key validation failed: ${error.error?.message || 'Unknown error'}`);
-      }
-    } catch (validationError) {
-      console.error("Error validating API key:", validationError);
+      // Convert blob to base64 for direct embedding
+      const arrayBuffer = await imageBlob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const imageDataUrl = `data:image/jpeg;base64,${base64}`;
       
-      // Fallback to placeholder
+      console.log("Image successfully generated");
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          imageUrl: imageDataUrl,
+          prompt
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (huggingFaceError) {
+      console.error("Error with HuggingFace API:", huggingFaceError);
+      
+      // Fallback to placeholder if Hugging Face call fails
       const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
       const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
       
@@ -102,89 +90,7 @@ serve(async (req) => {
           success: true,
           imageUrl: placeholderUrl,
           prompt,
-          note: "Error validating OpenAI API key. Using placeholder image."
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Attempt to call OpenAI's API
-    try {
-      const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: "dall-e-3",
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024",
-        }),
-      });
-      
-      if (!openaiResponse.ok) {
-        const error = await openaiResponse.json();
-        console.error("OpenAI API error:", error);
-        
-        // Check specifically for billing issues
-        if (error.error?.code === "billing_hard_limit_reached") {
-          const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
-          const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
-          
-          return new Response(
-            JSON.stringify({ 
-              success: true,
-              imageUrl: placeholderUrl,
-              prompt,
-              note: "OpenAI billing limit reached. Using placeholder image instead."
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-        
-        // Generic fallback
-        const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
-        const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
-        
-        return new Response(
-          JSON.stringify({ 
-            success: true,
-            imageUrl: placeholderUrl,
-            prompt,
-            note: `Using placeholder image due to OpenAI API error: ${error.error?.message || 'Unknown error'}`
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const data = await openaiResponse.json();
-      const imageUrl = data.data[0].url;
-      
-      console.log(`Successfully generated image for prompt: ${prompt}`);
-      
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          imageUrl,
-          prompt,
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    } catch (openaiError) {
-      console.error("Error with OpenAI API:", openaiError);
-      
-      // Fallback to placeholder if OpenAI call fails
-      const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
-      const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
-      
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          imageUrl: placeholderUrl,
-          prompt,
-          note: "Using placeholder image due to OpenAI API error"
+          note: "Using placeholder image due to Hugging Face API error"
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
