@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -449,7 +448,7 @@ const PlatformManager = () => {
                     </div>
                   </CardHeader>
                   
-                  {platform.status === "connected" ? (
+                  {platform.status === "connected" && (
                     <>
                       <CardContent className="pb-2">
                         <div className="flex justify-between text-sm mb-1">
@@ -482,7 +481,9 @@ const PlatformManager = () => {
                         </Button>
                       </CardFooter>
                     </>
-                  ) : (
+                  )}
+                  
+                  {platform.status !== "connected" && (
                     <CardFooter className="pt-0">
                       <Button 
                         className="w-full"
