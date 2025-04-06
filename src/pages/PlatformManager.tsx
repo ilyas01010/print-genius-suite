@@ -185,7 +185,7 @@ const PlatformManager = () => {
   const handleDisconnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" } 
+        ? { ...p, status: "connecting" as PlatformStatus } 
         : p
     ));
 
@@ -193,7 +193,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "disconnected", products: 0, revenue: 0 } 
+          ? { ...p, status: "disconnected" as PlatformStatus, products: 0, revenue: 0 } 
           : p
       ));
 
@@ -485,7 +485,6 @@ const PlatformManager = () => {
                 </Card>
               ))}
               
-              {/* Add Platform Card */}
               <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center h-[165px]">
                   <Dialog open={showAddPlatformDialog} onOpenChange={setShowAddPlatformDialog}>
