@@ -100,12 +100,9 @@ const DeleteAccountButton = () => {
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              handleDeleteAccount();
-            }}
             disabled={isDeleteButtonDisabled}
             className="bg-destructive hover:bg-destructive/90"
+            onClick={handleDeleteAccount}
           >
             {isDeleting ? "Deleting..." : "Delete Account"}
           </AlertDialogAction>
