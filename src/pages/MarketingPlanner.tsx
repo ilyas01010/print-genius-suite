@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,7 @@ interface MarketingTemplate {
   id: string;
   name: string;
   description: string;
-  category: "strategy" | "social" | "email" | "influencer" | "content" | "analytics";
+  category: "strategy" | "social" | "email" | "influencer" | "content" | "analytics" | "seasonal";
   content: string;
 }
 

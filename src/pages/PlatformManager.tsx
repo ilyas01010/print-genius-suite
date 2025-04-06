@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ConnectionStatus } from "@/components/settings/integration/IntegrationItem";
 
-// Define platform status type
 type PlatformStatus = ConnectionStatus;
 
 interface Product {
@@ -75,7 +73,6 @@ const PlatformManager = () => {
     { id: "p4", name: "Art Print", price: 29.99, platformId: "etsy" },
   ]);
 
-  // Additional POD platforms
   const [availablePlatforms] = useState<NewPlatform[]>([
     {
       id: "printful",
@@ -143,13 +140,11 @@ const PlatformManager = () => {
   const [selectedTab, setSelectedTab] = useState("platforms");
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  // Calculate totals
   const totalProducts = platforms.reduce((sum, platform) => sum + platform.products, 0);
   const totalRevenue = platforms.reduce((sum, platform) => sum + platform.revenue, 0);
   const connectedPlatforms = platforms.filter(p => p.status === "connected").length;
 
   const handleAddNewPlatform = (platform: NewPlatform) => {
-    // Check if platform already exists
     if (platforms.some(p => p.id === platform.id)) {
       toast({
         title: "Platform already exists",
@@ -159,7 +154,6 @@ const PlatformManager = () => {
       return;
     }
 
-    // Add new platform
     setPlatforms([
       ...platforms,
       {
@@ -185,7 +179,6 @@ const PlatformManager = () => {
         : p
     ));
 
-    // Simulate API call delay
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
@@ -207,7 +200,6 @@ const PlatformManager = () => {
         : p
     ));
 
-    // Simulate API call delay
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
@@ -215,7 +207,6 @@ const PlatformManager = () => {
           : p
       ));
 
-      // Also remove all products for this platform
       setProducts(products.filter(product => product.platformId !== platformId));
 
       toast({
@@ -254,7 +245,6 @@ const PlatformManager = () => {
       return;
     }
 
-    // Create new product
     const newProduct: Product = {
       id: `p${Date.now()}`,
       name: newProductName,
@@ -262,10 +252,8 @@ const PlatformManager = () => {
       platformId: selectedPlatform.id
     };
 
-    // Add product to state
     setProducts([...products, newProduct]);
 
-    // Update platform stats
     setPlatforms(platforms.map(p => 
       p.id === selectedPlatform.id 
         ? { 
@@ -281,7 +269,6 @@ const PlatformManager = () => {
       description: `${newProductName} has been added to ${selectedPlatform.name}.`,
     });
 
-    // Reset form
     setNewProductName('');
     setNewProductPrice('');
     setShowAddProductDialog(false);
@@ -289,14 +276,11 @@ const PlatformManager = () => {
   };
 
   const handleDeleteProduct = (product: Product) => {
-    // Find the platform this product belongs to
     const platform = platforms.find(p => p.id === product.platformId);
     if (!platform) return;
 
-    // Remove product
     setProducts(products.filter(p => p.id !== product.id));
 
-    // Update platform stats
     setPlatforms(platforms.map(p => 
       p.id === product.platformId 
         ? { 
@@ -319,7 +303,6 @@ const PlatformManager = () => {
     setIsAnalyticsLoading(true);
     setSelectedTab("analytics");
 
-    // Simulate loading analytics data
     setTimeout(() => {
       setIsAnalyticsLoading(false);
       toast({
@@ -336,7 +319,6 @@ const PlatformManager = () => {
   return (
     <Layout>
       <div className="space-y-4 animate-fade">
-        {/* Header section */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <h1 className="font-bold text-2xl sm:text-3xl">Platform Manager</h1>
@@ -378,7 +360,6 @@ const PlatformManager = () => {
           </Dialog>
         </div>
 
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Card>
             <CardHeader className="pb-2">
@@ -431,7 +412,6 @@ const PlatformManager = () => {
           </Card>
         </div>
 
-        {/* Main Content */}
         <Tabs defaultValue="platforms" value={selectedTab} onValueChange={setSelectedTab} className="mt-4">
           <TabsList className="grid w-full max-w-md grid-cols-3 mb-4">
             <TabsTrigger value="platforms">Platforms</TabsTrigger>
@@ -541,7 +521,6 @@ const PlatformManager = () => {
                   <Dialog open={showAddProductDialog} onOpenChange={(open) => {
                     setShowAddProductDialog(open);
                     if (open && !selectedPlatform) {
-                      // Default to first connected platform
                       setSelectedPlatform(platforms.find(p => p.status === "connected") || null);
                     }
                   }}>
@@ -627,7 +606,6 @@ const PlatformManager = () => {
                           </div>
                           <Separator className="my-2" />
                           
-                          {/* Products list */}
                           <div className="space-y-2 mt-2">
                             {getProductsByPlatform(platform.id).map(product => (
                               <div key={product.id} className="flex items-center justify-between bg-muted/30 p-2 rounded-md">
