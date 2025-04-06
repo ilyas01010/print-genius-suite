@@ -13,6 +13,8 @@ import ProductsList from "@/components/platform-manager/ProductsList";
 import AnalyticsSection from "@/components/platform-manager/AnalyticsSection";
 import { useToast } from "@/hooks/use-toast";
 import { Platform, Product, NewPlatform, DateRangeFilter } from "@/components/platform-manager/types";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 const PlatformDashboard = () => {
   const { toast } = useToast();
@@ -429,6 +431,13 @@ const PlatformDashboard = () => {
                   Connect and manage your POD platforms in one place
                 </p>
               </div>
+              <Dialog open={showAddPlatformDialog} onOpenChange={setShowAddPlatformDialog}>
+                <DialogTrigger asChild>
+                  <Button className="hidden sm:flex">
+                    <Plus className="mr-2 h-3.5 w-3.5" /> Add Platform
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
             
             <PlatformsList 

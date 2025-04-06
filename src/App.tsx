@@ -28,6 +28,7 @@ const Analytics = lazy(() => import("@/pages/Analytics"));
 const CopyrightChecker = lazy(() => import("@/pages/CopyrightChecker"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const PlatformManager = lazy(() => import("@/pages/PlatformManager"));
+const PlatformDashboard = lazy(() => import("@/pages/PlatformDashboard"));
 const CustomerService = lazy(() => import("@/pages/CustomerService"));
 const MarketingPlanner = lazy(() => import("@/pages/MarketingPlanner"));
 const Settings = lazy(() => import("@/pages/Settings"));
@@ -154,10 +155,11 @@ function App() {
                   <Route path="/copyright-checker" element={<CopyrightChecker />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/platform-manager" element={<PlatformManager />} />
+                  <Route path="/platform-dashboard" element={<PlatformDashboard />} />
                   <Route path="/customer-service" element={<CustomerService />} />
                   <Route path="/marketing-planner" element={<MarketingPlanner />} />
                   <Route path="/learning-hub" element={<LearningHub />} />
-                  <Route path="/support" element={<CustomerService />} /> {/* Adding support route that points to CustomerService */}
+                  <Route path="/support" element={<CustomerService />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
