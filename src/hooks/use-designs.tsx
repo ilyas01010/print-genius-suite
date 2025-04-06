@@ -6,14 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import type { Database } from "@/integrations/supabase/types";
 
-export type Design = {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string | null;
-  storage_path: string;
-  created_at: string;
-  updated_at: string;
+export type Design = Database['public']['Tables']['designs']['Row'] & {
   publicUrl?: string;
 };
 
@@ -85,7 +78,7 @@ export const useDesigns = () => {
         return {
           ...data[0],
           publicUrl: publicUrlData.publicUrl,
-        };
+        } as Design;
       }
       return null;
     } catch (error: any) {
@@ -127,7 +120,7 @@ export const useDesigns = () => {
         return {
           ...design,
           publicUrl: urlData.publicUrl,
-        };
+        } as Design;
       });
       
       return designsWithUrls;
