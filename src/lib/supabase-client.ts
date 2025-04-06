@@ -1,5 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { toast } from '@/hooks/use-toast';
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -8,6 +9,104 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+
+// Sign up with email and password
+export const signUpWithEmail = async (email: string, password: string) => {
+  try {
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+    
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    
+    return { data, error };
+  } catch (error: any) {
+    console.error('Sign up error:', error);
+    toast({
+      title: "Error signing up",
+      description: error.message,
+      variant: "destructive",
+    });
+    return { data: null, error };
+  }
+};
+
+// Sign in with email and password
+export const signInWithEmail = async (email: string, password: string) => {
+  try {
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    return { data, error };
+  } catch (error: any) {
+    console.error('Sign in error:', error);
+    toast({
+      title: "Error signing in",
+      description: error.message,
+      variant: "destructive",
+    });
+    return { data: null, error };
+  }
+};
+
+// Sign out
+export const signOut = async () => {
+  try {
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+    
+    const { error } = await supabase.auth.signOut();
+    return { error };
+  } catch (error: any) {
+    console.error('Sign out error:', error);
+    toast({
+      title: "Error signing out",
+      description: error.message,
+      variant: "destructive",
+    });
+    return { error };
+  }
+};
+
+// Get current user
+export const getCurrentUser = async () => {
+  try {
+    if (!supabase) {
+      return { data: { user: null }, error: new Error('Supabase client not initialized') };
+    }
+    
+    const { data, error } = await supabase.auth.getUser();
+    return { data, error };
+  } catch (error: any) {
+    console.error('Get user error:', error);
+    return { data: { user: null }, error };
+  }
+};
+
+// Get current session
+export const getSession = async () => {
+  try {
+    if (!supabase) {
+      return { data: { session: null }, error: new Error('Supabase client not initialized') };
+    }
+    
+    const { data, error } = await supabase.auth.getSession();
+    return { data, error };
+  } catch (error: any) {
+    console.error('Get session error:', error);
+    return { data: { session: null }, error };
+  }
+};
 
 // Safe storage bucket creation that doesn't fail the build
 export const createStorageBucketIfNotExists = async (bucketName: string) => {
