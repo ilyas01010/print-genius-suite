@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -163,7 +164,7 @@ const PlatformManager = () => {
   const handleConnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" } 
+        ? { ...p, status: "connecting" as const } 
         : p
     ));
 
@@ -171,7 +172,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "connected" } 
+          ? { ...p, status: "connected" as const } 
           : p
       ));
 
@@ -185,7 +186,7 @@ const PlatformManager = () => {
   const handleDisconnectPlatform = (platformId: string) => {
     setPlatforms(platforms.map(p => 
       p.id === platformId 
-        ? { ...p, status: "connecting" as PlatformStatus } 
+        ? { ...p, status: "connecting" as const } 
         : p
     ));
 
@@ -193,7 +194,7 @@ const PlatformManager = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "disconnected" as PlatformStatus, products: 0, revenue: 0 } 
+          ? { ...p, status: "disconnected" as const, products: 0, revenue: 0 } 
           : p
       ));
 
@@ -476,9 +477,9 @@ const PlatformManager = () => {
                       <Button 
                         className="w-full"
                         onClick={() => handleConnectPlatform(platform.id)}
-                        loading={platform.status === "connecting"}
+                        disabled={platform.status === "connecting"}
                       >
-                        Connect
+                        {platform.status === "connecting" ? "Connecting..." : "Connect"}
                       </Button>
                     </CardFooter>
                   )}
