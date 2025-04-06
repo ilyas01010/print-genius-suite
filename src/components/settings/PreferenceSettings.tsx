@@ -39,6 +39,19 @@ const PreferenceSettings = ({
   const { t } = useLanguage();
   const { toast } = useToast();
 
+  const handleDarkModeChange = (checked: boolean) => {
+    try {
+      setDarkMode(checked);
+    } catch (error) {
+      console.error("Error changing dark mode:", error);
+      toast({
+        title: "Error",
+        description: "Failed to change theme. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -59,9 +72,7 @@ const PreferenceSettings = ({
             </div>
             <Switch 
               checked={darkMode} 
-              onCheckedChange={(checked) => {
-                setDarkMode(checked);
-              }} 
+              onCheckedChange={handleDarkModeChange} 
             />
           </div>
           
@@ -77,7 +88,7 @@ const PreferenceSettings = ({
               checked={pushNotifications} 
               onCheckedChange={(checked) => {
                 setPushNotifications(checked);
-                if (checked && Notification && Notification.permission !== 'granted') {
+                if (checked && typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
                   toast({
                     title: "Permission Required",
                     description: "Please allow notifications in your browser settings.",

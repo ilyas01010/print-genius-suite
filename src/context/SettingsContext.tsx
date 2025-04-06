@@ -54,13 +54,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Apply dark mode when it changes
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    try {
+      if (typeof document !== 'undefined') {
+        if (darkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        updateLocalStorage();
+      }
+    } catch (error) {
+      console.error("Error applying dark mode:", error);
     }
-    
-    updateLocalStorage();
   }, [darkMode]);
 
   const generateReferralCode = () => {
@@ -72,7 +77,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const handleRegenerateReferralCode = () => {
     const newReferralCode = generateReferralCode();
     setReferralCode(newReferralCode);
-    localStorage.setItem('referralCode', newReferralCode);
+    
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('referralCode', newReferralCode);
+      }
+    } catch (error) {
+      console.error("Error saving referral code:", error);
+    }
     
     toast({
       title: "Referral",
@@ -81,20 +93,26 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateLocalStorage = () => {
-    const settings = {
-      darkMode,
-      emailNotifications,
-      pushNotifications,
-      timezone,
-      publicProfile
-    };
-    localStorage.setItem('userSettings', JSON.stringify(settings));
+    try {
+      if (typeof window !== 'undefined') {
+        const settings = {
+          darkMode,
+          emailNotifications,
+          pushNotifications,
+          timezone,
+          publicProfile
+        };
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+      }
+    } catch (error) {
+      console.error("Error updating local storage:", error);
+    }
   };
 
   const handleSaveSettings = () => {
     updateLocalStorage();
     
-    if (Notification && Notification.permission !== "denied") {
+    if (typeof window !== 'undefined' && Notification && Notification.permission !== "denied") {
       if (pushNotifications) {
         Notification.requestPermission();
       }
@@ -112,19 +130,41 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const handleCopyReferral = () => {
-    navigator.clipboard.writeText(referralCode);
-    toast({
-      title: "Copied to Clipboard",
-      description: "Referral code copied successfully!",
-    });
+    try {
+      if (typeof navigator !== 'undefined') {
+        navigator.clipboard.writeText(referralCode);
+        toast({
+          title: "Copied to Clipboard",
+          description: "Referral code copied successfully!",
+        });
+      }
+    } catch (error) {
+      console.error("Error copying referral code:", error);
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy referral code.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCopyAffiliate = () => {
-    navigator.clipboard.writeText(affiliateLink);
-    toast({
-      title: "Copied to Clipboard",
-      description: "Affiliate link copied successfully!",
-    });
+    try {
+      if (typeof navigator !== 'undefined') {
+        navigator.clipboard.writeText(affiliateLink);
+        toast({
+          title: "Copied to Clipboard",
+          description: "Affiliate link copied successfully!",
+        });
+      }
+    } catch (error) {
+      console.error("Error copying affiliate link:", error);
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy affiliate link.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
