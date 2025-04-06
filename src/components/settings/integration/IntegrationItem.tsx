@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Check, Loader2 } from "lucide-react";
 
+// Updated type definition to include all possible states
 export type ConnectionStatus = "connected" | "disconnected" | "connecting";
 
 interface IntegrationItemProps {
