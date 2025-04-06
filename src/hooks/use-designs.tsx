@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useUser } from "@/context/UserContext";
 import { supabase } from "@/lib/supabase-client";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Design = Database['public']['Tables']['designs']['Row'] & {
@@ -14,6 +15,7 @@ export const useDesigns = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const uploadDesign = async (file: File, name: string, category?: string, description?: string) => {
     if (!user) {
@@ -36,7 +38,10 @@ export const useDesigns = () => {
       // Upload file to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('designs')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
         
       if (uploadError) {
         throw uploadError;
@@ -47,7 +52,7 @@ export const useDesigns = () => {
         .from('designs')
         .getPublicUrl(filePath);
         
-      if (!publicUrlData.publicUrl) {
+      if (!publicUrlData?.publicUrl) {
         throw new Error("Failed to get public URL for uploaded design");
       }
       
@@ -74,6 +79,9 @@ export const useDesigns = () => {
         description: "Your design has been saved successfully",
       });
       
+      // Invalidate the designs query
+      queryClient.invalidateQueries({ queryKey: ['designs'] });
+      
       if (data && data.length > 0) {
         return {
           ...data[0],
@@ -94,99 +102,113 @@ export const useDesigns = () => {
     }
   };
   
-  const getUserDesigns = async () => {
-    if (!user) {
-      return [];
-    }
-    
-    try {
-      setIsLoading(true);
-      
-      const { data, error } = await supabase
-        .from('designs')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const useUserDesigns = () => {
+    return useQuery({
+      queryKey: ['designs'],
+      queryFn: async () => {
+        if (!user) {
+          return [];
+        }
         
-      if (error) {
-        throw error;
-      }
-      
-      // Add public URLs to the designs
-      const designsWithUrls = data.map((design: Design) => {
-        const { data: urlData } = supabase.storage
-          .from('designs')
-          .getPublicUrl(design.storage_path);
+        try {
+          setIsLoading(true);
           
-        return {
-          ...design,
-          publicUrl: urlData.publicUrl,
-        } as Design;
-      });
-      
-      return designsWithUrls;
-    } catch (error: any) {
-      console.error("Error fetching designs:", error);
-      toast({
-        title: "Failed to load designs",
-        description: error.message || "Could not load your designs. Please try again.",
-        variant: "destructive",
-      });
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
+          const { data, error } = await supabase
+            .from('designs')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+            
+          if (error) {
+            throw error;
+          }
+          
+          // Add public URLs to the designs
+          const designsWithUrls = data.map((design: Design) => {
+            const { data: urlData } = supabase.storage
+              .from('designs')
+              .getPublicUrl(design.storage_path);
+              
+            return {
+              ...design,
+              publicUrl: urlData.publicUrl,
+            } as Design;
+          });
+          
+          return designsWithUrls;
+        } catch (error: any) {
+          console.error("Error fetching designs:", error);
+          toast({
+            title: "Failed to load designs",
+            description: error.message || "Could not load your designs. Please try again.",
+            variant: "destructive",
+          });
+          return [];
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      enabled: !!user,
+    });
   };
 
-  const deleteDesign = async (designId: string, storagePath: string) => {
-    if (!user) {
-      return false;
-    }
-    
-    try {
-      setIsLoading(true);
-      
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('designs')
-        .delete()
-        .eq('id', designId);
+  const useDeleteDesign = () => {
+    return useMutation({
+      mutationFn: async ({ designId, storagePath }: { designId: string, storagePath: string }) => {
+        if (!user) {
+          throw new Error("Authentication required");
+        }
         
-      if (dbError) {
-        throw dbError;
-      }
-      
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('designs')
-        .remove([storagePath]);
+        setIsLoading(true);
         
-      if (storageError) {
-        console.warn("Could not delete the file from storage:", storageError);
-      }
-      
-      toast({
-        title: "Design deleted",
-        description: "The design has been removed successfully",
-      });
-      
-      return true;
-    } catch (error: any) {
-      console.error("Error deleting design:", error);
-      toast({
-        title: "Delete failed",
-        description: error.message || "Could not delete the design. Please try again.",
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
+        try {
+          // Delete from database
+          const { error: dbError } = await supabase
+            .from('designs')
+            .delete()
+            .eq('id', designId);
+            
+          if (dbError) {
+            throw dbError;
+          }
+          
+          // Delete from storage
+          const { error: storageError } = await supabase.storage
+            .from('designs')
+            .remove([storagePath]);
+            
+          if (storageError) {
+            console.warn("Could not delete the file from storage:", storageError);
+          }
+          
+          toast({
+            title: "Design deleted",
+            description: "The design has been removed successfully",
+          });
+          
+          return true;
+        } catch (error: any) {
+          console.error("Error deleting design:", error);
+          toast({
+            title: "Delete failed",
+            description: error.message || "Could not delete the design. Please try again.",
+            variant: "destructive",
+          });
+          return false;
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['designs'] });
+      },
+    });
   };
 
   return {
     isLoading,
     uploadDesign,
-    getUserDesigns,
-    deleteDesign,
+    useUserDesigns,
+    useDeleteDesign,
   };
 };

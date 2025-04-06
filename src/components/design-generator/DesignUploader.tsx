@@ -30,6 +30,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TextToImage from "./TextToImage";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DesignUploader = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -39,6 +41,7 @@ const DesignUploader = () => {
   const [designName, setDesignName] = useState("");
   const [designCategory, setDesignCategory] = useState<string>("");
   const [designDescription, setDesignDescription] = useState("");
+  const [activeTab, setActiveTab] = useState("upload");
   
   const { toast } = useToast();
   const { isAuthenticated } = useUser();
@@ -72,12 +75,21 @@ const DesignUploader = () => {
 
   const handleFile = (file: File) => {
     const fileType = file.type;
-    const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'];
     
     if (!validTypes.includes(fileType)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload an image file (JPEG, PNG, or SVG)",
+        description: "Please upload an image file (JPEG, PNG, SVG, or WEBP)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 10MB",
         variant: "destructive",
       });
       return;
@@ -121,25 +133,13 @@ const DesignUploader = () => {
     
     if (result) {
       setSaveDialogOpen(false);
-      // Reset form after successful upload if needed
-      // Or keep the preview to allow for further editing
-    }
-  };
-
-  const handleProcessImage = () => {
-    if (!file) {
+      // Reset form after successful upload
+      resetForm();
       toast({
-        title: "No image selected",
-        description: "Please upload an image to process.",
-        variant: "destructive",
+        title: "Design saved",
+        description: "Your design has been uploaded successfully"
       });
-      return;
     }
-    
-    toast({
-      title: "Processing image",
-      description: "Your design is being processed. This may take a moment.",
-    });
   };
 
   const resetForm = () => {
@@ -161,82 +161,78 @@ const DesignUploader = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center ${
-              isDragging ? "border-pod-blue bg-pod-blue-light" : "border-muted"
-            } ${preview ? "pt-2" : "py-10"}`}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-          >
-            {preview ? (
-              <div className="space-y-4">
-                <div className="mx-auto max-h-64 overflow-hidden rounded-md">
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="mx-auto h-auto max-w-full object-contain"
-                  />
-                </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Button onClick={resetForm}>
-                    Remove
-                  </Button>
-                  <Button variant="default" onClick={handleProcessImage}>
-                    Process Design
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    onClick={handleSaveDesign}
-                    disabled={isLoading || !isAuthenticated}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Design
-                  </Button>
-                </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="upload">Upload Image</TabsTrigger>
+              <TabsTrigger value="generate">Text to Image</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="upload" className="mt-0">
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                  isDragging ? "border-pod-blue bg-pod-blue-light" : "border-muted"
+                } ${preview ? "pt-2" : "py-10"}`}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+              >
+                {preview ? (
+                  <div className="space-y-4">
+                    <div className="mx-auto max-h-64 overflow-hidden rounded-md">
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="mx-auto h-auto max-w-full object-contain"
+                      />
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Button onClick={resetForm}>
+                        Remove
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        onClick={handleSaveDesign}
+                        disabled={isLoading || !isAuthenticated}
+                      >
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Design
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-4">
+                    <FileImage className="h-16 w-16 text-muted-foreground" />
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">
+                        Drag and drop your image here or click to browse
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Supports JPEG, PNG, SVG, and WEBP files (max 10MB)
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => document.getElementById("file-upload")?.click()}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Browse Files
+                    </Button>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/jpeg,image/png,image/svg+xml,image/webp"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center space-y-4">
-                <FileImage className="h-16 w-16 text-muted-foreground" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">
-                    Drag and drop your image here or click to browse
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Supports JPEG, PNG, and SVG files
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => document.getElementById("file-upload")?.click()}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Browse Files
-                </Button>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/jpeg,image/png,image/svg+xml"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </div>
-            )}
-          </div>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t"></div>
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-          
-          <Button variant="outline" className="w-full">
-            <ImagePlus className="mr-2 h-4 w-4" />
-            Create with Text Prompt
-          </Button>
+            </TabsContent>
+            
+            <TabsContent value="generate" className="mt-0">
+              <TextToImage />
+            </TabsContent>
+          </Tabs>
         </CardContent>
         {!isAuthenticated && (
           <CardFooter className="bg-muted/50 px-6 py-3 text-sm text-muted-foreground">
@@ -276,6 +272,7 @@ const DesignUploader = () => {
                   <SelectItem value="poster">Poster</SelectItem>
                   <SelectItem value="logo">Logo</SelectItem>
                   <SelectItem value="illustration">Illustration</SelectItem>
+                  <SelectItem value="ai-generated">AI Generated</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>

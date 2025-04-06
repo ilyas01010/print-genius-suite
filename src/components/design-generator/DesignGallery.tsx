@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useDesigns } from "@/hooks/use-designs";
 import { useUser } from "@/context/UserContext";
 import {
@@ -20,27 +20,13 @@ import { MoreVertical, Trash, Download, Edit } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DesignGallery = () => {
-  const [designs, setDesigns] = useState<any[]>([]);
-  const { getUserDesigns, deleteDesign, isLoading } = useDesigns();
+  const { useUserDesigns, useDeleteDesign } = useDesigns();
+  const { data: designs = [], isLoading, error } = useUserDesigns();
+  const deleteDesignMutation = useDeleteDesign();
   const { isAuthenticated } = useUser();
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-
-  const loadDesigns = async () => {
-    if (!isAuthenticated) return;
-    const userDesigns = await getUserDesigns();
-    setDesigns(userDesigns);
-    setIsFirstLoad(false);
-  };
-
-  useEffect(() => {
-    loadDesigns();
-  }, [isAuthenticated]);
 
   const handleDeleteDesign = async (designId: string, storagePath: string) => {
-    const deleted = await deleteDesign(designId, storagePath);
-    if (deleted) {
-      setDesigns((prevDesigns) => prevDesigns.filter((design) => design.id !== designId));
-    }
+    deleteDesignMutation.mutate({ designId, storagePath });
   };
 
   const handleDownloadDesign = (publicUrl: string, designName: string) => {
@@ -63,7 +49,7 @@ const DesignGallery = () => {
         <CardDescription>Your saved designs and templates</CardDescription>
       </CardHeader>
       <CardContent>
-        {isFirstLoad || isLoading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="space-y-2">
@@ -72,6 +58,13 @@ const DesignGallery = () => {
                 <Skeleton className="h-4 w-1/2" />
               </div>
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-destructive">Failed to load designs</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Please try refreshing the page
+            </p>
           </div>
         ) : designs.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -82,12 +75,15 @@ const DesignGallery = () => {
                     src={design.publicUrl}
                     alt={design.name}
                     className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                    }}
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
                       variant="secondary"
                       size="icon"
-                      onClick={() => handleDownloadDesign(design.publicUrl, design.name)}
+                      onClick={() => design.publicUrl && handleDownloadDesign(design.publicUrl, design.name)}
                     >
                       <Download className="h-4 w-4" />
                     </Button>
@@ -106,6 +102,7 @@ const DesignGallery = () => {
                         <DropdownMenuItem
                           onClick={() => handleDeleteDesign(design.id, design.storage_path)}
                           className="text-destructive"
+                          disabled={deleteDesignMutation.isPending}
                         >
                           <Trash className="h-4 w-4 mr-2" />
                           Delete

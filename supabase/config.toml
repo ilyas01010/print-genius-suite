@@ -1,1 +1,7 @@
+
 project_id = "kdpsyldycxyxmmxkjnai"
+
+[functions]
+
+[[functions.importer]]
+verify_jwt = true

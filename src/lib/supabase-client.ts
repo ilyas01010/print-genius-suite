@@ -29,12 +29,34 @@ export const getSupabaseReadyStatus = (): boolean => {
 
 export const initializeSupabase = async (): Promise<void> => {
   try {
-    // Verify connection
-    const { error } = await supabase.from('designs').select('count', { count: 'exact', head: true });
-    if (error) throw error;
+    // Verify connection and create storage bucket if it doesn't exist
+    await createStorageBucketIfNotExists('designs');
     console.info('Supabase is properly configured and ready to use.');
   } catch (error) {
     console.error('Error initializing Supabase:', error);
+  }
+};
+
+// Create storage bucket if it doesn't exist
+const createStorageBucketIfNotExists = async (bucketName: string): Promise<void> => {
+  try {
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) throw error;
+    
+    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
+    
+    if (!bucketExists) {
+      const { error: createError } = await supabase.storage.createBucket(bucketName, {
+        public: true, // Make designs publicly accessible
+      });
+      
+      if (createError) throw createError;
+      console.info(`Created storage bucket: ${bucketName}`);
+    }
+  } catch (error) {
+    console.error('Error creating storage bucket:', error);
+    throw error;
   }
 };
 
