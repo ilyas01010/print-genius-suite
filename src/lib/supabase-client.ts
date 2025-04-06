@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import { toast } from '@/hooks/use-toast';
 import type { Database } from '@/integrations/supabase/types';
@@ -5,6 +6,40 @@ import type { Database } from '@/integrations/supabase/types';
 // Use the values from the Supabase integration
 const SUPABASE_URL = "https://kdpsyldycxyxmmxkjnai.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcHN5bGR5Y3h5eG1teGtqbmFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5MDE0NzMsImV4cCI6MjA1OTQ3NzQ3M30._PFaKbXh3tIpD2ot7owbElGmi1xj1XOYM6oYvOZsbdw";
+
+// Create storage bucket if it doesn't exist - moved before the supabase instance creation
+const createStorageBucketIfNotExists = async (bucketName: string, supabaseClient: any): Promise<void> => {
+  try {
+    const { data: buckets, error } = await supabaseClient.storage.listBuckets();
+    
+    if (error) throw error;
+    
+    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
+    
+    if (!bucketExists) {
+      const { error: createError } = await supabaseClient.storage.createBucket(bucketName, {
+        public: true, // Make designs publicly accessible
+      });
+      
+      if (createError) throw createError;
+      console.info(`Created storage bucket: ${bucketName}`);
+    }
+  } catch (error) {
+    console.error('Error creating storage bucket:', error);
+    throw error;
+  }
+};
+
+// Initialize supabase function - moved before the supabase instance creation
+export const initializeSupabase = async (supabaseClient: any): Promise<void> => {
+  try {
+    // Verify connection and create storage bucket if it doesn't exist
+    await createStorageBucketIfNotExists('designs', supabaseClient);
+    console.info('Supabase is properly configured and ready to use.');
+  } catch (error) {
+    console.error('Error initializing Supabase:', error);
+  }
+};
 
 // Create a single Supabase client instance with optimized settings for production
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
@@ -39,8 +74,9 @@ export const supabase = (() => {
       },
     });
     
-    // Initialize storage and perform startup checks
-    initializeSupabase().catch(error => {
+    // Initialize storage and perform startup checks after instance creation
+    // We now pass the instance to the function to avoid circular reference
+    initializeSupabase(supabaseInstance).catch(error => {
       console.error('Error during Supabase initialization:', error);
     });
   }
@@ -49,39 +85,6 @@ export const supabase = (() => {
 
 export const getSupabaseReadyStatus = (): boolean => {
   return supabaseInstance !== null;
-};
-
-export const initializeSupabase = async (): Promise<void> => {
-  try {
-    // Verify connection and create storage bucket if it doesn't exist
-    await createStorageBucketIfNotExists('designs');
-    console.info('Supabase is properly configured and ready to use.');
-  } catch (error) {
-    console.error('Error initializing Supabase:', error);
-  }
-};
-
-// Create storage bucket if it doesn't exist
-const createStorageBucketIfNotExists = async (bucketName: string): Promise<void> => {
-  try {
-    const { data: buckets, error } = await supabase.storage.listBuckets();
-    
-    if (error) throw error;
-    
-    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-    
-    if (!bucketExists) {
-      const { error: createError } = await supabase.storage.createBucket(bucketName, {
-        public: true, // Make designs publicly accessible
-      });
-      
-      if (createError) throw createError;
-      console.info(`Created storage bucket: ${bucketName}`);
-    }
-  } catch (error) {
-    console.error('Error creating storage bucket:', error);
-    throw error;
-  }
 };
 
 // Define a Design type based on the database schema

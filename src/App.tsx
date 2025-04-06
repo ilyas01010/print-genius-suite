@@ -2,7 +2,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { supabase, initializeSupabase } from "@/lib/supabase-client";
+import { supabase } from "@/lib/supabase-client";
 import { UserProvider } from "@/context/UserContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -82,10 +82,9 @@ function App() {
   useEffect(() => {
     const initStorage = async () => {
       try {
-        // Initialize Supabase and required storage buckets
-        await initializeSupabase();
+        // No need to call initializeSupabase here, as it's already called during supabase client initialization
         
-        // Also call the edge function to create buckets if needed
+        // Call the edge function to create buckets if needed
         if (supabase) {
           const { error } = await supabase.functions.invoke('initialize-storage');
           if (error) {
