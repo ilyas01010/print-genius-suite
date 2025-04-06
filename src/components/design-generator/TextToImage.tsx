@@ -7,6 +7,8 @@ import { useUser } from "@/context/UserContext";
 import { useDesigns } from "@/hooks/use-designs";
 import PromptInput from "./text-to-image/PromptInput";
 import GeneratedImagePreview from "./text-to-image/GeneratedImagePreview";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InfoCircle } from "lucide-react";
 
 const TextToImage = () => {
   const [prompt, setPrompt] = useState("");
@@ -17,6 +19,7 @@ const TextToImage = () => {
   const { isAuthenticated } = useUser();
   const { uploadDesign } = useDesigns();
   const [loadingImage, setLoadingImage] = useState(false);
+  const [apiNote, setApiNote] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -31,6 +34,7 @@ const TextToImage = () => {
     try {
       setIsGenerating(true);
       setGeneratedImage(null);
+      setApiNote(null);
 
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { prompt: prompt.trim() },
@@ -40,6 +44,12 @@ const TextToImage = () => {
 
       if (data?.imageUrl) {
         setLoadingImage(true);
+        
+        // If there's a note from the API (e.g., using placeholder), store it
+        if (data.note) {
+          setApiNote(data.note);
+        }
+        
         // Preload the image to ensure it's fully loaded before displaying
         const img = new Image();
         img.onload = () => {
@@ -122,6 +132,15 @@ const TextToImage = () => {
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
+        {apiNote && (
+          <Alert className="mb-4 bg-yellow-50">
+            <InfoCircle className="h-4 w-4" />
+            <AlertDescription>
+              {apiNote} - The images shown are placeholders.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <PromptInput 
           prompt={prompt}
           setPrompt={setPrompt}

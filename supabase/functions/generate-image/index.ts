@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const PLACEHOLDER_API = "https://loremflickr.com/1024/1024/";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -25,16 +26,20 @@ serve(async (req) => {
       );
     }
     
-    console.log(`Generating image with DALL-E for prompt: ${prompt}`);
+    console.log(`Generating image for prompt: ${prompt}`);
     
+    // If OpenAI API key is not available, use placeholder image service
     if (!OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not set in environment variables");
-      // Fallback to placeholder if API key is not available
-      const mockImageUrl = `https://via.placeholder.com/512x512?text=${encodeURIComponent(prompt)}`;
+      console.log("No OPENAI_API_KEY found, using placeholder image service");
+      
+      // Create a URL-friendly version of the prompt for the placeholder
+      const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+      const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+      
       return new Response(
         JSON.stringify({ 
           success: true,
-          imageUrl: mockImageUrl,
+          imageUrl: placeholderUrl,
           prompt,
           note: "Using placeholder image as OPENAI_API_KEY is not configured"
         }),
@@ -42,44 +47,75 @@ serve(async (req) => {
       );
     }
 
-    // Call OpenAI's DALL-E API
-    const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: prompt,
-        n: 1,
-        size: "1024x1024",
-      }),
-    });
-    
-    if (!openaiResponse.ok) {
-      const error = await openaiResponse.json();
-      console.error("OpenAI API error:", error);
-      throw new Error(`OpenAI API error: ${JSON.stringify(error)}`);
-    }
+    // Attempt to call OpenAI's API
+    try {
+      const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: prompt,
+          n: 1,
+          size: "1024x1024",
+        }),
+      });
+      
+      if (!openaiResponse.ok) {
+        const error = await openaiResponse.json();
+        console.error("OpenAI API error:", error);
+        
+        // Fallback to placeholder if OpenAI call fails
+        const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+        const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            imageUrl: placeholderUrl,
+            prompt,
+            note: "Using placeholder image due to OpenAI API error"
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
-    const data = await openaiResponse.json();
-    const imageUrl = data.data[0].url;
-    
-    console.log(`Successfully generated image for prompt: ${prompt}`);
-    
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        imageUrl,
-        prompt,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      const data = await openaiResponse.json();
+      const imageUrl = data.data[0].url;
+      
+      console.log(`Successfully generated image for prompt: ${prompt}`);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          imageUrl,
+          prompt,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (openaiError) {
+      console.error("Error with OpenAI API:", openaiError);
+      
+      // Fallback to placeholder if OpenAI call fails
+      const sanitizedPrompt = encodeURIComponent(prompt.slice(0, 30).replace(/\s+/g, '+'));
+      const placeholderUrl = `${PLACEHOLDER_API}${sanitizedPrompt}?random=${Date.now()}`;
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          imageUrl: placeholderUrl,
+          prompt,
+          note: "Using placeholder image due to OpenAI API error"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Error in edge function:", error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to generate image' }),
+      JSON.stringify({ error: error.message || 'Failed to generate image', details: String(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

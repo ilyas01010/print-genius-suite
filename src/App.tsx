@@ -12,6 +12,12 @@ import Index from "./pages/Index";
 import NicheResearch from "./pages/NicheResearch";
 import DesignGenerator from "./pages/DesignGenerator";
 import CopyrightChecker from "./pages/CopyrightChecker";
+import PlatformManager from "./pages/PlatformManager";
+import MarketingPlanner from "./pages/MarketingPlanner";
+import Analytics from "./pages/Analytics";
+import CustomerService from "./pages/CustomerService";
+import LearningHub from "./pages/LearningHub";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 
@@ -68,6 +74,12 @@ const App = () => {
               <Route path="/niche-research" element={<NicheResearch />} />
               <Route path="/design-generator" element={<DesignGenerator />} />
               <Route path="/copyright-checker" element={<CopyrightChecker />} />
+              <Route path="/platform-manager" element={<PlatformManager />} />
+              <Route path="/marketing-planner" element={<MarketingPlanner />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/customer-service" element={<CustomerService />} />
+              <Route path="/learning-hub" element={<LearningHub />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </UserProvider>
