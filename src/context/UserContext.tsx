@@ -4,6 +4,12 @@ import React, { createContext, useState, useContext } from 'react';
 type User = {
   id: string;
   email?: string;
+  user_metadata?: {
+    avatar_url?: string;
+    display_name?: string;
+    bio?: string;
+    [key: string]: any;
+  };
 };
 
 type UserContextType = {
@@ -25,7 +31,13 @@ const UserContext = createContext<UserContextType>({
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>({ id: 'demo-user' });
+  const [user, setUser] = useState<User | null>({ 
+    id: 'demo-user',
+    user_metadata: {
+      display_name: 'Demo User',
+      avatar_url: ''
+    }
+  });
   
   const logout = async () => {
     // Simplified logout
