@@ -10,6 +10,9 @@ export enum ValidationType {
   PASSWORD = 'password',
   USERNAME = 'username',
   PHONE = 'phone',
+  DATE = 'date',
+  POSTAL_CODE = 'postal_code',
+  CREDITCARD = 'creditcard',
 }
 
 // Define validation patterns
@@ -19,6 +22,18 @@ const validationPatterns = {
   [ValidationType.NUMBER]: /^-?\d*\.?\d+$/,
   [ValidationType.PHONE]: /^\+?[0-9]{10,15}$/,
   [ValidationType.USERNAME]: /^[a-zA-Z0-9_-]{3,20}$/,
+  [ValidationType.DATE]: /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD format
+  [ValidationType.POSTAL_CODE]: /^[0-9]{5}(-[0-9]{4})?$/, // US format, adjust as needed
+  [ValidationType.CREDITCARD]: /^[0-9]{13,19}$/, // Basic check, not for actual validation
+};
+
+// Configure DOMPurify with strict settings
+const purifyConfig = {
+  ALLOWED_TAGS: ['b', 'i', 'em', 'strong'], // Minimal allowed tags
+  ALLOWED_ATTR: [], // No attributes allowed
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'object', 'embed'],
+  FORBID_ATTR: ['srcset', 'src', 'href', 'xlink:href', 'style'],
+  USE_PROFILES: { html: true },
 };
 
 // Sanitize input to protect against XSS attacks
@@ -26,8 +41,9 @@ export const sanitizeInput = (input: string): string => {
   if (typeof input !== 'string') {
     return '';
   }
-  // Use DOMPurify to sanitize HTML content
-  return DOMPurify.sanitize(input);
+  
+  // Use DOMPurify with strict configuration to sanitize HTML content
+  return DOMPurify.sanitize(input, purifyConfig).trim();
 };
 
 // Validate input against a specific validation type
@@ -40,7 +56,7 @@ export const validateInput = (
     custom?: RegExp;
   }
 ): boolean => {
-  // Check if input is empty
+  // Check if input is empty or undefined
   if (input === undefined || input === null || input.trim() === '') {
     return false;
   }
@@ -57,6 +73,23 @@ export const validateInput = (
   // Use custom regex if provided
   if (options?.custom) {
     return options.custom.test(input);
+  }
+  
+  // Special handling for password strength
+  if (type === ValidationType.PASSWORD) {
+    // Check for at least one uppercase, lowercase, number, and special character
+    const hasUppercase = /[A-Z]/.test(input);
+    const hasLowercase = /[a-z]/.test(input);
+    const hasNumber = /[0-9]/.test(input);
+    const hasSpecial = /[^A-Za-z0-9]/.test(input);
+    
+    return (
+      input.length >= 12 && 
+      hasUppercase && 
+      hasLowercase && 
+      hasNumber && 
+      hasSpecial
+    );
   }
   
   // Use predefined patterns
@@ -98,6 +131,16 @@ export const escapeSQL = (str: string): string => {
           return char;
       }
     });
+};
+
+// Generate a random secure token
+export const generateSecureToken = (length: number = 32): string => {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  
+  return Array.from(array)
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
 };
 
 // General purpose form input validator
@@ -149,4 +192,30 @@ export const validateForm = <T extends Record<string, any>>(
   });
   
   return { valid, errors };
+};
+
+// Sanitize file names to prevent path traversal and unsafe characters
+export const sanitizeFileName = (fileName: string): string => {
+  if (typeof fileName !== 'string') {
+    return '';
+  }
+  
+  // Remove any directory components
+  let cleanName = fileName.replace(/^.*[\\\/]/, '');
+  
+  // Remove any unsafe characters
+  cleanName = cleanName.replace(/[^\w\-_.]/g, '');
+  
+  // Add a random suffix for additional security
+  const extension = cleanName.includes('.') 
+    ? cleanName.substring(cleanName.lastIndexOf('.')) 
+    : '';
+    
+  const nameWithoutExtension = cleanName.includes('.')
+    ? cleanName.substring(0, cleanName.lastIndexOf('.'))
+    : cleanName;
+    
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  
+  return `${nameWithoutExtension}_${randomSuffix}${extension}`;
 };

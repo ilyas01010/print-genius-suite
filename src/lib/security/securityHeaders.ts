@@ -6,13 +6,15 @@ export const securityHeaders = {
   // Content Security Policy - restricts sources of content
   'Content-Security-Policy': 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline'; " +
+    "script-src 'self' 'unsafe-inline'; " + 
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "img-src 'self' data: https://*.supabase.co; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "connect-src 'self' https://*.supabase.co; " +
     "frame-src 'self' https://www.photopea.com; " +
-    "frame-ancestors 'none';",
+    "form-action 'self'; " +
+    "frame-ancestors 'none'; " +
+    "base-uri 'self';",
     
   // Prevents MIME type sniffing
   'X-Content-Type-Options': 'nosniff',
@@ -30,7 +32,10 @@ export const securityHeaders = {
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   
   // Prevents browser features
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+  
+  // Feature-Policy is deprecated but some browsers might still use it
+  'Feature-Policy': 'camera none; microphone none; geolocation self;',
 };
 
 // For actual implementation, these headers need to be set at the server level

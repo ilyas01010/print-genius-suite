@@ -1,7 +1,7 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { sanitizeInput, ValidationType, validateInput } from '@/lib/security/inputValidation';
+import { AlertCircle } from 'lucide-react';
 
 interface InputSanitizedProps extends React.InputHTMLAttributes<HTMLInputElement> {
   sanitize?: boolean;
@@ -11,6 +11,8 @@ interface InputSanitizedProps extends React.InputHTMLAttributes<HTMLInputElement
   customRegex?: RegExp;
   onValidChange?: (isValid: boolean) => void;
   errorMessage?: string;
+  sensitiveData?: boolean;
+  delayValidation?: boolean;
 }
 
 const InputSanitized = React.forwardRef<HTMLInputElement, InputSanitizedProps>(
@@ -23,46 +25,113 @@ const InputSanitized = React.forwardRef<HTMLInputElement, InputSanitizedProps>(
     onChange, 
     onValidChange,
     errorMessage,
+    sensitiveData = false,
+    delayValidation = true,
+    className,
     ...props 
   }, ref) => {
     const [error, setError] = useState<string | null>(null);
+    const [value, setValue] = useState<string>(props.defaultValue?.toString() || props.value?.toString() || '');
+    const [isDirty, setIsDirty] = useState(false);
+    const validationTimeoutRef = useRef<NodeJS.Timeout>();
     
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      let value = e.target.value;
-      
-      // Sanitize input if enabled
-      if (sanitize) {
-        value = sanitizeInput(value);
-        // Update the input value to the sanitized version
-        e.target.value = value;
+    useEffect(() => {
+      return () => {
+        if (validationTimeoutRef.current) {
+          clearTimeout(validationTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    useEffect(() => {
+      if (props.value !== undefined && props.value !== value) {
+        setValue(props.value.toString());
+        validateValue(props.value.toString());
+      }
+    }, [props.value]);
+    
+    const validateValue = (inputValue: string) => {
+      if (!isDirty && !inputValue.trim()) {
+        setError(null);
+        onValidChange?.(true);
+        return;
       }
       
-      // Validate input if a validation type is provided
       if (validate) {
-        const isValid = validateInput(value, validate, {
+        const isValid = validateInput(inputValue, validate, {
           minLength,
           maxLength,
           custom: customRegex,
         });
         
-        if (!isValid && value.trim() !== '') {
-          setError(errorMessage || `Invalid input for type ${validate}`);
+        if (!isValid && (isDirty || inputValue.trim() !== '')) {
+          setError(errorMessage || `Invalid ${validate} format`);
           onValidChange?.(false);
         } else {
           setError(null);
           onValidChange?.(true);
         }
       }
+    };
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let inputValue = e.target.value;
       
-      // Call the original onChange handler if provided
+      if (sanitize && !sensitiveData) {
+        inputValue = sanitizeInput(inputValue);
+        e.target.value = inputValue;
+      }
+      
+      setValue(inputValue);
+      setIsDirty(true);
+      
+      if (!sensitiveData) {
+        setValue(inputValue);
+      }
+      
+      if (delayValidation && validate) {
+        if (validationTimeoutRef.current) {
+          clearTimeout(validationTimeoutRef.current);
+        }
+        
+        validationTimeoutRef.current = setTimeout(() => {
+          validateValue(inputValue);
+        }, 300);
+      } else if (validate) {
+        validateValue(inputValue);
+      }
+      
       onChange?.(e);
     };
     
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+      
+      setIsDirty(true);
+      validateValue(e.target.value);
+      props.onBlur?.(e);
+    };
+    
+    const inputClasses = `${className || ''} ${error ? 'border-destructive' : ''}`;
+    
     return (
       <div className="space-y-1">
-        <Input ref={ref} onChange={handleChange} {...props} />
+        <Input 
+          ref={ref} 
+          onChange={handleChange}
+          onBlur={handleBlur}
+          value={props.value !== undefined ? props.value : value}
+          className={inputClasses} 
+          {...props} 
+        />
+        
         {error && (
-          <p className="text-xs text-destructive">{error}</p>
+          <div className="flex items-center gap-1 text-destructive text-xs">
+            <AlertCircle className="h-3 w-3" />
+            <p>{error}</p>
+          </div>
         )}
       </div>
     );

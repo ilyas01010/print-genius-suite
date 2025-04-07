@@ -20,6 +20,10 @@ export const ROLES = {
   CUSTOMER: 'customer',
 };
 
+// Secret constants
+export const MAX_LOGIN_ATTEMPTS = 5;
+export const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
 // Validate password strength
 export const validatePassword = (password: string): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
@@ -125,9 +129,8 @@ export const secureSignUp = async (email: string, password: string, metadata?: a
 
 // Detect suspicious login attempts
 export const detectSuspiciousLogin = (attempts: number, timeWindow: number): boolean => {
-  // Implement logic to detect brute force or suspicious login attempts
-  // This is a simplified version - in production you'd use a more robust approach
-  return attempts > 5; // More than 5 attempts in timeWindow is suspicious
+  // Consider an attempt suspicious if it exceeds the threshold
+  return attempts > MAX_LOGIN_ATTEMPTS;
 };
 
 // Log security events
@@ -147,5 +150,32 @@ export const logSecurityEvent = async (event: string, userId: string, details: a
     if (error) throw error;
   } catch (error) {
     console.error('Error logging security event:', error);
+  }
+};
+
+// Secure token refresh
+export const secureRefreshSession = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) {
+      console.error('Error refreshing session:', error);
+      return false;
+    }
+    return !!data.session;
+  } catch (error) {
+    console.error('Error in session refresh:', error);
+    return false;
+  }
+};
+
+// Secure logout function
+export const secureLogout = async () => {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return { error };
   }
 };
