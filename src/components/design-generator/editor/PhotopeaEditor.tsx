@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -162,7 +163,7 @@ const PhotopeaEditor = () => {
                     lastModified: Date.now() 
                   });
                   
-                  // Compress and upload the design
+                  // Compress the file (passing a proper File object now)
                   const compressedFile = await compressImage(file, 1200, 0.85);
                   
                   await uploadDesign(

@@ -5,7 +5,7 @@
 
 /**
  * Compresses an image file to a specified quality
- * @param file The image file to compress
+ * @param file The image file or blob to compress
  * @param maxWidth Maximum width of the output image 
  * @param quality JPEG quality from 0 to 1
  * @returns A promise resolving to the compressed image as a Blob
