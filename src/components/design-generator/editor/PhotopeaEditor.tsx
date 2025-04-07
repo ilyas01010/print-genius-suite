@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -157,7 +156,11 @@ const PhotopeaEditor = () => {
                   const docName = nameData.body || `Design-${Date.now()}`;
                   const fileName = `${docName.replace(/\.[^/.]+$/, "")}.png`;
                   
-                  const file = new File([blob], fileName, { type: 'image/png' });
+                  // Convert Blob to File object before passing to uploadDesign
+                  const file = new File([blob], fileName, { 
+                    type: 'image/png', 
+                    lastModified: Date.now() 
+                  });
                   
                   // Compress and upload the design
                   const compressedFile = await compressImage(file, 1200, 0.85);
