@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { useLanguage } from "@/context/LanguageContext";
@@ -25,11 +24,9 @@ import {
   CheckCircle 
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSettings } from "@/context/SettingsContext";
 
 const Support = () => {
   const { t } = useLanguage();
-  const { darkMode } = useSettings();
   const { toast } = useToast();
   const [contactForm, setContactForm] = useState({
     name: '',
