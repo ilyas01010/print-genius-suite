@@ -1,11 +1,8 @@
 
 import React, { useState } from "react";
-import { format } from "date-fns";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   CalendarIcon, 
   HelpCircle, 
@@ -26,6 +23,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Platform, Product, NewPlatform, DateRangeFilter } from "@/components/platform-manager/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import TutorialDialog from "@/components/platform-manager/TutorialDialog";
+import FeedbackDialog from "@/components/platform-manager/FeedbackDialog";
+import DateRangePicker from "@/components/platform-manager/DateRangePicker";
 
 const PlatformDashboard = () => {
   const { toast } = useToast();
@@ -44,7 +44,8 @@ const PlatformDashboard = () => {
       sales30d: 42,
       revenue: 1250.75,
       revenue30d: 1250.75,
-      createdAt: "2023-01-15T10:30:00Z"
+      createdAt: "2023-01-15T10:30:00Z",
+      lastSync: "2023-04-01T14:30:00Z"
     },
     {
       id: "amazon",
@@ -86,6 +87,7 @@ const PlatformDashboard = () => {
       name: "Graphic Tee", 
       price: 24.99, 
       platformId: "etsy",
+      status: "active",
       createdAt: "2023-02-01T10:30:00Z" 
     },
     { 
@@ -93,6 +95,7 @@ const PlatformDashboard = () => {
       name: "Coffee Mug", 
       price: 14.99, 
       platformId: "etsy",
+      status: "active",
       createdAt: "2023-02-15T14:45:00Z" 
     },
     { 
@@ -100,6 +103,7 @@ const PlatformDashboard = () => {
       name: "Phone Case", 
       price: 19.99, 
       platformId: "etsy",
+      status: "active",
       createdAt: "2023-03-05T09:15:00Z" 
     },
     { 
@@ -107,6 +111,7 @@ const PlatformDashboard = () => {
       name: "Art Print", 
       price: 29.99, 
       platformId: "etsy",
+      status: "active",
       createdAt: "2023-03-20T16:30:00Z" 
     },
   ]);
@@ -115,57 +120,62 @@ const PlatformDashboard = () => {
     {
       id: "printful",
       name: "Printful",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Printful_logo.svg"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Printful_logo.svg",
+      description: "Print-on-demand service with direct integration to online stores"
     },
     {
       id: "redbubble",
       name: "Redbubble",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Redbubble_logo.svg"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Redbubble_logo.svg",
+      description: "Global marketplace for independent artists and designers"
     },
     {
       id: "teespring",
       name: "Teespring",
-      logo: "https://seeklogo.com/images/T/teespring-logo-598486FE27-seeklogo.com.png"
+      logo: "https://seeklogo.com/images/T/teespring-logo-598486FE27-seeklogo.com.png",
+      description: "E-commerce platform for creating and selling custom products"
     },
     {
       id: "printify",
       name: "Printify",
-      logo: "https://cdn.printify.com/storage/web/main/printify-logo.svg"
+      logo: "https://cdn.printify.com/storage/web/main/printify-logo.svg",
+      description: "Print-on-demand network with 90+ print providers"
     },
     {
       id: "society6",
       name: "Society6",
-      logo: "https://www.society6.com/images/s6-site/s6-mark.svg"
+      logo: "https://www.society6.com/images/s6-site/s6-mark.svg",
+      description: "Marketplace focused on art prints and home decor"
     },
     {
       id: "teepublic",
       name: "TeePublic",
-      logo: "https://www.teepublic.com/assets/logo-b894d670c5668c1a5389837310f2adbcf032b286eb897956cf0222033fc81f20.svg"
+      logo: "https://www.teepublic.com/assets/logo-b894d670c5668c1a5389837310f2adbcf032b286eb897956cf0222033fc81f20.svg",
+      description: "Marketplace for independent creators to sell their designs"
     },
     {
       id: "zazzle",
       name: "Zazzle",
-      logo: "https://asset.zcache.com/assets/graphics/z4/uniquePages/zazzleLogoR.png"
+      logo: "https://asset.zcache.com/assets/graphics/z4/uniquePages/zazzleLogoR.png",
+      description: "Custom products marketplace with extensive customization options"
     },
     {
       id: "spreadshirt",
       name: "Spreadshirt",
-      logo: "https://image.spreadshirtmedia.com/content/f_auto,q_auto/v1/Logos/spreadshirt_logo"
+      logo: "https://image.spreadshirtmedia.com/content/f_auto,q_auto/v1/Logos/spreadshirt_logo",
+      description: "Custom apparel and accessories platform"
     },
     {
       id: "wordpress",
       name: "WordPress",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/WordPress_logo.svg"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/0/09/WordPress_logo.svg",
+      description: "Connect your WordPress site with WooCommerce integration"
     },
     {
       id: "gelato",
       name: "Gelato",
-      logo: "https://global-uploads.webflow.com/6006f6bf85f3670a4d5228af/60083f0b21001f711dc59888_gelato-logo-black.svg"
-    },
-    {
-      id: "printy6",
-      name: "Printy6",
-      logo: "https://printy6.com/wp-content/uploads/2023/06/logo-box.png"
+      logo: "https://global-uploads.webflow.com/6006f6bf85f3670a4d5228af/60083f0b21001f711dc59888_gelato-logo-black.svg",
+      description: "Global production network for print-on-demand products"
     }
   ]);
 
@@ -184,7 +194,6 @@ const PlatformDashboard = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
-  const [feedbackText, setFeedbackText] = useState('');
 
   const filteredPlatforms = dateRange.startDate && dateRange.endDate 
     ? platforms.filter(p => {
@@ -206,37 +215,6 @@ const PlatformDashboard = () => {
   const totalRevenue = filteredPlatforms.reduce((sum, platform) => sum + platform.revenue, 0);
   const connectedPlatforms = filteredPlatforms.filter(p => p.status === "connected").length;
 
-  const resetDateFilters = () => {
-    setDateRange({ startDate: null, endDate: null });
-    toast({
-      title: "Filters Reset",
-      description: "Date range filters have been cleared.",
-    });
-  };
-
-  const handleDateRangeSelect = (date: Date | null) => {
-    if (!date) return;
-    
-    setDateRange(prev => {
-      if (!prev.startDate || (prev.startDate && prev.endDate)) {
-        return { startDate: date, endDate: null };
-      }
-      
-      if (date < prev.startDate) {
-        return { startDate: date, endDate: prev.startDate };
-      }
-      
-      return { startDate: prev.startDate, endDate: date };
-    });
-    
-    if (dateRange.startDate && !dateRange.endDate) {
-      toast({
-        title: "Date Range Applied",
-        description: `Filtering data between ${format(dateRange.startDate, 'PP')} and ${format(date, 'PP')}.`,
-      });
-    }
-  };
-
   const handleAddNewPlatform = (platform: NewPlatform) => {
     if (platforms.some(p => p.id === platform.id)) {
       toast({
@@ -253,7 +231,12 @@ const PlatformDashboard = () => {
         ...platform,
         status: "disconnected",
         products: 0,
-        revenue: 0
+        revenue: 0,
+        productsCount: 0,
+        activeProductsCount: 0,
+        sales30d: 0,
+        revenue30d: 0,
+        createdAt: new Date().toISOString()
       }
     ]);
 
@@ -275,7 +258,7 @@ const PlatformDashboard = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "connected" } 
+          ? { ...p, status: "connected", lastSync: new Date().toISOString() } 
           : p
       ));
 
@@ -296,7 +279,16 @@ const PlatformDashboard = () => {
     setTimeout(() => {
       setPlatforms(platforms.map(p => 
         p.id === platformId 
-          ? { ...p, status: "disconnected", products: 0, revenue: 0 } 
+          ? { 
+              ...p, 
+              status: "disconnected", 
+              products: 0, 
+              revenue: 0,
+              productsCount: 0,
+              activeProductsCount: 0,
+              sales30d: 0,
+              revenue30d: 0
+            } 
           : p
       ));
 
@@ -343,6 +335,7 @@ const PlatformDashboard = () => {
       name: newProductName,
       price: price,
       platformId: selectedPlatform.id,
+      status: "active",
       createdAt: new Date().toISOString()
     };
 
@@ -354,7 +347,10 @@ const PlatformDashboard = () => {
             ...p, 
             products: p.products + 1,
             productsCount: (p.productsCount || 0) + 1,
-            revenue: p.revenue + price
+            activeProductsCount: (p.activeProductsCount || 0) + 1,
+            revenue: p.revenue + price,
+            revenue30d: (p.revenue30d || 0) + price,
+            sales30d: (p.sales30d || 0) + 1
           } 
         : p
     ));
@@ -382,6 +378,7 @@ const PlatformDashboard = () => {
             ...p, 
             products: p.products - 1,
             productsCount: (p.productsCount || p.products) - 1,
+            activeProductsCount: (p.activeProductsCount || 0) - 1,
             revenue: p.revenue - product.price
           } 
         : p
@@ -406,23 +403,6 @@ const PlatformDashboard = () => {
         description: "Platform analytics data has been loaded successfully.",
       });
     }, 1500);
-  };
-
-  const handleSubmitFeedback = () => {
-    if (feedbackText.trim()) {
-      toast({
-        title: "Feedback Submitted",
-        description: "Thank you for your feedback! We appreciate your input.",
-      });
-      setFeedbackText('');
-      setShowFeedbackDialog(false);
-    } else {
-      toast({
-        title: "Error",
-        description: "Please enter some feedback before submitting.",
-        variant: "destructive"
-      });
-    }
   };
 
   return (
@@ -458,158 +438,23 @@ const PlatformDashboard = () => {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
             
-            <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Platform Dashboard Tutorial</DialogTitle>
-                  <DialogDescription>
-                    Learn how to navigate and use the platform dashboard effectively.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="flex gap-3">
-                    <div className="bg-primary/20 p-2 rounded-full">
-                      <Info className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Overview Tab</h3>
-                      <p className="text-sm text-muted-foreground">See performance metrics, revenue statistics, and product distribution across all platforms.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="bg-primary/20 p-2 rounded-full">
-                      <Store className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Platforms Tab</h3>
-                      <p className="text-sm text-muted-foreground">Connect, manage, and view details of all your POD platforms in one place.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="bg-primary/20 p-2 rounded-full">
-                      <ShoppingCart className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Products Tab</h3>
-                      <p className="text-sm text-muted-foreground">Manage all your product listings across platforms, add new products, and track performance.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="bg-primary/20 p-2 rounded-full">
-                      <BarChart3 className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Analytics Tab</h3>
-                      <p className="text-sm text-muted-foreground">View detailed analytics, charts, and trends for your POD business.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => setShowTutorial(false)}>Close</Button>
-                  <Button onClick={() => {
-                    setShowTutorial(false);
-                    toast({
-                      title: "Tutorial Complete",
-                      description: "You can open this tutorial anytime from the help icon.",
-                    });
-                  }}>Got it!</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <TutorialDialog 
+              open={showTutorial} 
+              onOpenChange={setShowTutorial} 
+            />
             
-            <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="hidden sm:flex">
-                  <MessageSquare className="mr-2 h-4 w-4" /> Feedback
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Submit Feedback</DialogTitle>
-                  <DialogDescription>
-                    Share your thoughts, report issues, or suggest improvements for the Platform Dashboard.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <label htmlFor="feedback" className="text-sm font-medium">Your feedback</label>
-                    <textarea 
-                      id="feedback" 
-                      className="w-full min-h-[100px] border rounded-md p-2"
-                      value={feedbackText}
-                      onChange={(e) => setFeedbackText(e.target.value)}
-                      placeholder="Please share your experience, suggestions, or report any issues you've encountered..."
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button onClick={handleSubmitFeedback}>Submit Feedback</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <FeedbackDialog 
+              open={showFeedbackDialog}
+              onOpenChange={setShowFeedbackDialog}
+            />
           </div>
         </div>
         
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !dateRange.startDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange.startDate ? (
-                  dateRange.endDate ? (
-                    <>
-                      {format(dateRange.startDate, "MMM d")} - {format(dateRange.endDate, "MMM d")}
-                    </>
-                  ) : (
-                    format(dateRange.startDate, "MMM d, yyyy")
-                  )
-                ) : (
-                  <span>Filter by date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="range"
-                selected={{
-                  from: dateRange.startDate || undefined,
-                  to: dateRange.endDate || undefined,
-                }}
-                onSelect={(range) => {
-                  setDateRange({
-                    startDate: range?.from || null,
-                    endDate: range?.to || null,
-                  });
-                }}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-              <div className="flex items-center justify-between p-3 border-t">
-                <span className="text-sm text-muted-foreground">
-                  {dateRange.startDate && dateRange.endDate 
-                    ? `${format(dateRange.startDate, "PP")} - ${format(dateRange.endDate, "PP")}`
-                    : "Select a date range"}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={resetDateFilters}
-                  disabled={!dateRange.startDate && !dateRange.endDate}
-                >
-                  Reset
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <DateRangePicker 
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+          />
           
           <Dialog open={showAddPlatformDialog} onOpenChange={setShowAddPlatformDialog}>
             <DialogTrigger asChild>
@@ -617,6 +462,31 @@ const PlatformDashboard = () => {
                 <Plus className="mr-2 h-3.5 w-3.5" /> Add Platform
               </Button>
             </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add New Platform</DialogTitle>
+                <DialogDescription>Select a platform to add to your dashboard.</DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-4">
+                {availablePlatforms.map((platform) => (
+                  <Button
+                    key={platform.id}
+                    variant="outline"
+                    className="h-auto flex flex-col items-center justify-center p-3 hover:bg-muted"
+                    onClick={() => handleAddNewPlatform(platform)}
+                  >
+                    <div className="h-8 w-8 overflow-hidden mb-2">
+                      <img 
+                        src={platform.logo} 
+                        alt={`${platform.name} logo`} 
+                        className="h-full w-full object-contain" 
+                      />
+                    </div>
+                    <span className="text-xs text-center">{platform.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </DialogContent>
           </Dialog>
         </div>
         

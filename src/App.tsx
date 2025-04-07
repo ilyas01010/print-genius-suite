@@ -1,3 +1,4 @@
+
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -168,7 +169,6 @@ function App() {
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/copyright-checker" element={<CopyrightChecker />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/platform-manager" element={<Navigate to="/platform-dashboard" />} />
                   <Route path="/platform-dashboard" element={<PlatformDashboard />} />
                   <Route path="/customer-service" element={<CustomerService />} />
                   <Route path="/marketing-planner" element={<MarketingPlanner />} />

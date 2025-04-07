@@ -9,7 +9,10 @@ export interface Product {
   name: string;
   price: number;
   platformId: string;
-  createdAt?: string; // Add date field
+  createdAt?: string;
+  status?: 'active' | 'inactive';
+  image?: string;
+  description?: string;
 }
 
 export type Platform = {
@@ -26,13 +29,15 @@ export type Platform = {
   sales30d?: number;
   revenue: number;
   revenue30d?: number;
-  createdAt?: string; // Add date field
+  createdAt?: string;
+  lastSync?: string;
 };
 
 export type NewPlatform = {
   id: string;
   name: string;
   logo: string;
+  description?: string;
 };
 
 export interface IntegrationConfig {
@@ -61,8 +66,16 @@ export interface PlatformSummary {
   topPlatform?: Platform;
 }
 
-// New interface for date filters
+// Interface for date filters
 export interface DateRangeFilter {
   startDate: Date | null;
   endDate: Date | null;
+}
+
+// Interface for feedback data
+export interface FeedbackData {
+  id: string;
+  text: string;
+  createdAt: string;
+  resolved: boolean;
 }
