@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DateRange } from "react-day-picker";
 
 // Mock data for charts
 const mockUserData = [
@@ -48,10 +48,7 @@ const mockPlatformData = [
 ];
 
 const AdminAnalytics = () => {
-  const [dateRange, setDateRange] = useState<{
-    from: Date;
-    to: Date | undefined;
-  }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
@@ -93,7 +90,13 @@ const AdminAnalytics = () => {
                 mode="range"
                 defaultMonth={dateRange.from}
                 selected={dateRange}
-                onSelect={(value) => setDateRange(value || { from: new Date(), to: undefined })}
+                onSelect={(value) => {
+                  if (value) {
+                    setDateRange(value);
+                  } else {
+                    setDateRange({ from: new Date(), to: undefined });
+                  }
+                }}
                 numberOfMonths={2}
               />
             </PopoverContent>

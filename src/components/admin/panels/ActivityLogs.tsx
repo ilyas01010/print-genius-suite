@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -121,7 +120,7 @@ const ActivityLogs = () => {
       case "error":
         return "destructive";
       case "warning":
-        return "warning";
+        return "secondary";
       case "info":
       default:
         return "secondary";
