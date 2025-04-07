@@ -130,6 +130,7 @@ const NewSidebar = () => {
                 <NavLink
                   to={item.href}
                   className={({ isActive }) => cn(
+                    "flex items-center gap-2 w-full",
                     isActive 
                       ? "bg-primary text-primary-foreground" 
                       : "hover:bg-muted text-muted-foreground hover:text-foreground"
