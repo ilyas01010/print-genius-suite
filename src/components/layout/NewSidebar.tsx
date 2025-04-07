@@ -125,7 +125,6 @@ const NewSidebar = () => {
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton 
-                asChild
                 tooltip={state === "collapsed" ? item.title : undefined}
               >
                 <NavLink
