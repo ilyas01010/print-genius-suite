@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -39,77 +38,97 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
-              <Route element={<Layout />}>
-                <Route path="/" element={<Index />} />
-                
-                {/* Protected routes requiring authentication */}
-                <Route path="/design" element={
-                  <ProtectedRoute>
+              <Route path="/" element={<Layout>{<Index />}</Layout>} />
+              
+              {/* Protected routes requiring authentication */}
+              <Route path="/design" element={
+                <ProtectedRoute>
+                  <Layout>
                     <DesignGenerator />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/settings" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Layout>
                     <Settings />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/platform" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/platform" element={
+                <ProtectedRoute>
+                  <Layout>
                     <PlatformDashboard />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/niche-research" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/niche-research" element={
+                <ProtectedRoute>
+                  <Layout>
                     <NicheResearch />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/copyright" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/copyright" element={
+                <ProtectedRoute>
+                  <Layout>
                     <CopyrightChecker />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/marketing" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/marketing" element={
+                <ProtectedRoute>
+                  <Layout>
                     <MarketingPlanner />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/learning" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/learning" element={
+                <ProtectedRoute>
+                  <Layout>
                     <LearningHub />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/analytics" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/analytics" element={
+                <ProtectedRoute>
+                  <Layout>
                     <Analytics />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/support" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/support" element={
+                <ProtectedRoute>
+                  <Layout>
                     <Support />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/customer-service" element={
-                  <ProtectedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/customer-service" element={
+                <ProtectedRoute>
+                  <Layout>
                     <CustomerService />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Admin routes requiring admin role */}
-                <Route path="/admin" element={
-                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin routes requiring admin role */}
+              <Route path="/admin" element={
+                <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                  <Layout>
                     <AdminPanel />
-                  </ProtectedRoute>
-                } />
-              </Route>
+                  </Layout>
+                </ProtectedRoute>
+              } />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
