@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -38,7 +39,11 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
-              <Route path="/" element={<Layout>{<Index />}</Layout>} />
+              <Route path="/" element={
+                <Layout>
+                  <Index />
+                </Layout>
+              } />
               
               {/* Protected routes requiring authentication */}
               <Route path="/design" element={
