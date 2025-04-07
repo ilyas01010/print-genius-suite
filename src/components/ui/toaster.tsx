@@ -9,6 +9,7 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useEffect, useState } from "react"
 
 export function Toaster() {
   const { toasts } = useToast()
@@ -21,8 +22,12 @@ export function Toaster() {
           <Toast 
             key={id} 
             {...props}
-            className={`${props.className || ''} ${isMobile ? 'max-w-[calc(100%-32px)]' : ''}`}
+            className={`${props.className || ''} ${isMobile ? 'max-w-[calc(100%-32px)]' : ''} group relative`}
           >
+            {/* Visual timer indicator */}
+            <div className="absolute bottom-0 left-0 h-1 bg-primary/20 w-full">
+              <div className="h-full bg-primary animate-[shrink_5s_linear_1]" />
+            </div>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
