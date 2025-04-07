@@ -79,8 +79,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Authorized - render the children
+  // Authorized - render the children (ensuring it's a single React element for any components expecting that)
   return <>{children}</>;
-};
+}
 
 export default ProtectedRoute;
