@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,10 +8,10 @@ import {
   Settings2, 
   Info, 
   Store, 
-  ShoppingCart, 
   BarChart3, 
   MessageSquare, 
-  Plus 
+  Plus,
+  ShoppingBag
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PlatformDashboardOverview from "@/components/platform-manager/PlatformDashboardOverview";
