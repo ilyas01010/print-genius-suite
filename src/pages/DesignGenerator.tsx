@@ -20,7 +20,7 @@ const DesignGenerator = () => {
         <div className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl">{t("design.title")}</h1>
           <p className="text-muted-foreground">
-            {t("design.subtitle")}
+            Create professional designs for print on demand products using our powerful design tools
           </p>
         </div>
 
