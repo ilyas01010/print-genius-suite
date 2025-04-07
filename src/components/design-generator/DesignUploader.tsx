@@ -17,9 +17,9 @@ const DesignUploader = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Design Creator</CardTitle>
+        <CardTitle>Photopea Design Editor</CardTitle>
         <CardDescription>
-          Use our professional design editor to create, customize, and upload designs
+          Create and customize professional designs with our integrated Photopea editor
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -50,7 +50,7 @@ export const openImageFromURL = (
 };
 
 /**
- * Builds the Photopea URL with parameters
+ * Builds the Photopea URL with parameters according to their API documentation
  * @param params Optional parameters to customize the Photopea instance
  * @returns URL string with encoded parameters
  */
@@ -84,7 +84,6 @@ export const buildPhotopeaUrl = (params: {
     })
   );
   
-  console.log("Building Photopea URL with params:", mergedParams);
   return `${PHOTOPEA_URL}#${encodedParams}`;
 };
 
@@ -144,6 +143,88 @@ export const downloadCurrentDocument = (
       method: "runScript",
       script: "app.activeDocument.saveToOE('png').then(data => { var a = document.createElement('a'); a.href = 'data:image/png;base64,' + data; a.download = 'design-" + Date.now() + ".png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); });"
     }), 
+    "https://www.photopea.com"
+  );
+};
+
+/**
+ * Uploads an image file to Photopea
+ * @param iframe Reference to the Photopea iframe
+ * @param file The file object to upload
+ */
+export const uploadImageToPhotopea = (
+  iframe: HTMLIFrameElement,
+  file: File
+): void => {
+  if (!iframe || !iframe.contentWindow) return;
+  
+  const reader = new FileReader();
+  reader.onload = function() {
+    const arrayBuffer = reader.result as ArrayBuffer;
+    const bytes = new Uint8Array(arrayBuffer);
+    
+    // Send the file bytes to Photopea
+    iframe.contentWindow.postMessage(
+      JSON.stringify({
+        method: "open",
+        name: file.name,
+        data: Array.from(bytes) // Convert to regular array for JSON
+      }),
+      "https://www.photopea.com"
+    );
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+/**
+ * Add text layer to the current document
+ * @param iframe Reference to the Photopea iframe
+ * @param text The text content
+ */
+export const addTextLayer = (
+  iframe: HTMLIFrameElement,
+  text: string
+): void => {
+  if (!iframe || !iframe.contentWindow) return;
+  
+  iframe.contentWindow.postMessage(
+    JSON.stringify({
+      method: "runScript",
+      script: `
+        var textLayer = app.activeDocument.artLayers.add();
+        textLayer.kind = LayerKind.TEXT;
+        textLayer.textItem.contents = "${text}";
+      `
+    }),
+    "https://www.photopea.com"
+  );
+};
+
+/**
+ * Get file info from the current document
+ * @param iframe Reference to the Photopea iframe
+ * @param callback Name of the callback to receive the data
+ */
+export const getFileInfo = (
+  iframe: HTMLIFrameElement,
+  callback: string
+): void => {
+  if (!iframe || !iframe.contentWindow) return;
+  
+  iframe.contentWindow.postMessage(
+    JSON.stringify({
+      method: "runScript",
+      script: `
+        var info = {
+          name: app.activeDocument.name,
+          width: app.activeDocument.width,
+          height: app.activeDocument.height,
+          resolution: app.activeDocument.resolution
+        };
+        return info;
+      `,
+      callback
+    }),
     "https://www.photopea.com"
   );
 };

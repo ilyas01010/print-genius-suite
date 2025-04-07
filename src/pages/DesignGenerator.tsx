@@ -15,7 +15,7 @@ const DesignGenerator = () => {
         <div className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl">Design Generator</h1>
           <p className="text-muted-foreground">
-            Access free, copyright-free designs and resources for your print on demand products
+            Create professional designs for print on demand products using our powerful Photopea integration
           </p>
         </div>
 

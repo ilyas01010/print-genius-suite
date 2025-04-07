@@ -1,22 +1,26 @@
 
 import React, { useEffect, useState } from "react";
-import { buildPhotopeaUrl, openImageFromURL } from "./photopea-utils";
+import { buildPhotopeaUrl } from "./photopea-utils";
+import { Loader2 } from "lucide-react";
 
 interface PhotopeaFrameProps {
   isFullscreen: boolean;
   onEditorReady: () => void;
-  imageToEdit?: string;
 }
 
 const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
   isFullscreen,
-  onEditorReady,
-  imageToEdit
+  onEditorReady
 }) => {
   const [isEditorReady, setIsEditorReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Build the URL with parameters
-  const photopeaUrl = buildPhotopeaUrl();
+  // Build the URL with parameters according to Photopea's API documentation
+  const photopeaUrl = buildPhotopeaUrl({
+    theme: 'dark',
+    showTools: true,
+    showHome: false
+  });
   
   // Set up event listener for messages from Photopea
   useEffect(() => {
@@ -27,37 +31,26 @@ const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
       if (typeof event.data === "string" && event.data.includes("ready")) {
         console.log("Photopea editor is ready");
         setIsEditorReady(true);
+        setIsLoading(false);
         onEditorReady();
-        
-        // If we have an image to edit, open it in Photopea
-        if (imageToEdit) {
-          const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement;
-          if (iframe) {
-            setTimeout(() => {
-              openImageFromURL(iframe, imageToEdit);
-            }, 500); // Give the editor a moment to fully initialize
-          }
-        }
       }
     };
     
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [onEditorReady, imageToEdit]);
-
-  // Effect to handle image changes
-  useEffect(() => {
-    if (!imageToEdit || !isEditorReady) return;
-    
-    const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement;
-    if (iframe) {
-      openImageFromURL(iframe, imageToEdit);
-    }
-  }, [imageToEdit, isEditorReady]);
+  }, [onEditorReady]);
 
   return (
-    <>
-      <div className={`border rounded-md bg-muted/20 ${isFullscreen ? 'flex-grow' : 'h-[600px]'}`}>
+    <div className="relative">
+      <div className={`border rounded-md bg-muted/20 ${isFullscreen ? 'flex-grow' : 'h-[650px]'}`}>
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+            <div className="flex flex-col items-center gap-2">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Loading Photopea Editor...</p>
+            </div>
+          </div>
+        )}
         <iframe
           id="photopea-iframe"
           src={photopeaUrl}
@@ -65,15 +58,17 @@ const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
           title="Photopea Editor"
           allow="fullscreen"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-downloads"
+          onLoad={() => setTimeout(() => setIsLoading(false), 1000)}
         ></iframe>
       </div>
 
       {!isFullscreen && (
-        <div className="text-sm text-muted-foreground mt-2">
-          <p>Powered by Photopea - Free Professional Photo Editor. For best experience, use in fullscreen mode.</p>
+        <div className="text-sm text-muted-foreground mt-2 flex items-center justify-between">
+          <p>Powered by <a href="https://www.photopea.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Photopea</a> - Free Professional Photo Editor</p>
+          <p>For best experience, use in fullscreen mode.</p>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

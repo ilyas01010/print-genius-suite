@@ -17,7 +17,6 @@ export const usePhotopeaEditor = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [activeTab, setActiveTab] = useState("photopea");
   
   const { toast } = useToast();
   const { isAuthenticated } = useUser();
@@ -31,7 +30,11 @@ export const usePhotopeaEditor = () => {
   // Handle editor ready state
   const handleEditorReady = useCallback(() => {
     setEditorReady(true);
-  }, []);
+    toast({
+      title: "Photopea editor is ready",
+      description: "You can now start creating your designs"
+    });
+  }, [toast]);
   
   // Create new document with specific dimensions
   const handleCreateDocument = useCallback((width: number, height: number, dpi: number) => {
@@ -44,9 +47,6 @@ export const usePhotopeaEditor = () => {
       title: "New document created",
       description: `Created a ${width}x${height}px canvas at ${dpi} DPI`
     });
-    
-    // Switch to photopea tab when creating a new document
-    setActiveTab("photopea");
   }, [toast]);
 
   // Handle opening image from URL
@@ -59,9 +59,11 @@ export const usePhotopeaEditor = () => {
     
     openImageFromURL(iframe, imageUrl);
     
-    // Switch to photopea tab when opening an image
-    setActiveTab("photopea");
-  }, []);
+    toast({
+      title: "Image opened",
+      description: "The image has been loaded into the editor"
+    });
+  }, [toast]);
 
   // Handle downloading the design
   const handleDownload = useCallback(() => {
@@ -110,7 +112,7 @@ export const usePhotopeaEditor = () => {
       default:
         break;
     }
-  }, [handleDownload, toggleFullscreen, handleOpenImageFromURL]);
+  }, [handleDownload, handleOpenImageFromURL, toggleFullscreen]);
 
   // Import the save design functionality from the utility file
   const { handleSaveDesign } = usePhotopeaSave({ 
@@ -131,13 +133,6 @@ export const usePhotopeaEditor = () => {
     };
   }, [editorReady, handleKeyboardAction]);
 
-  // Effect to reset fullscreen when changing away from the Photopea editor
-  useEffect(() => {
-    if (activeTab !== "photopea" && isFullscreen) {
-      setIsFullscreen(false);
-    }
-  }, [activeTab, isFullscreen]);
-
   return {
     isLoading,
     isFullscreen,
@@ -146,8 +141,6 @@ export const usePhotopeaEditor = () => {
     showHelp,
     showTemplates,
     showShortcuts,
-    activeTab,
-    setActiveTab,
     handleEditorReady,
     toggleFullscreen,
     handleCreateDocument,
