@@ -39,130 +39,108 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
-              {/* Root route */}
+              {/* Public route - Root route */}
               <Route 
                 path="/" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
                 } 
               />
               
-              {/* Protected routes */}
+              {/* Public routes */}
               <Route 
                 path="/design" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <DesignGenerator />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <DesignGenerator />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/settings" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Settings />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/platform" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <PlatformDashboard />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <PlatformDashboard />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/niche-research" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <NicheResearch />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <NicheResearch />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/copyright" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <CopyrightChecker />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <CopyrightChecker />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/marketing" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <MarketingPlanner />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <MarketingPlanner />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/learning" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <LearningHub />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <LearningHub />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/analytics" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Analytics />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <Analytics />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/support" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Support />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <Support />
+                  </Layout>
                 } 
               />
               
               <Route 
                 path="/customer-service" 
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <CustomerService />
-                    </Layout>
-                  </ProtectedRoute>
+                  <Layout>
+                    <CustomerService />
+                  </Layout>
                 } 
               />
               
-              {/* Admin route */}
+              {/* Protected Admin route */}
               <Route 
                 path="/admin" 
                 element={

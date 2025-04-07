@@ -16,6 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
   const { checkPermission, loading: securityLoading } = useSecurityContext();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -69,17 +70,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     );
   }
 
-  // Not authenticated, redirect to login
-  if (!isAuthenticated) {
+  // Not authenticated, redirect to login only for admin routes
+  if (!isAuthenticated && isAdminRoute) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Authenticated but doesn't have permission
-  if (requiredRole && !hasPermission) {
+  // Authenticated but doesn't have permission (admin routes)
+  if (requiredRole && !hasPermission && isAdminRoute) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Authorized - render the children
+  // Authorized or public route - render the children
   return <>{children}</>;
 }
 
