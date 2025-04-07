@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,11 @@ import {
   BarChart3, 
   MessageSquare, 
   Plus,
-  ShoppingBag
+  ShoppingBag,
+  Home,
+  Grid3X3,
+  LineChart,
+  Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PlatformDashboardOverview from "@/components/platform-manager/PlatformDashboardOverview";
@@ -430,11 +435,35 @@ const PlatformDashboard = () => {
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            <TabsList className="grid w-full max-w-md grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="platforms">Platforms</TabsTrigger>
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsList className="grid grid-cols-4 p-1 gap-1 bg-muted/50 rounded-xl backdrop-blur-sm w-full max-w-md">
+              <TabsTrigger 
+                value="overview" 
+                className="flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <Home className="size-4" />
+                <span>Overview</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="platforms" 
+                className="flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <Grid3X3 className="size-4" />
+                <span>Platforms</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="products" 
+                className="flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <Package className="size-4" />
+                <span>Products</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="flex items-center gap-1.5 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <LineChart className="size-4" />
+                <span>Analytics</span>
+              </TabsTrigger>
             </TabsList>
             
             <TutorialDialog 
@@ -457,7 +486,7 @@ const PlatformDashboard = () => {
           
           <Dialog open={showAddPlatformDialog} onOpenChange={setShowAddPlatformDialog}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 shadow-md">
                 <Plus className="mr-2 h-3.5 w-3.5" /> Add Platform
               </Button>
             </DialogTrigger>
@@ -489,7 +518,8 @@ const PlatformDashboard = () => {
           </Dialog>
         </div>
         
-        <TabsContent value="overview" className="space-y-4">
+        {/* Tab content wrappers with smooth transitions */}
+        <TabsContent value="overview" className="space-y-4 animate-fade-in">
           <PlatformDashboardOverview 
             platforms={filteredPlatforms}
             onViewAllPlatforms={() => setSelectedTab("platforms")}
@@ -497,7 +527,7 @@ const PlatformDashboard = () => {
           />
         </TabsContent>
         
-        <TabsContent value="platforms" className="space-y-4">
+        <TabsContent value="platforms" className="space-y-4 animate-fade-in">
           <div className="space-y-4">
             <PlatformsList 
               platforms={filteredPlatforms}
@@ -512,7 +542,7 @@ const PlatformDashboard = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="products" className="space-y-4">
+        <TabsContent value="products" className="space-y-4 animate-fade-in">
           <ProductsList 
             platforms={filteredPlatforms}
             products={filteredProducts}
@@ -534,7 +564,7 @@ const PlatformDashboard = () => {
           />
         </TabsContent>
         
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-4 animate-fade-in">
           <AnalyticsSection 
             platforms={filteredPlatforms}
             connectedPlatforms={connectedPlatforms}
