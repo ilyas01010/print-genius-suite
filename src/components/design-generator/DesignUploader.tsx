@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { 
   Card, 
   CardContent, 
@@ -10,10 +10,8 @@ import {
 } from "@/components/ui/card";
 import { useUser } from "@/context/UserContext";
 import PhotopeaEditor from "./editor/PhotopeaEditor";
-import { PanelTop } from "lucide-react";
 
 const DesignUploader = () => {
-  const [activeTab, setActiveTab] = useState("editor");
   const { isAuthenticated } = useUser();
 
   return (
@@ -21,15 +19,10 @@ const DesignUploader = () => {
       <CardHeader>
         <CardTitle>Design Creator</CardTitle>
         <CardDescription>
-          Use our professional design editor to create and customize designs
+          Use our professional design editor to create, customize, and upload designs
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-1.5 mb-4">
-          <PanelTop className="h-3.5 w-3.5" />
-          <span className="font-medium">Design Editor</span>
-        </div>
-        
+      <CardContent>
         <PhotopeaEditor />
       </CardContent>
       {!isAuthenticated && (

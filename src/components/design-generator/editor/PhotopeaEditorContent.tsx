@@ -7,12 +7,14 @@ interface PhotopeaEditorContentProps {
   isFullscreen: boolean;
   isAuthenticated: boolean;
   onEditorReady: () => void;
+  imageToEdit?: string;
 }
 
 const PhotopeaEditorContent: React.FC<PhotopeaEditorContentProps> = ({
   isFullscreen,
   isAuthenticated,
-  onEditorReady
+  onEditorReady,
+  imageToEdit
 }) => {
   return (
     <>
@@ -20,6 +22,7 @@ const PhotopeaEditorContent: React.FC<PhotopeaEditorContentProps> = ({
       <PhotopeaFrame 
         isFullscreen={isFullscreen}
         onEditorReady={onEditorReady}
+        imageToEdit={imageToEdit}
       />
       
       {/* Recent Designs Gallery - only show when authenticated and not in fullscreen */}

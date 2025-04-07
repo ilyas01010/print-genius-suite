@@ -17,7 +17,7 @@ export const usePhotopeaEditor = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [activeTab, setActiveTab] = useState("editor");
+  const [activeTab, setActiveTab] = useState("photopea");
   
   const { toast } = useToast();
   const { isAuthenticated } = useUser();
@@ -44,6 +44,9 @@ export const usePhotopeaEditor = () => {
       title: "New document created",
       description: `Created a ${width}x${height}px canvas at ${dpi} DPI`
     });
+    
+    // Switch to photopea tab when creating a new document
+    setActiveTab("photopea");
   }, [toast]);
 
   // Handle opening image from URL
@@ -55,6 +58,9 @@ export const usePhotopeaEditor = () => {
     if (!iframe) return;
     
     openImageFromURL(iframe, imageUrl);
+    
+    // Switch to photopea tab when opening an image
+    setActiveTab("photopea");
   }, []);
 
   // Handle downloading the design
@@ -124,6 +130,13 @@ export const usePhotopeaEditor = () => {
       cleanupKeyboardShortcuts();
     };
   }, [editorReady, handleKeyboardAction]);
+
+  // Effect to reset fullscreen when changing away from the Photopea editor
+  useEffect(() => {
+    if (activeTab !== "photopea" && isFullscreen) {
+      setIsFullscreen(false);
+    }
+  }, [activeTab, isFullscreen]);
 
   return {
     isLoading,

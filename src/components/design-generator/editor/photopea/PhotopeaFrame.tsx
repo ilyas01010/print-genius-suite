@@ -1,16 +1,20 @@
 
-import React, { useEffect } from "react";
-import { buildPhotopeaUrl } from "./photopea-utils";
+import React, { useEffect, useState } from "react";
+import { buildPhotopeaUrl, openImageFromURL } from "./photopea-utils";
 
 interface PhotopeaFrameProps {
   isFullscreen: boolean;
   onEditorReady: () => void;
+  imageToEdit?: string;
 }
 
 const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
   isFullscreen,
   onEditorReady,
+  imageToEdit
 }) => {
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  
   // Build the URL with parameters
   const photopeaUrl = buildPhotopeaUrl();
   
@@ -22,13 +26,34 @@ const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
       
       if (typeof event.data === "string" && event.data.includes("ready")) {
         console.log("Photopea editor is ready");
+        setIsEditorReady(true);
         onEditorReady();
+        
+        // If we have an image to edit, open it in Photopea
+        if (imageToEdit) {
+          const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement;
+          if (iframe) {
+            setTimeout(() => {
+              openImageFromURL(iframe, imageToEdit);
+            }, 500); // Give the editor a moment to fully initialize
+          }
+        }
       }
     };
     
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [onEditorReady]);
+  }, [onEditorReady, imageToEdit]);
+
+  // Effect to handle image changes
+  useEffect(() => {
+    if (!imageToEdit || !isEditorReady) return;
+    
+    const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement;
+    if (iframe) {
+      openImageFromURL(iframe, imageToEdit);
+    }
+  }, [imageToEdit, isEditorReady]);
 
   return (
     <>

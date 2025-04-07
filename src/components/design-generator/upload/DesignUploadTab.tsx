@@ -6,8 +6,14 @@ import { useDesigns } from "@/hooks/use-designs";
 import DropZone from "./DropZone";
 import ImagePreview from "./ImagePreview";
 import SaveDesignDialog from "./SaveDesignDialog";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
 
-const DesignUploadTab = () => {
+interface DesignUploadTabProps {
+  onEditInEditor?: (imageUrl: string) => void;
+}
+
+const DesignUploadTab: React.FC<DesignUploadTabProps> = ({ onEditInEditor }) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -76,16 +82,37 @@ const DesignUploadTab = () => {
     setSaveDialogOpen(false);
   };
 
+  const handleEditInPhotopea = () => {
+    if (preview && onEditInEditor) {
+      onEditInEditor(preview);
+    }
+  };
+
   return (
     <>
       {preview ? (
-        <ImagePreview 
-          preview={preview}
-          resetForm={resetForm}
-          handleSaveDesign={handleSaveDesign}
-          isLoading={isLoading}
-          isAuthenticated={isAuthenticated}
-        />
+        <div className="space-y-4">
+          <ImagePreview 
+            preview={preview}
+            resetForm={resetForm}
+            handleSaveDesign={handleSaveDesign}
+            isLoading={isLoading}
+            isAuthenticated={isAuthenticated}
+          />
+          
+          {onEditInEditor && (
+            <div className="flex justify-center">
+              <Button 
+                variant="outline" 
+                onClick={handleEditInPhotopea} 
+                className="mt-2"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit in Photopea
+              </Button>
+            </div>
+          )}
+        </div>
       ) : (
         <DropZone onFileSelected={handleFileSelected} />
       )}
