@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
@@ -10,6 +10,7 @@ import PhotopeaFrame from "./photopea/PhotopeaFrame";
 import PhotopeaHelp from "./photopea/PhotopeaHelp";
 import PhotopeaTemplates from "./photopea/PhotopeaTemplates";
 import PhotopeaGallery from "./photopea/PhotopeaGallery";
+import PhotopeaShortcutHelp from "./photopea/PhotopeaShortcutHelp";
 import { 
   createNewDocument,
   downloadCurrentDocument, 
@@ -17,6 +18,7 @@ import {
   getDocumentName, 
   openImageFromURL 
 } from "./photopea/photopea-utils";
+import { setupKeyboardShortcuts, ShortcutAction } from "./photopea/keyboard-shortcuts";
 
 const PhotopeaEditor = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,23 +26,24 @@ const PhotopeaEditor = () => {
   const [editorReady, setEditorReady] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   
   const { toast } = useToast();
   const { isAuthenticated } = useUser();
   const { uploadDesign } = useDesigns();
   
   // Toggle fullscreen mode
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     setIsFullscreen(!isFullscreen);
-  };
+  }, [isFullscreen]);
 
   // Handle editor ready state
-  const handleEditorReady = () => {
+  const handleEditorReady = useCallback(() => {
     setEditorReady(true);
-  };
+  }, []);
   
   // Create new document with specific dimensions
-  const handleCreateDocument = (width: number, height: number, dpi: number) => {
+  const handleCreateDocument = useCallback((width: number, height: number, dpi: number) => {
     const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
     if (!iframe) return;
     
@@ -50,10 +53,10 @@ const PhotopeaEditor = () => {
       title: "New document created",
       description: `Created a ${width}x${height}px canvas at ${dpi} DPI`
     });
-  };
+  }, [toast]);
 
   // Handle opening image from URL
-  const handleOpenImageFromURL = () => {
+  const handleOpenImageFromURL = useCallback(() => {
     const imageUrl = prompt("Enter the URL of the image:");
     if (!imageUrl) return;
     
@@ -61,10 +64,10 @@ const PhotopeaEditor = () => {
     if (!iframe) return;
     
     openImageFromURL(iframe, imageUrl);
-  };
+  }, []);
 
   // Handle downloading the design
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
     if (!iframe) {
       toast({
@@ -81,10 +84,10 @@ const PhotopeaEditor = () => {
       title: "Download started",
       description: "Your design is being downloaded",
     });
-  };
+  }, [toast]);
 
   // Handle saving the design
-  const handleSaveDesign = async () => {
+  const handleSaveDesign = useCallback(async () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication required",
@@ -194,7 +197,47 @@ const PhotopeaEditor = () => {
       });
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated, toast, uploadDesign]);
+
+  // Handle keyboard shortcuts
+  const handleKeyboardAction = useCallback((action: ShortcutAction) => {
+    switch (action) {
+      case "save":
+        handleSaveDesign();
+        break;
+      case "download":
+        handleDownload();
+        break;
+      case "fullscreen":
+        toggleFullscreen();
+        break;
+      case "openImage":
+        handleOpenImageFromURL();
+        break;
+      case "showHelp":
+        setShowHelp(true);
+        break;
+      case "showTemplates":
+        setShowTemplates(true);
+        break;
+      case "newDocument":
+        setShowTemplates(true);
+        break;
+      default:
+        break;
+    }
+  }, [handleSaveDesign, handleDownload, toggleFullscreen, handleOpenImageFromURL]);
+
+  // Set up keyboard shortcuts
+  useEffect(() => {
+    if (!editorReady) return;
+    
+    const cleanupKeyboardShortcuts = setupKeyboardShortcuts(handleKeyboardAction);
+    
+    return () => {
+      cleanupKeyboardShortcuts();
+    };
+  }, [editorReady, handleKeyboardAction]);
 
   return (
     <Card className={`${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''}`}>
@@ -210,6 +253,7 @@ const PhotopeaEditor = () => {
           onOpenHelp={() => setShowHelp(true)}
           onOpenTemplates={() => setShowTemplates(true)}
           onOpenImageFromURL={handleOpenImageFromURL}
+          onShowKeyboardShortcuts={() => setShowShortcuts(true)}
         />
 
         {/* Photopea Editor Frame */}
@@ -234,6 +278,12 @@ const PhotopeaEditor = () => {
           open={showTemplates}
           onOpenChange={setShowTemplates}
           onSelectTemplate={handleCreateDocument}
+        />
+
+        {/* Keyboard Shortcuts Help Dialog */}
+        <PhotopeaShortcutHelp 
+          open={showShortcuts}
+          onOpenChange={setShowShortcuts}
         />
       </CardContent>
     </Card>
