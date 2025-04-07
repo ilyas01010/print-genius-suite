@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Store, Trash2 } from "lucide-react";
 import { Platform, Product } from "./types";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -68,11 +68,9 @@ const ProductsList = ({
               setSelectedPlatform(platforms.find(p => p.status === "connected") || null);
             }
           }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-1 h-3.5 w-3.5" /> Add Product
-              </Button>
-            </DialogTrigger>
+            <Button onClick={() => setShowAddProductDialog(true)}>
+              <Plus className="mr-1 h-3.5 w-3.5" /> Add Product
+            </Button>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Product</DialogTitle>
@@ -207,16 +205,12 @@ const ProductsList = ({
                 Connect a platform to start managing your products or add new products manually
               </p>
               {connectedPlatforms > 0 ? (
-                <Dialog open={showAddProductDialog} onOpenChange={(open) => {
-                  setShowAddProductDialog(open);
-                  if (open) setSelectedPlatform(platforms.find(p => p.status === "connected") || null);
-                }}>
-                  <DialogTrigger asChild>
-                    <Button className="mt-3 text-xs">
-                      <Plus className="mr-1 h-3 w-3" /> Add Product
-                    </Button>
-                  </DialogTrigger>
-                </Dialog>
+                <Button 
+                  className="mt-3 text-xs"
+                  onClick={() => setShowAddProductDialog(true)}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add Product
+                </Button>
               ) : (
                 <Button className="mt-3 text-xs" onClick={() => setSelectedTab("platforms")}>
                   Connect Platform First

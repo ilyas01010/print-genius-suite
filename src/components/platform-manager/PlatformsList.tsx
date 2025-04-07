@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { Platform, NewPlatform } from "./types";
 import PlatformCard from "./PlatformCard";
 import AddPlatformCard from "./AddPlatformCard";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface PlatformsListProps {
   platforms: Platform[];

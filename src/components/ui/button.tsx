@@ -91,43 +91,50 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     ) : children;
 
-    // For asChild case, we need to handle the props properly
+    // Fix for asChild case to properly handle React.Children.only
     if (asChild) {
-      if (!React.isValidElement(children)) {
-        console.error("Button with asChild prop must have a single valid React element child");
-        return null;
-      }
-      
-      try {
-        const childElement = React.Children.only(children as React.ReactElement);
-        
-        // Clone the child element to pass our props
+      // Make sure we have a valid single child element
+      const childArray = React.Children.toArray(children);
+      if (childArray.length !== 1 || !React.isValidElement(childArray[0])) {
+        console.error("Button with asChild prop must have exactly one valid React element child");
+        // Fallback to regular button in case of error
         return (
-          <Comp
-            className={cn(buttonVariants({ variant, size, loading, fullWidth, className }))}
-            ref={ref}
+          <button
+            className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
             disabled={disabled}
+            ref={ref}
             {...props}
           >
-            {React.cloneElement(childElement, {
-              className: cn(
-                childElement.props.className,
-                "w-full h-full"
-              ),
-              disabled
-            })}
-          </Comp>
+            {content}
+          </button>
         );
-      } catch (error) {
-        console.error("Button with asChild prop must have exactly one child", error);
-        return null;
       }
+      
+      // Get the single child element
+      const child = childArray[0] as React.ReactElement;
+      
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
+          ref={ref}
+          disabled={disabled}
+          {...props}
+        >
+          {React.cloneElement(child, {
+            className: cn(
+              child.props.className,
+              "w-full h-full"
+            ),
+            disabled
+          })}
+        </Comp>
+      );
     }
 
     // Normal button case
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, loading, fullWidth, className }))}
+        className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
         ref={ref}
         disabled={disabled}
         {...props}
