@@ -39,101 +39,137 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
-              <Route path="/" element={
-                <Layout>
-                  <Index />
-                </Layout>
-              } />
+              <Route 
+                path="/" 
+                element={
+                  <Layout>
+                    <Index />
+                  </Layout>
+                }
+              />
               
               {/* Protected routes requiring authentication */}
-              <Route path="/design" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <DesignGenerator />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/design" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <DesignGenerator />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Settings />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Settings />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/platform" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PlatformDashboard />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/platform" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <PlatformDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/niche-research" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <NicheResearch />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/niche-research" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <NicheResearch />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/copyright" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <CopyrightChecker />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/copyright" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <CopyrightChecker />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/marketing" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <MarketingPlanner />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/marketing" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <MarketingPlanner />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/learning" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <LearningHub />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/learning" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <LearningHub />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/analytics" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Analytics />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/analytics" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Analytics />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/support" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Support />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/support" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Support />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
-              <Route path="/customer-service" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <CustomerService />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/customer-service" 
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <CustomerService />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
               {/* Admin routes requiring admin role */}
-              <Route path="/admin" element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Layout>
-                    <AdminPanel />
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Layout>
+                      <AdminPanel />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
