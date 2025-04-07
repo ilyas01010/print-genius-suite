@@ -1,11 +1,10 @@
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { supabase, getSession } from '@/lib/supabase-client';
-import { User, AuthChangeEvent } from '@supabase/supabase-js';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useState, useContext } from 'react';
 
-// Define custom auth event type that includes USER_DELETED
-type ExtendedAuthChangeEvent = AuthChangeEvent | 'USER_DELETED';
+type User = {
+  id: string;
+  email?: string;
+};
 
 type UserContextType = {
   user: User | null;
@@ -17,137 +16,33 @@ type UserContextType = {
 };
 
 const UserContext = createContext<UserContextType>({
-  user: null,
-  isLoading: true,
-  isAuthenticated: false,
+  user: { id: 'demo-user' }, // Default demo user
+  isLoading: false,
+  isAuthenticated: true, // Default to authenticated
   setUser: () => {},
   logout: async () => {},
   deleteAccount: async () => ({ error: null }),
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // First check if Supabase client is properly initialized
-        if (!supabase) {
-          console.warn('Supabase client is not initialized - skipping auth check');
-          setIsLoading(false);
-          return;
-        }
-        
-        const { data } = await getSession();
-        
-        if (data.session?.user) {
-          setUser(data.session.user);
-        }
-
-        // Set up auth state listener
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-          async (event: ExtendedAuthChangeEvent, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-              setUser(session.user);
-              toast({
-                title: 'Signed in successfully',
-                description: `Welcome${session.user.email ? `, ${session.user.email}` : ''}!`,
-              });
-            }
-            
-            if (event === 'SIGNED_OUT') {
-              setUser(null);
-              toast({
-                title: 'Signed out',
-                description: 'You have been signed out.',
-              });
-            }
-
-            if (event === 'USER_DELETED') {
-              setUser(null);
-              toast({
-                title: 'Account deleted',
-                description: 'Your account has been permanently deleted.',
-              });
-            }
-          }
-        );
-
-        setIsLoading(false);
-        return () => {
-          if (authListener?.subscription) {
-            authListener.subscription.unsubscribe();
-          }
-        };
-      } catch (error) {
-        console.error('Auth error:', error);
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [toast]);
-
+  const [user, setUser] = useState<User | null>({ id: 'demo-user' });
+  
   const logout = async () => {
-    try {
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
-      }
-      
-      await supabase.auth.signOut();
-      setUser(null);
-      toast({
-        title: 'Signed out',
-        description: 'You have been signed out successfully.',
-      });
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast({
-        title: 'Error signing out',
-        description: 'Please try again later.',
-        variant: 'destructive',
-      });
-    }
+    // Simplified logout
+    console.log('Logout clicked');
   };
 
   const deleteAccount = async () => {
-    try {
-      if (!user) {
-        throw new Error('You must be logged in to delete your account');
-      }
-      
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
-      }
-      
-      // Delete user data associated with this account
-      // First step is to delete any designs
-      const { error: dataError } = await supabase
-        .from('designs')
-        .delete()
-        .eq('user_id', user.id);
-        
-      if (dataError) throw dataError;
-      
-      // Second, delete the user auth account
-      const { error } = await supabase.auth.admin.deleteUser(user.id);
-      if (error) throw error;
-      
-      setUser(null);
-      return { error: null };
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      return { error };
-    }
+    // Simplified delete account
+    console.log('Delete account clicked');
+    return { error: null };
   };
 
   const contextValue = {
     user,
     setUser,
-    isLoading,
-    isAuthenticated: !!user,
+    isLoading: false,
+    isAuthenticated: true, // Always authenticated
     logout,
     deleteAccount,
   };
