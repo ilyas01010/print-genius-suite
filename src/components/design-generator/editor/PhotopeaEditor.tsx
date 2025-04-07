@@ -1,243 +1,30 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { useUser } from "@/context/UserContext";
-import { useDesigns } from "@/hooks/use-designs";
-import { compressImage } from "@/lib/image-utils";
 import PhotopeaToolbar from "./photopea/PhotopeaToolbar";
-import PhotopeaFrame from "./photopea/PhotopeaFrame";
-import PhotopeaHelp from "./photopea/PhotopeaHelp";
-import PhotopeaTemplates from "./photopea/PhotopeaTemplates";
-import PhotopeaGallery from "./photopea/PhotopeaGallery";
-import PhotopeaShortcutHelp from "./photopea/PhotopeaShortcutHelp";
-import { 
-  createNewDocument,
-  downloadCurrentDocument, 
-  exportDocumentAsPNG, 
-  getDocumentName, 
-  openImageFromURL 
-} from "./photopea/photopea-utils";
-import { setupKeyboardShortcuts, ShortcutAction } from "./photopea/keyboard-shortcuts";
+import PhotopeaEditorContent from "./PhotopeaEditorContent";
+import PhotopeaEditorDialogs from "./PhotopeaEditorDialogs";
+import { usePhotopeaEditor } from "./hooks/usePhotopeaEditor";
 
 const PhotopeaEditor = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [editorReady, setEditorReady] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
-  
-  const { toast } = useToast();
-  const { isAuthenticated } = useUser();
-  const { uploadDesign } = useDesigns();
-  
-  // Toggle fullscreen mode
-  const toggleFullscreen = useCallback(() => {
-    setIsFullscreen(!isFullscreen);
-  }, [isFullscreen]);
-
-  // Handle editor ready state
-  const handleEditorReady = useCallback(() => {
-    setEditorReady(true);
-  }, []);
-  
-  // Create new document with specific dimensions
-  const handleCreateDocument = useCallback((width: number, height: number, dpi: number) => {
-    const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
-    if (!iframe) return;
-    
-    createNewDocument(iframe, width, height, dpi);
-    
-    toast({
-      title: "New document created",
-      description: `Created a ${width}x${height}px canvas at ${dpi} DPI`
-    });
-  }, [toast]);
-
-  // Handle opening image from URL
-  const handleOpenImageFromURL = useCallback(() => {
-    const imageUrl = prompt("Enter the URL of the image:");
-    if (!imageUrl) return;
-    
-    const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
-    if (!iframe) return;
-    
-    openImageFromURL(iframe, imageUrl);
-  }, []);
-
-  // Handle downloading the design
-  const handleDownload = useCallback(() => {
-    const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
-    if (!iframe) {
-      toast({
-        title: "Editor Error",
-        description: "Cannot access the design editor",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    downloadCurrentDocument(iframe);
-    
-    toast({
-      title: "Download started",
-      description: "Your design is being downloaded",
-    });
-  }, [toast]);
-
-  // Handle saving the design
-  const handleSaveDesign = useCallback(async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to save designs",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      // Get iframe reference
-      const iframe = document.getElementById('photopea-iframe') as HTMLIFrameElement | null;
-      if (!iframe || !iframe.contentWindow) {
-        throw new Error('Cannot access Photopea editor');
-      }
-      
-      // Use Photopea API to export current design
-      exportDocumentAsPNG(iframe, "imageExported");
-      
-      // Listen for the response from Photopea
-      window.addEventListener("message", async function onMessage(e) {
-        if (typeof e.data !== "string") return;
-        
-        try {
-          const data = JSON.parse(e.data);
-          
-          if (data.name === "imageExported" && data.body) {
-            // Convert base64 to blob
-            const base64Data = data.body;
-            const byteString = atob(base64Data);
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            
-            for (let i = 0; i < byteString.length; i++) {
-              ia[i] = byteString.charCodeAt(i);
-            }
-            
-            const blob = new Blob([ab], { type: 'image/png' });
-            
-            // Get document name for better file naming
-            getDocumentName(iframe, "getDocName");
-            
-            // Get document name and finish saving
-            window.addEventListener("message", async function onNameMessage(nameEvent) {
-              if (typeof nameEvent.data !== "string") return;
-              
-              try {
-                const nameData = JSON.parse(nameEvent.data);
-                
-                if (nameData.name === "getDocName") {
-                  const docName = nameData.body || `Design-${Date.now()}`;
-                  const fileName = `${docName.replace(/\.[^/.]+$/, "")}.png`;
-                  
-                  // Convert Blob to File object before passing to uploadDesign
-                  const file = new File([blob], fileName, { 
-                    type: 'image/png', 
-                    lastModified: Date.now() 
-                  });
-                  
-                  // Compress the file and upload it
-                  const compressedBlob = await compressImage(file, 1200, 0.85);
-                  
-                  // Convert compressed blob back to a File for upload
-                  const compressedFile = new File([compressedBlob], fileName, {
-                    type: 'image/png',
-                    lastModified: Date.now()
-                  });
-                  
-                  await uploadDesign(
-                    compressedFile,
-                    docName,
-                    "photopea",
-                    "Created with Photopea editor"
-                  );
-                  
-                  toast({
-                    title: "Design saved",
-                    description: "Your design has been saved to your account"
-                  });
-                  
-                  window.removeEventListener("message", onNameMessage);
-                  setIsLoading(false);
-                }
-              } catch (err) {
-                console.error("Error processing name from Photopea:", err);
-                setIsLoading(false);
-              }
-            });
-            
-            // Remove the export message listener
-            window.removeEventListener("message", onMessage);
-          }
-        } catch (error) {
-          console.error("Error processing message from Photopea:", error);
-          setIsLoading(false);
-        }
-      });
-      
-    } catch (error: any) {
-      console.error("Error saving design:", error);
-      toast({
-        title: "Save failed",
-        description: error.message || "Could not save the design. Please try again.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, toast, uploadDesign]);
-
-  // Handle keyboard shortcuts
-  const handleKeyboardAction = useCallback((action: ShortcutAction) => {
-    switch (action) {
-      case "save":
-        handleSaveDesign();
-        break;
-      case "download":
-        handleDownload();
-        break;
-      case "fullscreen":
-        toggleFullscreen();
-        break;
-      case "openImage":
-        handleOpenImageFromURL();
-        break;
-      case "showHelp":
-        setShowHelp(true);
-        break;
-      case "showTemplates":
-        setShowTemplates(true);
-        break;
-      case "newDocument":
-        setShowTemplates(true);
-        break;
-      default:
-        break;
-    }
-  }, [handleSaveDesign, handleDownload, toggleFullscreen, handleOpenImageFromURL]);
-
-  // Set up keyboard shortcuts
-  useEffect(() => {
-    if (!editorReady) return;
-    
-    const cleanupKeyboardShortcuts = setupKeyboardShortcuts(handleKeyboardAction);
-    
-    return () => {
-      cleanupKeyboardShortcuts();
-    };
-  }, [editorReady, handleKeyboardAction]);
+  const {
+    isLoading,
+    isFullscreen,
+    editorReady,
+    isAuthenticated,
+    showHelp,
+    showTemplates,
+    showShortcuts,
+    handleEditorReady,
+    toggleFullscreen,
+    handleCreateDocument,
+    handleOpenImageFromURL,
+    handleDownload,
+    handleSaveDesign,
+    setShowHelp,
+    setShowTemplates,
+    setShowShortcuts
+  } = usePhotopeaEditor();
 
   return (
     <Card className={`${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''}`}>
@@ -256,34 +43,22 @@ const PhotopeaEditor = () => {
           onShowKeyboardShortcuts={() => setShowShortcuts(true)}
         />
 
-        {/* Photopea Editor Frame */}
-        <PhotopeaFrame 
+        {/* Photopea Editor Content */}
+        <PhotopeaEditorContent 
           isFullscreen={isFullscreen}
+          isAuthenticated={isAuthenticated}
           onEditorReady={handleEditorReady}
         />
         
-        {/* Recent Designs Gallery - only show when authenticated and not in fullscreen */}
-        {isAuthenticated && !isFullscreen && (
-          <PhotopeaGallery />
-        )}
-        
-        {/* Help Dialog */}
-        <PhotopeaHelp
-          open={showHelp}
-          onOpenChange={setShowHelp}
-        />
-        
-        {/* Templates Dialog */}
-        <PhotopeaTemplates
-          open={showTemplates}
-          onOpenChange={setShowTemplates}
+        {/* Dialog Components */}
+        <PhotopeaEditorDialogs
+          showHelp={showHelp}
+          setShowHelp={setShowHelp}
+          showTemplates={showTemplates}
+          setShowTemplates={setShowTemplates}
+          showShortcuts={showShortcuts}
+          setShowShortcuts={setShowShortcuts}
           onSelectTemplate={handleCreateDocument}
-        />
-
-        {/* Keyboard Shortcuts Help Dialog */}
-        <PhotopeaShortcutHelp 
-          open={showShortcuts}
-          onOpenChange={setShowShortcuts}
         />
       </CardContent>
     </Card>
