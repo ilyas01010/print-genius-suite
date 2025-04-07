@@ -29,7 +29,6 @@ const buttonVariants = cva(
         xl: "h-12 rounded-md px-8 text-base",
         icon: "h-10 w-10",
         "icon-sm": "h-8 w-8 rounded-md",
-        // New responsive size
         responsive: "h-auto min-h-9 px-3 py-2 md:h-10 md:px-4",
       },
       loading: {
@@ -91,47 +90,38 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     ) : children;
 
-    // Fix for asChild case to properly handle React.Children.only
-    if (asChild) {
-      // Make sure we have a valid single child element
-      const childArray = React.Children.toArray(children);
-      if (childArray.length !== 1 || !React.isValidElement(childArray[0])) {
-        console.error("Button with asChild prop must have exactly one valid React element child");
-        // Fallback to regular button in case of error
-        return (
-          <button
-            className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
-            disabled={disabled}
-            ref={ref}
-            {...props}
-          >
-            {content}
-          </button>
-        );
-      }
-      
-      // Get the single child element
-      const child = childArray[0] as React.ReactElement;
-      
+    // Normal button case (non-asChild)
+    if (!asChild) {
       return (
-        <Comp
+        <button
           className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
           ref={ref}
           disabled={disabled}
           {...props}
         >
-          {React.cloneElement(child, {
-            className: cn(
-              child.props.className,
-              "w-full h-full"
-            ),
-            disabled
-          })}
-        </Comp>
+          {content}
+        </button>
       );
     }
-
-    // Normal button case
+    
+    // Handle asChild case carefully
+    // We need to make sure we have a valid React element
+    const childArray = React.Children.toArray(children);
+    if (childArray.length !== 1 || !React.isValidElement(childArray[0])) {
+      console.error("Button with asChild prop must have exactly one child element");
+      return (
+        <button
+          className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
+          ref={ref}
+          disabled={disabled}
+          {...props}
+        >
+          {content}
+        </button>
+      );
+    }
+    
+    const child = childArray[0] as React.ReactElement;
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, loading, fullWidth }), className)}
@@ -139,7 +129,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         {...props}
       >
-        {content}
+        {React.cloneElement(child, {
+          ...child.props,
+          disabled
+        })}
       </Comp>
     );
   }

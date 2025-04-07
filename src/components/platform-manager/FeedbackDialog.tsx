@@ -41,11 +41,6 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onOpenChange }) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="hidden sm:flex">
-          <MessageSquare className="mr-2 h-4 w-4" /> Feedback
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Submit Feedback</DialogTitle>
