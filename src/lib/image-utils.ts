@@ -4,20 +4,21 @@
  */
 
 /**
- * Compresses an image file to a specified quality
+ * Compresses an image file or blob to a specified quality
  * @param file The image file or blob to compress
  * @param maxWidth Maximum width of the output image 
  * @param quality JPEG quality from 0 to 1
  * @returns A promise resolving to the compressed image as a Blob
  */
 export const compressImage = async (
-  file: File,
+  file: File | Blob,
   maxWidth: number = 1200,
   quality: number = 0.8
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
-    // Skip SVG files as they're already optimized
-    if (file.type === 'image/svg+xml') {
+    // For File objects, check type. For Blobs, we'll just proceed (can't check type property)
+    // This ensures SVG files (when passed as File objects) are not processed
+    if ('type' in file && file.type === 'image/svg+xml') {
       resolve(file);
       return;
     }

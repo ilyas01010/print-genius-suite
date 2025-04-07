@@ -163,8 +163,14 @@ const PhotopeaEditor = () => {
                     lastModified: Date.now() 
                   });
                   
-                  // Compress the file (passing a proper File object now)
-                  const compressedFile = await compressImage(file, 1200, 0.85);
+                  // Compress the file and upload it - using File object for both
+                  const compressedBlob = await compressImage(file, 1200, 0.85);
+                  
+                  // Convert compressed blob back to a File for upload
+                  const compressedFile = new File([compressedBlob], fileName, {
+                    type: 'image/png',
+                    lastModified: Date.now()
+                  });
                   
                   await uploadDesign(
                     compressedFile,
