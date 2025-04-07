@@ -33,6 +33,7 @@ const MarketingPlanner = lazy(() => import("@/pages/MarketingPlanner"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const LearningHub = lazy(() => import("@/pages/LearningHub"));
 const Support = lazy(() => import("@/pages/Support"));
+const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
 
 // ScrollToTop component to handle scroll restoration on route changes
 function ScrollToTop() {
@@ -175,6 +176,7 @@ function App() {
                   <Route path="/learning-hub" element={<LearningHub />} />
                   <Route path="/support" element={<Support />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/admin" element={<AdminPanel />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
