@@ -8,7 +8,7 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 import { supabase } from "@/lib/supabase-client";
 
 // Admin email - this should be your email address
-const ADMIN_EMAIL = "admin@example.com"; // Replace with your actual email
+const ADMIN_EMAIL = "Digifyer@gmail.com"; // Replace with your actual email
 
 const AdminPanel = () => {
   const { user, isLoading } = useUser();
