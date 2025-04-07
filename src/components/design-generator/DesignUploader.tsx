@@ -12,32 +12,39 @@ import { useUser } from "@/context/UserContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TextToImage from "./TextToImage";
 import DesignUploadTab from "./upload/DesignUploadTab";
+import { Wand2, Upload } from "lucide-react";
 
 const DesignUploader = () => {
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("generate");
   const { isAuthenticated } = useUser();
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Design Generator</CardTitle>
+        <CardTitle>Design Creator</CardTitle>
         <CardDescription>
-          Upload an image or create a design from text prompts
+          Generate AI designs from text prompts or upload your own images
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="upload">Upload Image</TabsTrigger>
-            <TabsTrigger value="generate">Text to Image</TabsTrigger>
+            <TabsTrigger value="generate" className="flex items-center gap-1.5">
+              <Wand2 className="h-3.5 w-3.5" />
+              AI Generator
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="flex items-center gap-1.5">
+              <Upload className="h-3.5 w-3.5" />
+              Upload Image
+            </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="upload" className="mt-0">
-            <DesignUploadTab />
-          </TabsContent>
           
           <TabsContent value="generate" className="mt-0">
             <TextToImage />
+          </TabsContent>
+          
+          <TabsContent value="upload" className="mt-0">
+            <DesignUploadTab />
           </TabsContent>
         </Tabs>
       </CardContent>
