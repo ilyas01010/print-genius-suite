@@ -9,6 +9,7 @@ import PhotopeaToolbar from "./photopea/PhotopeaToolbar";
 import PhotopeaFrame from "./photopea/PhotopeaFrame";
 import PhotopeaHelp from "./photopea/PhotopeaHelp";
 import PhotopeaTemplates from "./photopea/PhotopeaTemplates";
+import PhotopeaGallery from "./photopea/PhotopeaGallery";
 import { 
   createNewDocument,
   downloadCurrentDocument, 
@@ -145,7 +146,7 @@ const PhotopeaEditor = () => {
                     lastModified: Date.now() 
                   });
                   
-                  // Compress the file and upload it - using File object for both
+                  // Compress the file and upload it
                   const compressedBlob = await compressImage(file, 1200, 0.85);
                   
                   // Convert compressed blob back to a File for upload
@@ -157,7 +158,7 @@ const PhotopeaEditor = () => {
                   await uploadDesign(
                     compressedFile,
                     docName,
-                    "custom",
+                    "photopea",
                     "Created with Photopea editor"
                   );
                   
@@ -167,6 +168,7 @@ const PhotopeaEditor = () => {
                   });
                   
                   window.removeEventListener("message", onNameMessage);
+                  setIsLoading(false);
                 }
               } catch (err) {
                 console.error("Error processing name from Photopea:", err);
@@ -215,6 +217,11 @@ const PhotopeaEditor = () => {
           isFullscreen={isFullscreen}
           onEditorReady={handleEditorReady}
         />
+        
+        {/* Recent Designs Gallery - only show when authenticated and not in fullscreen */}
+        {isAuthenticated && !isFullscreen && (
+          <PhotopeaGallery />
+        )}
         
         {/* Help Dialog */}
         <PhotopeaHelp
