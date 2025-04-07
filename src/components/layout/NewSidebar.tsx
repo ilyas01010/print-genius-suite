@@ -25,7 +25,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarProvider,
   useSidebar
 } from "@/components/ui/sidebar";
 
@@ -82,15 +81,6 @@ const navItems = [
   }
 ];
 
-// This component wraps our app to provide sidebar functionality
-export const SidebarWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <SidebarProvider defaultOpen={true}>
-      {children}
-    </SidebarProvider>
-  );
-};
-
 // Custom toggle button for the sidebar
 const SidebarToggle = () => {
   const { toggleSidebar, state } = useSidebar();
@@ -124,7 +114,7 @@ const NewSidebar = () => {
           <h1 className={cn("text-lg font-semibold transition-opacity", 
             state === "collapsed" ? "opacity-0" : "opacity-100"
           )}>
-            Merch AI
+            Print Genius
           </h1>
         </div>
         <SidebarToggle />

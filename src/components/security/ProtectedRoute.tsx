@@ -15,14 +15,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
   const { isAuthenticated, isLoading: authLoading, user } = useUser();
   const { checkPermission, loading: securityLoading } = useSecurityContext();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const verifyAuth = async () => {
-      // Skip session refresh attempt to avoid errors
-      
-      // If not authenticated
+      // Skip permission check if user is not authenticated
       if (!isAuthenticated) {
         setHasPermission(false);
         return;
@@ -62,8 +59,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     }
   }, [isAuthenticated, requiredRole, authLoading, securityLoading, checkPermission, user, location.pathname]);
 
-  // Still loading
-  if (authLoading || securityLoading || isRefreshing || hasPermission === null) {
+  // Still loading authentication or security info
+  if (authLoading || securityLoading || hasPermission === null) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
@@ -82,7 +79,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Authorized
+  // Authorized - render the children
   return <>{children}</>;
 };
 
