@@ -5,7 +5,6 @@ import { useUser } from '@/context/UserContext';
 import { useSecurityContext } from '@/context/SecurityContext';
 import { Loader2 } from 'lucide-react';
 import { logSecurityEvent } from '@/lib/security/auth';
-import { secureRefreshSession } from '@/lib/security/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,20 +20,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
 
   useEffect(() => {
     const verifyAuth = async () => {
-      // If not authenticated, try to refresh the session once
-      if (!isAuthenticated && !isRefreshing) {
-        setIsRefreshing(true);
-        const refreshed = await secureRefreshSession();
-        setIsRefreshing(false);
-        
-        // If refresh failed, don't proceed with permission check
-        if (!refreshed) {
-          setHasPermission(false);
-          return;
-        }
-      }
+      // Skip session refresh attempt to avoid errors
       
-      // If still not authenticated after refresh attempt
+      // If not authenticated
       if (!isAuthenticated) {
         setHasPermission(false);
         return;

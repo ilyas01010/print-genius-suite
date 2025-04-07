@@ -1,26 +1,22 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Shield, AlertCircle, Home, ArrowLeft, Lock } from 'lucide-react';
-import { logSecurityEvent } from '@/lib/security/auth';
+import { Shield, AlertCircle, Home, ArrowLeft } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 
 const UnauthorizedPage = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  useEffect(() => {
-    // Log the unauthorized access attempt
+  React.useEffect(() => {
+    // Log the unauthorized access attempt if needed
     if (user?.id) {
-      logSecurityEvent(
-        'unauthorized_access_attempt', 
-        user.id, 
-        {
-          timestamp: new Date().toISOString(),
-          path: window.location.pathname,
-        }
-      );
+      console.log('Unauthorized access attempt', {
+        userId: user.id,
+        timestamp: new Date().toISOString(),
+        path: window.location.pathname,
+      });
     }
   }, [user]);
 
@@ -37,12 +33,8 @@ const UnauthorizedPage = () => {
       </div>
       
       <div className="bg-card border p-4 rounded-lg mb-8 max-w-md">
-        <div className="flex items-center gap-2 mb-2">
-          <Lock className="w-4 h-4 text-muted-foreground" />
-          <h3 className="font-medium">Security Notice</h3>
-        </div>
         <p className="text-sm text-muted-foreground">
-          This access attempt has been logged for security purposes. If you believe this is an error, please contact your administrator. Repeated unauthorized access attempts may result in account restrictions.
+          This access attempt has been logged for security purposes. If you believe this is an error, please contact your administrator.
         </p>
       </div>
       

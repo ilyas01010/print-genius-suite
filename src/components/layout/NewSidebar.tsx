@@ -32,12 +32,12 @@ import {
 const navItems = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/",
     icon: <LayoutDashboard className="h-5 w-5" />
   },
   {
     title: "Design Generator",
-    href: "/design-generator",
+    href: "/design",
     icon: <Palette className="h-5 w-5" />
   },
   {
@@ -47,17 +47,17 @@ const navItems = [
   },
   {
     title: "Copyright Checker",
-    href: "/copyright-checker",
+    href: "/copyright",
     icon: <ShieldCheck className="h-5 w-5" />
   },
   {
     title: "Platform Dashboard",
-    href: "/platform-dashboard",
+    href: "/platform",
     icon: <Store className="h-5 w-5" />
   },
   {
     title: "Marketing Planner",
-    href: "/marketing-planner",
+    href: "/marketing",
     icon: <MessageSquare className="h-5 w-5" />
   },
   {
@@ -67,7 +67,7 @@ const navItems = [
   },
   {
     title: "Learning Hub",
-    href: "/learning-hub",
+    href: "/learning",
     icon: <Book className="h-5 w-5" />
   },
   {
@@ -86,9 +86,7 @@ const navItems = [
 export const SidebarWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
-        {children}
-      </div>
+      {children}
     </SidebarProvider>
   );
 };

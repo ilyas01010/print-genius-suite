@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { signInWithEmail, signUpWithEmail } from "@/lib/supabase-client";
@@ -14,7 +13,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { validatePassword, PASSWORD_MIN_LENGTH } from "@/lib/security/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ValidationType } from "@/lib/security/inputValidation";
-import { Shield, AlertTriangle, Lock, Eye, EyeOff } from "lucide-react";
+import { Shield, AlertTriangle, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { detectSuspiciousLogin, MAX_LOGIN_ATTEMPTS } from "@/lib/security/auth";
 import TwoFactorAuth from "@/components/security/TwoFactorAuth";
 
@@ -42,7 +41,6 @@ const AuthPage = () => {
   const state = location.state as AuthState;
   const from = state?.from?.pathname || "/";
   
-  // Password requirements
   const requirements = [
     { regex: new RegExp(`^.{${PASSWORD_MIN_LENGTH},}$`), text: `At least ${PASSWORD_MIN_LENGTH} characters` },
     { regex: /[A-Z]/, text: "At least one uppercase letter" },
@@ -51,7 +49,6 @@ const AuthPage = () => {
     { regex: /[^A-Za-z0-9]/, text: "At least one special character" },
   ];
 
-  // Check if login is blocked due to too many attempts
   useEffect(() => {
     const loginBlocked = blockLoginUntil && Date.now() < blockLoginUntil;
     
@@ -65,13 +62,11 @@ const AuthPage = () => {
       });
     }
     
-    // Clear the block after it expires
     if (blockLoginUntil && Date.now() >= blockLoginUntil) {
       setBlockLoginUntil(null);
       setLoginAttempts(0);
     }
     
-    // Continue checking until block is removed
     const interval = setInterval(() => {
       if (blockLoginUntil && Date.now() >= blockLoginUntil) {
         setBlockLoginUntil(null);
@@ -83,21 +78,18 @@ const AuthPage = () => {
     return () => clearInterval(interval);
   }, [blockLoginUntil, toast]);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate(from);
     }
   }, [isAuthenticated, navigate, from]);
 
-  // Update password strength when password changes
   useEffect(() => {
     if (!password) {
       setPasswordStrength({ score: 0, feedback: [] });
       return;
     }
     
-    // Calculate password score
     const { valid, errors } = validatePassword(password);
     
     let score = 0;
@@ -110,12 +102,8 @@ const AuthPage = () => {
     });
   }, [password]);
   
-  // Handle 2FA verification
   const handle2FAVerification = async (code: string): Promise<boolean> => {
-    // In a real app, you would verify the code with your backend
-    // This is a simplified example
-    if (code === '123456') { // For demo purposes
-      // Reset login attempts on successful verification
+    if (code === '123456') {
       setLoginAttempts(0);
       navigate(from);
       return true;
@@ -123,10 +111,7 @@ const AuthPage = () => {
     return false;
   };
   
-  // Handle 2FA code resend
   const handleResend2FACode = async () => {
-    // In a real app, you would trigger the backend to send a new code
-    // This is a simplified example
     await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
@@ -141,7 +126,6 @@ const AuthPage = () => {
       return;
     }
     
-    // Check if login is blocked
     if (blockLoginUntil && Date.now() < blockLoginUntil) {
       const remainingMinutes = Math.ceil((blockLoginUntil - Date.now()) / 60000);
       toast({
@@ -157,15 +141,13 @@ const AuthPage = () => {
       const { error } = await signInWithEmail(email, password);
       
       if (error) {
-        // Update failed login attempts
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
         
-        // Check if attempts are suspicious or exceed max
-        const isSuspicious = detectSuspiciousLogin(newAttempts, 300000); // 5 minutes window
+        const isSuspicious = detectSuspiciousLogin(newAttempts, 300000);
         
         if (isSuspicious || newAttempts >= MAX_LOGIN_ATTEMPTS) {
-          const lockoutTime = Date.now() + (15 * 60000); // 15 minutes
+          const lockoutTime = Date.now() + (15 * 60000);
           setBlockLoginUntil(lockoutTime);
           
           toast({
@@ -179,13 +161,9 @@ const AuthPage = () => {
         throw error;
       }
       
-      // Success handling - in a real app, 2FA might be required for some users
-      // This is a simplified example
       if (email.includes('admin')) {
         setIs2FARequired(true);
       } else {
-        // Regular user, no 2FA required
-        // Reset login attempts on successful login
         setLoginAttempts(0);
         navigate(from);
       }
@@ -212,7 +190,6 @@ const AuthPage = () => {
       return;
     }
 
-    // Validate password strength
     const { valid, errors } = validatePassword(password);
     if (!valid) {
       toast({
@@ -236,7 +213,6 @@ const AuthPage = () => {
         description: t("auth.registrationSuccess"),
       });
       
-      // Go to sign in tab
       document.getElementById("signin-tab")?.click();
     } catch (error: any) {
       console.error("Sign up error:", error);
@@ -250,7 +226,6 @@ const AuthPage = () => {
     }
   };
 
-  // If 2FA is required, show 2FA component
   if (is2FARequired) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -413,7 +388,6 @@ const AuthPage = () => {
                         </Button>
                       </div>
                       
-                      {/* Password strength meter */}
                       <div className="mt-2">
                         <div className="flex justify-between mb-1">
                           <span className="text-xs">Password strength</span>
@@ -440,10 +414,9 @@ const AuthPage = () => {
                         </div>
                       </div>
                       
-                      {/* Password requirements */}
                       <div className="space-y-2 mt-3">
                         <div className="flex items-center gap-1">
-                          <Lock className="h-3 w-3 text-muted-foreground" />
+                          <Lock className="h-3 w-3" />
                           <p className="text-xs text-muted-foreground">Password requirements:</p>
                         </div>
                         <ul className="space-y-1">
