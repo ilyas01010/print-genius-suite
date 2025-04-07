@@ -2,42 +2,55 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Key, Copy, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Key, Copy, RefreshCw, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useIntegrationApi } from "@/hooks/use-integration-api";
 
 const ApiKeySection = () => {
   const { toast } = useToast();
+  const { generateApiKey, validateApiKey } = useIntegrationApi();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
   const [copyText, setCopyText] = useState("Copy");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState<string | null>(null);
 
   // Load API key from localStorage on component mount
   useEffect(() => {
-    const storedKey = localStorage.getItem("printGenius_api_key");
-    if (storedKey) {
-      setApiKey(storedKey);
+    try {
+      const storedKey = localStorage.getItem("printGenius_api_key");
+      if (storedKey) {
+        setApiKey(storedKey);
+        // Store last generated date if it exists
+        const lastGenDate = localStorage.getItem("printGenius_api_key_generated");
+        if (lastGenDate) {
+          setLastGenerated(lastGenDate);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading API key:", error);
     }
   }, []);
 
-  const generateApiKey = () => {
+  const generateNewApiKey = () => {
     setIsGenerating(true);
     
     // Simulate API call delay
     setTimeout(() => {
-      // Generate a more realistic API key format
-      const keyPrefix = "pg_live_";
-      const keyBody = Array(24)
-        .fill(0)
-        .map(() => Math.floor(Math.random() * 16).toString(16))
-        .join("");
-      
-      const newApiKey = `${keyPrefix}${keyBody}`;
+      const newApiKey = generateApiKey();
+      const currentDate = new Date().toISOString();
       
       // Store in localStorage for persistence
-      localStorage.setItem("printGenius_api_key", newApiKey);
-      setApiKey(newApiKey);
+      try {
+        localStorage.setItem("printGenius_api_key", newApiKey);
+        localStorage.setItem("printGenius_api_key_generated", currentDate);
+        setApiKey(newApiKey);
+        setLastGenerated(currentDate);
+      } catch (error) {
+        console.error("Error storing API key:", error);
+      }
+      
       setShowKey(true);
       setIsGenerating(false);
       
@@ -51,7 +64,7 @@ const ApiKeySection = () => {
   const regenerateApiKey = () => {
     // Ask for confirmation before regenerating
     if (window.confirm("Regenerating will invalidate your current API key. Any integrations using this key will stop working. Are you sure you want to continue?")) {
-      generateApiKey();
+      generateNewApiKey();
     }
   };
 
@@ -73,6 +86,22 @@ const ApiKeySection = () => {
     setShowKey(!showKey);
   };
 
+  // Format date for display
+  const formatDate = (isoDate: string) => {
+    try {
+      const date = new Date(isoDate);
+      return date.toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch (error) {
+      return "Unknown";
+    }
+  };
+
   // Mask API key for display
   const getMaskedKey = () => {
     if (!apiKey) return "";
@@ -82,6 +111,9 @@ const ApiKeySection = () => {
     const suffix = apiKey.substring(apiKey.length - 4);
     return `${prefix}${"•".repeat(apiKey.length - 12)}${suffix}`;
   };
+
+  // Validate the current API key
+  const isValidKey = apiKey ? validateApiKey(apiKey) : false;
 
   return (
     <div className="space-y-4">
@@ -122,6 +154,17 @@ const ApiKeySection = () => {
             </Button>
           </div>
           
+          {lastGenerated && (
+            <div className="flex items-center text-xs text-muted-foreground">
+              {isValidKey ? (
+                <CheckCircle className="h-3.5 w-3.5 mr-1 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3.5 w-3.5 mr-1 text-amber-500" />
+              )}
+              Generated on {formatDate(lastGenerated)}
+            </div>
+          )}
+          
           <div className="flex items-center justify-between">
             <Alert className="py-2 px-3 text-sm">
               <AlertDescription>
@@ -153,7 +196,7 @@ const ApiKeySection = () => {
       ) : (
         <Button 
           variant="default"
-          onClick={generateApiKey}
+          onClick={generateNewApiKey}
           disabled={isGenerating}
         >
           {isGenerating ? (
