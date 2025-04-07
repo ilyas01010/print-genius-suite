@@ -25,7 +25,7 @@ export const createNewDocument = (
       method: "runScript",
       script: `app.documents.add(${width}, ${height}, ${dpi}, "Untitled", "RGB");`
     }), 
-    "*"
+    "https://www.photopea.com"
   );
 };
 
@@ -45,7 +45,7 @@ export const openImageFromURL = (
       method: "runScript",
       script: `app.open("${imageUrl}");`
     }), 
-    "*"
+    "https://www.photopea.com"
   );
 };
 
@@ -71,7 +71,7 @@ export const buildPhotopeaUrl = (params: {
   
   const mergedParams = { ...defaultParams, ...params };
   
-  return `${PHOTOPEA_URL}#${encodeURIComponent(
+  const encodedParams = encodeURIComponent(
     JSON.stringify({
       environment: {
         localsave: true,
@@ -82,7 +82,10 @@ export const buildPhotopeaUrl = (params: {
       },
       files: mergedParams.files
     })
-  )}`;
+  );
+  
+  console.log("Building Photopea URL with params:", mergedParams);
+  return `${PHOTOPEA_URL}#${encodedParams}`;
 };
 
 /**
@@ -102,7 +105,7 @@ export const exportDocumentAsPNG = (
       script: "app.activeDocument.saveToOE('png').then(data => { return app.echoToHost(data); })",
       callback
     }), 
-    "*"
+    "https://www.photopea.com"
   );
 };
 
@@ -123,7 +126,7 @@ export const getDocumentName = (
       script: "app.activeDocument.name",
       callback
     }), 
-    "*"
+    "https://www.photopea.com"
   );
 };
 
@@ -141,6 +144,6 @@ export const downloadCurrentDocument = (
       method: "runScript",
       script: "app.activeDocument.saveToOE('png').then(data => { var a = document.createElement('a'); a.href = 'data:image/png;base64,' + data; a.download = 'design-" + Date.now() + ".png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); });"
     }), 
-    "*"
+    "https://www.photopea.com"
   );
 };

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Command, Keyboard } from "lucide-react";
+import { Keyboard } from "lucide-react";
 import { SHORTCUTS, getShortcutDisplayText } from "./keyboard-shortcuts";
 
 interface PhotopeaShortcutHelpProps {

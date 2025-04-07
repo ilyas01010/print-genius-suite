@@ -17,9 +17,11 @@ const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
   // Set up event listener for messages from Photopea
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // Accept messages from Photopea domain
       if (event.origin !== "https://www.photopea.com") return;
       
       if (typeof event.data === "string" && event.data.includes("ready")) {
+        console.log("Photopea editor is ready");
         onEditorReady();
       }
     };
@@ -37,6 +39,7 @@ const PhotopeaFrame: React.FC<PhotopeaFrameProps> = ({
           className="w-full h-full border-none"
           title="Photopea Editor"
           allow="fullscreen"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-downloads"
         ></iframe>
       </div>
 
