@@ -17,6 +17,7 @@ export const usePhotopeaEditor = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [activeTab, setActiveTab] = useState("editor");
   
   const { toast } = useToast();
   const { isAuthenticated } = useUser();
@@ -132,6 +133,8 @@ export const usePhotopeaEditor = () => {
     showHelp,
     showTemplates,
     showShortcuts,
+    activeTab,
+    setActiveTab,
     handleEditorReady,
     toggleFullscreen,
     handleCreateDocument,
