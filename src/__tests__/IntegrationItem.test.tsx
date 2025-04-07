@@ -4,10 +4,23 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import IntegrationItem from "@/components/settings/integration/IntegrationItem";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock the useToast hook
+// Mock the hooks
 jest.mock("@/hooks/use-toast", () => ({
   useToast: jest.fn(() => ({
     toast: jest.fn(),
+  })),
+}));
+
+jest.mock("@/hooks/use-integration-connection", () => ({
+  useIntegrationConnection: jest.fn(({ name }) => ({
+    status: "disconnected",
+    handleConnect: () => {
+      const mockToast = require("@/hooks/use-toast").useToast().toast;
+      mockToast({
+        title: "Integration Coming Soon",
+        description: `${name} integration will be available soon.`,
+      });
+    },
   })),
 }));
 
