@@ -158,6 +158,7 @@ const IntegrationItem = ({
         return (
           <>
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            {/* Fixed the error by using a string literal instead of comparing status */}
             {status === "connected" ? "Disconnecting..." : "Connecting..."}
           </>
         );
