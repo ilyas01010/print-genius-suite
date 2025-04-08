@@ -1,6 +1,7 @@
 
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx'
 import './index.css'
 
@@ -63,7 +64,9 @@ if (typeof document !== 'undefined') {
       
       createRoot(rootElement).render(
         <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>
-          <App />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
         </Sentry.ErrorBoundary>
       );
     }
