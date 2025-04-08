@@ -20,6 +20,11 @@ export interface UploadingFile {
 export interface FileValidationResult {
   valid: boolean;
   reason?: string;
+  fileDetails?: {
+    type: string;
+    extension: string;
+    isImage: boolean;
+  };
 }
 
 export interface DropZoneProps {
