@@ -29,9 +29,7 @@ const Layout = ({ children }: LayoutProps) => {
           <Header onToggleSidebar={() => setSidebarOpen(true)} />
           <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className={`flex-1 overflow-auto p-3 md:p-4 lg:p-5 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="mx-auto max-w-6xl animate-fade-in">
-              {children}
-            </div>
+            {children}
           </main>
         </div>
       </div>

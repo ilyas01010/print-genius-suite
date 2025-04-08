@@ -1,9 +1,9 @@
 
 import React from 'react';
+import Layout from "@/components/layout/Layout";
+import PageLayout from '@/components/layout/PageLayout';
 import KeywordForm from '@/components/niche-research/KeywordForm';
 import TrendList from '@/components/niche-research/TrendList';
-import PageLayout from '@/components/layout/PageLayout';
-import Layout from "@/components/layout/Layout";
 
 const NicheResearch = () => {
   return (

@@ -1,13 +1,13 @@
 
 import React, { useState } from "react";
+import Layout from "@/components/layout/Layout";
+import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/UserContext";
 import DesignTemplates from "@/components/design-generator/templates/DesignTemplates";
 import DesignUploader from "@/components/design-generator/DesignUploader";
 import DesignGallery from "@/components/design-generator/DesignGallery";
 import FabricEditor from "@/components/design-generator/editor/FabricEditor";
-import Layout from "@/components/layout/Layout";
-import PageLayout from "@/components/layout/PageLayout";
 
 const DesignGenerator = () => {
   const { isAuthenticated } = useUser();

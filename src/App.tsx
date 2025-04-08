@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useUser } from "./context/UserContext";
-import IndexPage from "./pages/index"; // Updated import name
+import Dashboard from "./pages/index"; // Changed from IndexPage to Dashboard
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import LearningHub from "./pages/LearningHub";
@@ -50,7 +50,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<IndexPage />} />
+      <Route path="/" element={<Dashboard />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/learning" element={<LearningHub />} />

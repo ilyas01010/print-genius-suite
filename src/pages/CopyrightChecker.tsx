@@ -1,8 +1,8 @@
 
 import React from 'react';
-import TrademarkForm from '@/components/copyright-checker/TrademarkForm';
-import PageLayout from '@/components/layout/PageLayout';
 import Layout from "@/components/layout/Layout";
+import PageLayout from '@/components/layout/PageLayout';
+import TrademarkForm from '@/components/copyright-checker/TrademarkForm';
 
 const CopyrightChecker = () => {
   return (
