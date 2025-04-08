@@ -9,7 +9,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { useUser } from "@/context/UserContext";
-import { SecureFileUpload } from "@/components/security/SecureFileUpload";
+import SecureFileUpload from "@/components/security/SecureFileUpload";
 
 const DesignUploader = () => {
   const { isAuthenticated } = useUser();
@@ -28,10 +28,10 @@ const DesignUploader = () => {
             Drag and drop your design files here or click to browse
           </p>
           <SecureFileUpload 
-            accept=".png,.jpg,.jpeg,.svg"
-            maxFileSize={5}
-            onFileSelected={(file) => console.log("File selected:", file)}
-            buttonText="Upload Design"
+            acceptedFileTypes={[".png", ".jpg", ".jpeg", ".svg"]}
+            maxSizeMB={5}
+            onFileSelected={(file, secureFileName) => console.log("File selected:", file, secureFileName)}
+            label="Upload Design"
           />
         </div>
       </CardContent>
