@@ -29,7 +29,8 @@ if (import.meta.env.PROD) {
   Sentry.init({
     dsn: "https://example@sentry.io/example",
     integrations: [
-      new Sentry.BrowserTracing(),
+      // Remove BrowserTracing as it doesn't exist in the current version
+      // new Sentry.BrowserTracing(),
     ],
     tracesSampleRate: 0.5,
   });

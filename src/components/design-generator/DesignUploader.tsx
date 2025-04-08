@@ -12,11 +12,13 @@ import { useUser } from "@/context/UserContext";
 import SecureFileUpload from "@/components/security/SecureFileUpload";
 import { useDesigns } from "@/hooks/use-designs";
 import { useToast } from "@/hooks/use-toast";
+import { useStorageInit } from "@/hooks/use-storage-init";
 
 const DesignUploader = () => {
   const { isAuthenticated, user } = useUser();
   const { uploadDesign } = useDesigns();
   const { toast } = useToast();
+  const { isInitialized, isLoading: isStorageLoading, error: storageError } = useStorageInit();
 
   // Create an async function to handle file selection that returns a Promise
   const handleFileSelected = async (file: File, secureFileName: string): Promise<void> => {
@@ -24,6 +26,15 @@ const DesignUploader = () => {
       toast({
         title: "Authentication required",
         description: "Please sign in to upload designs",
+        variant: "destructive",
+      });
+      return Promise.resolve();
+    }
+    
+    if (!isInitialized) {
+      toast({
+        title: "Storage not ready",
+        description: "Please wait while we initialize the storage",
         variant: "destructive",
       });
       return Promise.resolve();
@@ -51,6 +62,40 @@ const DesignUploader = () => {
       return Promise.resolve();
     }
   };
+
+  if (storageError) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Storage Error</CardTitle>
+          <CardDescription>
+            There was a problem initializing storage
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">{storageError.message}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isStorageLoading) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Initializing Storage</CardTitle>
+          <CardDescription>
+            Setting up design storage...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full">
