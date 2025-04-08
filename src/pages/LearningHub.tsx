@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Video, FileText, Star, Check } from "lucide-react";
@@ -44,6 +44,8 @@ const LearningHub = () => {
       completed: false
     },
   ]);
+  
+  const [activeCategory, setActiveCategory] = useState("basics");
   
   // Complete resource handler
   const handleCompleteResource = (id: string) => {

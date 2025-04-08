@@ -6,7 +6,7 @@ interface PageLayoutProps {
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
-  return <>{children}</>;
+  return <div className="container mx-auto px-4 py-6">{children}</div>;
 };
 
 export default PageLayout;

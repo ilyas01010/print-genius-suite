@@ -6,6 +6,7 @@ import PreferenceSettings from "./PreferenceSettings";
 import IntegrationSettings from "./IntegrationSettings";
 import ReferralSettings from "./ReferralSettings";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/context/SettingsContext";
 
 const SettingsTabs = () => {
   // Account settings state
@@ -26,6 +27,20 @@ const SettingsTabs = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   
   const { toast } = useToast();
+
+  // Create a mock user object for AccountSettings
+  const user = {
+    email: email,
+    displayName: `${firstName} ${lastName}`
+  };
+
+  const languages = {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "ja": "Japanese"
+  };
   
   const handleSaveSettings = () => {
     // Simulate saving settings
@@ -67,6 +82,17 @@ const SettingsTabs = () => {
       });
   };
   
+  // Create consistent props for AccountSettings based on its expected interface
+  const [displayName, setDisplayName] = useState(`${firstName} ${lastName}`);
+  const [bio, setDisplayBio] = useState("Print on demand enthusiast");
+  const [publicProfile, setPublicProfile] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [timezone, setTimezone] = useState("UTC");
+
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value);
+  };
+  
   return (
     <Tabs defaultValue="account" className="w-full">
       <TabsList className="grid grid-cols-4 mb-8">
@@ -77,14 +103,20 @@ const SettingsTabs = () => {
       </TabsList>
       <TabsContent value="account">
         <AccountSettings
-          firstName={firstName}
-          lastName={lastName}
-          email={email}
-          setFirstName={setFirstName}
-          setLastName={setLastName}
-          setEmail={setEmail}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
+          user={user}
+          displayName={displayName}
+          setDisplayName={setDisplayName}
+          bio={bio}
+          setDisplayBio={setDisplayBio}
+          publicProfile={publicProfile}
+          setPublicProfile={setPublicProfile}
+          language={language}
+          handleLanguageChange={handleLanguageChange}
+          timezone={timezone}
+          setTimezone={setTimezone}
+          savedSettings={savedSettings}
+          handleSaveSettings={handleSaveSettings}
+          languages={languages}
         />
       </TabsContent>
       <TabsContent value="preferences">
@@ -103,11 +135,18 @@ const SettingsTabs = () => {
       <TabsContent value="referrals">
         <ReferralSettings
           referralCode={referralCode}
-          referralUrl={referralUrl}
-          copiedCode={copiedCode}
-          copiedUrl={copiedUrl}
-          handleCopyCode={() => handleCopy(referralCode, "code")}
-          handleCopyUrl={() => handleCopy(referralUrl, "url")}
+          affiliateLink={referralUrl}
+          handleCopyReferral={() => handleCopy(referralCode, "code")}
+          handleCopyAffiliate={() => handleCopy(referralUrl, "url")}
+          handleRegenerateReferralCode={() => {
+            const newCode = `PRINT${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            setReferralCode(newCode);
+            setReferralUrl(`https://printgenius.ai/ref/${newCode}`);
+            toast({
+              title: "New Referral Code",
+              description: "Your referral code has been regenerated.",
+            });
+          }}
         />
       </TabsContent>
     </Tabs>
