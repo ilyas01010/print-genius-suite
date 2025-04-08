@@ -25,7 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const MarketingPlanner = () => {
   const [activeTab, setActiveTab] = useState("calendar");
-  const [selectedTemplate, setSelectedTemplate: any] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [campaignName, setCampaignName] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
