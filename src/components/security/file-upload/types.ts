@@ -42,3 +42,8 @@ export interface FileItemProps {
   file: UploadingFile;
   onRemove: (id: string) => void;
 }
+
+export interface FileListProps {
+  files: UploadingFile[];
+  onRemoveFile: (id: string) => void;
+}

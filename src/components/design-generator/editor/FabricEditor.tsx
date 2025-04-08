@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
-import { Canvas, IEvent, Object as FabricObject, Path, Rect, Circle, Text } from "fabric";
+import { Canvas, Path, Rect, Circle, Text } from "fabric";
 import { Card, CardContent } from "@/components/ui/card";
 import EditorToolbar from "./EditorToolbar";
 import { useToast } from "@/hooks/use-toast";
