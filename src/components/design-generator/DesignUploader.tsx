@@ -35,7 +35,7 @@ const DesignUploader = () => {
             Drag and drop your design files here or click to browse
           </p>
           <SecureFileUpload 
-            acceptedFileTypes={[".png", ".jpg", ".jpeg", ".svg"]}
+            allowedFileTypes={[".png", ".jpg", ".jpeg", ".svg"]}
             maxSizeMB={5}
             onFileSelected={handleFileSelected}
             label="Upload Design"
