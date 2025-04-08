@@ -1,84 +1,74 @@
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { useUser } from "./context/UserContext";
+import Index from "./pages";
+import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
+import LearningHub from "./pages/LearningHub";
+import AdminPanel from "./pages/AdminPanel";
+import NotFound from "./pages/NotFound";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import { checkAuthentication } from "./utils";
 
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { UserProvider } from "@/context/UserContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Layout from "@/components/layout/Layout";
-import NotFound from "@/pages/NotFound";
-import Dashboard from "@/pages/Index";
-import AdminPanel from "@/pages/AdminPanel";
-import Auth from "@/pages/Auth";
-import Profile from "@/pages/Profile";
-import UnauthorizedPage from "@/pages/UnauthorizedPage";
-
-// Import other pages
-import DesignGenerator from "@/pages/DesignGenerator";
-import Settings from "@/pages/Settings";
-import PlatformDashboard from "@/pages/PlatformDashboard";
-import NicheResearch from "@/pages/NicheResearch";
-import CopyrightChecker from "@/pages/CopyrightChecker";
-import MarketingPlanner from "@/pages/MarketingPlanner";
-import LearningHub from "@/pages/LearningHub";
-import Analytics from "@/pages/Analytics";
-import Support from "@/pages/Support";
-import CustomerService from "@/pages/CustomerService";
-import ProtectedRoute from "@/components/security/ProtectedRoute";
-
-import "./App.css";
-
-// Create a client for react-query
-const queryClient = new QueryClient();
+// Import your new pages
+import MultiPlatformManager from "./pages/MultiPlatformManager";
+import DesignGenerator from "./pages/DesignGenerator";
+import NicheResearch from "./pages/NicheResearch";
+import CopyrightChecker from "./pages/CopyrightChecker";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import Support from "./pages/Support";
+import CustomerService from "./pages/CustomerService";
+import MarketingPlanner from "./pages/MarketingPlanner";
 
 function App() {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { setUser } = useUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authResult = await checkAuthentication();
+      setIsAuthenticated(authResult.isAuthenticated);
+      setUser(authResult.user);
+      setLoading(false);
+
+      if (window.location.pathname === '/auth' && authResult.isAuthenticated) {
+        navigate('/profile');
+      }
+    };
+
+    checkAuth();
+  }, [setIsAuthenticated, setUser, navigate]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <Router>
-            <Routes>
-              {/* Authentication route - no layout */}
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/unauthorized" element={<UnauthorizedPage />} />
-              
-              {/* All routes with Layout */}
-              <Route element={<Layout />}>
-                {/* Root route */}
-                <Route path="/" element={<Dashboard />} />
-                
-                {/* Regular routes */}
-                <Route path="/design" element={<DesignGenerator />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/platform" element={<PlatformDashboard />} />
-                <Route path="/niche-research" element={<NicheResearch />} />
-                <Route path="/copyright" element={<CopyrightChecker />} />
-                <Route path="/marketing" element={<MarketingPlanner />} />
-                <Route path="/learning" element={<LearningHub />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/customer-service" element={<CustomerService />} />
-                <Route path="/profile" element={<Profile />} />
-                
-                {/* Admin route with protection */}
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute>
-                      <AdminPanel />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Route>
-              
-              {/* Catch all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </Router>
-        </ThemeProvider>
-      </UserProvider>
-    </QueryClientProvider>
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/learning" element={<LearningHub />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/analytics" element={<Analytics />} />
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      
+      {/* Add new POD business management routes */}
+      <Route path="/platforms" element={<MultiPlatformManager />} />
+      <Route path="/design" element={<DesignGenerator />} />
+      <Route path="/niche-research" element={<NicheResearch />} />
+      <Route path="/copyright-checker" element={<CopyrightChecker />} />
+      <Route path="/customer-service" element={<CustomerService />} />
+      <Route path="/marketing" element={<MarketingPlanner />} />
+      <Route path="/support" element={<Support />} />
+      
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

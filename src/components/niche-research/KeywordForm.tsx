@@ -1,224 +1,136 @@
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingUp, PieChart, BarChart4 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-
-// Define the keyword result types
-interface KeywordResult {
-  id: number;
-  term: string;
-  searchVolume: number;
-  competition: 'low' | 'medium' | 'high';
-  trend: 'up' | 'down' | 'stable';
-  platforms: {
-    amazon: number;
-    etsy: number;
-    teespring: number;
-  }
-}
+import { Search, TrendingUp, BarChart3 } from "lucide-react";
 
 const KeywordForm = () => {
   const [keyword, setKeyword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<KeywordResult[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [category, setCategory] = useState("general");
+  const [competitionLevel, setCompetitionLevel] = useState([50]);
+  const [isSearching, setIsSearching] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!keyword.trim()) {
       toast({
-        title: "Keyword Required",
-        description: "Please enter a keyword to search for niches.",
+        title: "Please enter a keyword",
+        description: "You need to enter a keyword to search for trends.",
         variant: "destructive",
       });
       return;
     }
-
-    setIsLoading(true);
-    setHasSearched(true);
     
-    // Simulate API request - in a real app, this would call an actual API
+    setIsSearching(true);
+    
+    // Simulate API call
     setTimeout(() => {
-      const mockResults = generateMockResults(keyword);
-      setResults(mockResults);
-      setIsLoading(false);
+      setIsSearching(false);
       toast({
-        title: "Search Complete",
-        description: `${mockResults.length} niche opportunities found for "${keyword}"`,
+        title: "Search complete",
+        description: `Found trend data for "${keyword}"`,
       });
       
-      // Here you would typically update some state or trigger a data fetch
-      console.log(`Searching for: ${keyword}`);
+      // This would trigger a state update in a parent component or context
+      // to display actual results
+      
+      // For demonstration purposes, we could emit an event or call a callback
+      window.dispatchEvent(new CustomEvent('nicheSearch', { 
+        detail: { 
+          keyword, 
+          category, 
+          competitionLevel: competitionLevel[0] 
+        } 
+      }));
     }, 1500);
   };
 
-  // Generate mock results based on the keyword
-  const generateMockResults = (keyword: string): KeywordResult[] => {
-    const baseTerms = [
-      keyword,
-      `funny ${keyword}`,
-      `${keyword} lover`,
-      `${keyword} gift`,
-      `vintage ${keyword}`,
-      `${keyword} design`,
-      `${keyword} enthusiast`
-    ];
-    
-    return baseTerms.map((term, index) => ({
-      id: index + 1,
-      term,
-      searchVolume: Math.floor(Math.random() * 10000) + 500,
-      competition: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-      trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable',
-      platforms: {
-        amazon: Math.floor(Math.random() * 5000) + 100,
-        etsy: Math.floor(Math.random() * 3000) + 50,
-        teespring: Math.floor(Math.random() * 2000) + 20
-      }
-    }));
-  };
-
-  const getCompetitionColor = (competition: string) => {
-    switch (competition) {
-      case 'low': return 'text-green-600';
-      case 'medium': return 'text-amber-600';
-      case 'high': return 'text-red-600';
-      default: return '';
-    }
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down': return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
-      case 'stable': return <div className="h-4 w-4 border-t-2 border-gray-400"></div>;
-      default: return null;
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Niche Research</CardTitle>
-          <CardDescription>
-            Enter a keyword to discover trending niches and analyze competition
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex gap-2 w-full">
-            <Input
-              placeholder="Enter keyword (e.g., fishing, cats, hiking)"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="flex-1"
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5" />
+          Niche & Keyword Research
+        </CardTitle>
+        <CardDescription>
+          Discover trending niches and analyze keyword potential for your POD products
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSearch} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="keyword" className="text-sm font-medium">Keyword or Phrase</label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="keyword"
+                  placeholder="Enter keyword or phrase"
+                  className="pl-8"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="category" className="text-sm font-medium">Product Category</label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="apparel">Apparel</SelectItem>
+                  <SelectItem value="homegoods">Home Goods</SelectItem>
+                  <SelectItem value="accessories">Accessories</SelectItem>
+                  <SelectItem value="wall-art">Wall Art</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label htmlFor="competition" className="text-sm font-medium">Competition Level</label>
+              <span className="text-xs text-muted-foreground">{competitionLevel[0]}%</span>
+            </div>
+            <Slider
+              id="competition"
+              min={0}
+              max={100}
+              step={1}
+              value={competitionLevel}
+              onValueChange={setCompetitionLevel}
             />
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Analyzing
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  Search
-                </div>
-              )}
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Low Competition</span>
+              <span>High Competition</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isSearching} className="flex-1">
+              {isSearching ? "Searching..." : "Search Trends"}
             </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {hasSearched && (
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5 text-pod-blue" />
-              Niche Opportunities
-            </CardTitle>
-            <CardDescription>
-              Results for "{keyword}" sorted by potential
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-              </div>
-            ) : results.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b text-left">
-                      <th className="pb-2 pr-4 font-medium">Keyword</th>
-                      <th className="pb-2 px-4 font-medium">Search Volume</th>
-                      <th className="pb-2 px-4 font-medium">Competition</th>
-                      <th className="pb-2 px-4 font-medium">Trend</th>
-                      <th className="pb-2 px-4 font-medium">
-                        <div className="flex items-center gap-1">
-                          <BarChart4 className="h-4 w-4" />
-                          <span>Platform Listings</span>
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.map((result) => (
-                      <tr key={result.id} className="border-b hover:bg-muted/50">
-                        <td className="py-3 pr-4 font-medium">{result.term}</td>
-                        <td className="py-3 px-4">{result.searchVolume.toLocaleString()}</td>
-                        <td className="py-3 px-4">
-                          <span className={getCompetitionColor(result.competition)}>
-                            {result.competition.charAt(0).toUpperCase() + result.competition.slice(1)}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-1">
-                            {getTrendIcon(result.trend)}
-                            <span>
-                              {result.trend.charAt(0).toUpperCase() + result.trend.slice(1)}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex gap-2 text-xs">
-                            <div className="rounded bg-red-100 px-2 py-1 text-red-800">
-                              Amazon: {result.platforms.amazon.toLocaleString()}
-                            </div>
-                            <div className="rounded bg-orange-100 px-2 py-1 text-orange-800">
-                              Etsy: {result.platforms.etsy.toLocaleString()}
-                            </div>
-                            <div className="rounded bg-blue-100 px-2 py-1 text-blue-800">
-                              Teespring: {result.platforms.teespring.toLocaleString()}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <p className="text-muted-foreground">No results found for "{keyword}"</p>
-                <p className="text-sm text-muted-foreground">Try a different keyword</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            <Button type="button" variant="outline" className="flex items-center gap-1">
+              <BarChart3 className="h-4 w-4" />
+              Advanced Analysis
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex justify-between border-t pt-4 text-xs text-muted-foreground">
+        <div>Last updated: April 8, 2025</div>
+        <div>Data sources: Etsy, Amazon, Google Trends</div>
+      </CardFooter>
+    </Card>
   );
 };
 
