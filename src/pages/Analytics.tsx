@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +22,6 @@ import {
   Legend
 } from "recharts";
 
-// Sample sales data for charts
 const monthlySalesData = [
   { name: 'Jan', sales: 1200 },
   { name: 'Feb', sales: 1900 },
@@ -73,7 +71,6 @@ const productCategoryData = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-// Top products data
 const topProducts = [
   {
     id: 1,

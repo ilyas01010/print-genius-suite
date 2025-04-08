@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,7 +22,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Sample customer inquiries data
 const inquiriesData = [
   {
     id: 1,
@@ -75,7 +73,6 @@ const inquiriesData = [
   }
 ];
 
-// Sample canned responses
 const cannedResponses = [
   {
     id: 1,

@@ -1,90 +1,94 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLanguage } from "@/context/LanguageContext";
-import { useUser } from "@/context/UserContext";
-import { useSettings } from "@/context/SettingsContext";
-import AccountSettings from "@/components/settings/AccountSettings";
-import PreferenceSettings from "@/components/settings/PreferenceSettings";
-import ReferralSettings from "@/components/settings/ReferralSettings";
-import IntegrationSettings from "@/components/settings/IntegrationSettings";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Card } from "@/components/ui/card";
+import AccountSettings from "./AccountSettings";
+import PreferenceSettings from "./PreferenceSettings";
+import IntegrationSettings from "./IntegrationSettings";
+import ReferralSettings from "./ReferralSettings";
+import { useToast } from "@/hooks/use-toast";
 
 const SettingsTabs = () => {
-  const { user } = useUser();
-  const { t, language, setLanguage, availableLanguages } = useLanguage();
-  const {
-    displayName,
-    setDisplayName,
-    bio,
-    setDisplayBio,
-    publicProfile,
-    setPublicProfile,
-    darkMode,
-    setDarkMode,
-    emailNotifications,
-    setEmailNotifications,
-    pushNotifications,
-    setPushNotifications,
-    savedSettings,
-    handleSaveSettings,
-    timezone,
-    setTimezone,
-    referralCode,
-    affiliateLink,
-    handleCopyReferral,
-    handleCopyAffiliate,
-    handleRegenerateReferralCode
-  } = useSettings();
-
-  const isMobile = useIsMobile();
-
-  const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
+  // Account settings state
+  const [firstName, setFirstName] = useState("John");
+  const [lastName, setLastName] = useState("Doe");
+  const [email, setEmail] = useState("john.doe@example.com");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // Preference settings state
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [savedSettings, setSavedSettings] = useState(false);
+  
+  // Referral settings state
+  const [referralCode, setReferralCode] = useState("PRINTGENIUS25");
+  const [referralUrl, setReferralUrl] = useState("https://printgenius.ai/ref/PRINTGENIUS25");
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  
+  const { toast } = useToast();
+  
+  const handleSaveSettings = () => {
+    // Simulate saving settings
+    setSavedSettings(true);
+    
+    toast({
+      title: "Settings saved",
+      description: "Your preferences have been updated successfully.",
+    });
+    
+    // Reset the saved state after 3 seconds
+    setTimeout(() => {
+      setSavedSettings(false);
+    }, 3000);
   };
-
+  
+  const handleCopy = (text: string, type: "code" | "url") => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        if (type === "code") {
+          setCopiedCode(true);
+          setTimeout(() => setCopiedCode(false), 2000);
+        } else {
+          setCopiedUrl(true);
+          setTimeout(() => setCopiedUrl(false), 2000);
+        }
+        
+        toast({
+          title: "Copied to clipboard",
+          description: `The referral ${type} has been copied to your clipboard.`,
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to copy",
+          description: "Please try again or copy manually.",
+          variant: "destructive",
+        });
+      });
+  };
+  
   return (
     <Tabs defaultValue="account" className="w-full">
-      <Card className="p-1 md:p-2 mb-6 border-border/50 bg-card/50 backdrop-blur rounded-lg flex justify-center">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="account" className="text-xs md:text-sm">{t('common.account')}</TabsTrigger>
-          <TabsTrigger value="preferences" className="text-xs md:text-sm">{t('common.preferences')}</TabsTrigger>
-          <TabsTrigger value="integrations" className="text-xs md:text-sm">{t('common.integrations')}</TabsTrigger>
-        </TabsList>
-      </Card>
-      
-      <TabsContent value="account" className="space-y-6">
-        <AccountSettings 
-          user={user}
-          displayName={displayName}
-          setDisplayName={setDisplayName}
-          bio={bio}
-          setDisplayBio={setDisplayBio}
-          publicProfile={publicProfile}
-          setPublicProfile={setPublicProfile}
-          language={language}
-          handleLanguageChange={handleLanguageChange}
-          timezone={timezone}
-          setTimezone={setTimezone}
-          savedSettings={savedSettings}
-          handleSaveSettings={handleSaveSettings}
-          languages={availableLanguages}
-        />
-        
-        <ReferralSettings 
-          referralCode={referralCode}
-          affiliateLink={affiliateLink}
-          handleCopyReferral={handleCopyReferral}
-          handleCopyAffiliate={handleCopyAffiliate}
-          handleRegenerateReferralCode={handleRegenerateReferralCode}
+      <TabsList className="grid grid-cols-4 mb-8">
+        <TabsTrigger value="account">Account</TabsTrigger>
+        <TabsTrigger value="preferences">Preferences</TabsTrigger>
+        <TabsTrigger value="integrations">Integrations</TabsTrigger>
+        <TabsTrigger value="referrals">Referrals</TabsTrigger>
+      </TabsList>
+      <TabsContent value="account">
+        <AccountSettings
+          firstName={firstName}
+          lastName={lastName}
+          email={email}
+          setFirstName={setFirstName}
+          setLastName={setLastName}
+          setEmail={setEmail}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
         />
       </TabsContent>
-      
-      <TabsContent value="preferences" className="space-y-6">
-        <PreferenceSettings 
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
+      <TabsContent value="preferences">
+        <PreferenceSettings
           pushNotifications={pushNotifications}
           setPushNotifications={setPushNotifications}
           emailNotifications={emailNotifications}
@@ -93,9 +97,18 @@ const SettingsTabs = () => {
           handleSaveSettings={handleSaveSettings}
         />
       </TabsContent>
-      
-      <TabsContent value="integrations" className="space-y-6">
+      <TabsContent value="integrations">
         <IntegrationSettings />
+      </TabsContent>
+      <TabsContent value="referrals">
+        <ReferralSettings
+          referralCode={referralCode}
+          referralUrl={referralUrl}
+          copiedCode={copiedCode}
+          copiedUrl={copiedUrl}
+          handleCopyCode={() => handleCopy(referralCode, "code")}
+          handleCopyUrl={() => handleCopy(referralUrl, "url")}
+        />
       </TabsContent>
     </Tabs>
   );

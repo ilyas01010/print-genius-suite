@@ -1,115 +1,26 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
-import { logSecurityEvent } from "@/lib/security/auth";
+import { AuthStep, LoginAttempt } from "./admin-auth/types";
+import { ADMIN_PASSWORD } from "./admin-auth/constants";
+import { formatLockoutTime, recordAttempt, checkSuspiciousActivity } from "./admin-auth/utils";
+import { useLockoutState } from "./admin-auth/useLockoutState";
 
-export interface LoginAttempt {
-  timestamp: number;
-  success: boolean;
-  ip?: string;
-}
-
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
-const ADMIN_EMAIL = "digifyer@gmail.com";
-const ADMIN_PASSWORD = "walkBYfaith!43!";
+export { formatLockoutTime } from "./admin-auth/utils";
+export type { LoginAttempt } from "./admin-auth/types";
 
 export const useAdminAuth = (onVerified: () => void) => {
   const { toast } = useToast();
-  const [step, setStep] = useState<"password" | "mfa">("password");
+  const [step, setStep] = useState<AuthStep>("password");
   const [password, setPassword] = useState("");
   const [mfaCode, setMfaCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockoutEndTime, setLockoutEndTime] = useState<number | null>(null);
-  const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
   const { user } = useUser();
-
-  // Check lockout status
-  useEffect(() => {
-    const checkLockStatus = () => {
-      // Get attempts in the last 15 minutes
-      const recentAttempts = loginAttempts.filter(
-        attempt => (Date.now() - attempt.timestamp) < LOCKOUT_DURATION_MS
-      );
-      
-      // Count failed attempts
-      const failedAttempts = recentAttempts.filter(attempt => !attempt.success).length;
-      
-      if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-        // Calculate lockout end time
-        const latestAttempt = Math.max(...recentAttempts.map(a => a.timestamp));
-        const lockoutEnd = latestAttempt + LOCKOUT_DURATION_MS;
-        
-        setIsLocked(lockoutEnd > Date.now());
-        setLockoutEndTime(lockoutEnd);
-      } else {
-        setIsLocked(false);
-        setLockoutEndTime(null);
-      }
-    };
-    
-    checkLockStatus();
-    
-    // Update lockout remaining time
-    const interval = setInterval(() => {
-      if (lockoutEndTime) {
-        const remaining = lockoutEndTime - Date.now();
-        if (remaining <= 0) {
-          setIsLocked(false);
-          setLockoutEndTime(null);
-          setLockoutRemaining(0);
-        } else {
-          setLockoutRemaining(remaining);
-        }
-      }
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [loginAttempts, lockoutEndTime]);
-
-  // Format time
-  const formatLockoutTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  // Record login attempts with security logging
-  const recordAttempt = (success: boolean) => {
-    const attempt: LoginAttempt = {
-      timestamp: Date.now(),
-      success,
-    };
-    
-    setLoginAttempts(prev => [...prev, attempt]);
-    
-    if (user?.id) {
-      logSecurityEvent(
-        success ? "admin_login_success" : "admin_login_failure", 
-        user.id,
-        {
-          email: user.email || ADMIN_EMAIL,
-          timestamp: new Date().toISOString(),
-        }
-      );
-    }
-    
-    // Check for suspicious activity
-    const recentAttempts = [...loginAttempts, attempt].filter(
-      a => (Date.now() - a.timestamp) < 60000 * 5 // Last 5 minutes
-    );
-    
-    if (!success && recentAttempts.length >= 3) {
-      toast({
-        title: "Security Alert",
-        description: "Suspicious login attempts detected. Please contact support if this wasn't you.",
-        variant: "destructive",
-      });
-    }
-  };
+  
+  // Use our lockout hook
+  const { isLocked, lockoutRemaining } = useLockoutState(loginAttempts);
 
   // Password verification
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -143,7 +54,8 @@ export const useAdminAuth = (onVerified: () => void) => {
           description: `A verification code has been sent to your device.`,
         });
         
-        recordAttempt(true);
+        const newAttempts = recordAttempt(true, loginAttempts, user?.id, user?.email);
+        setLoginAttempts(newAttempts);
       } else {
         toast({
           title: "Authentication failed",
@@ -151,8 +63,18 @@ export const useAdminAuth = (onVerified: () => void) => {
           variant: "destructive",
         });
         
-        recordAttempt(false);
+        const newAttempts = recordAttempt(false, loginAttempts, user?.id, user?.email);
+        setLoginAttempts(newAttempts);
         console.log(`Failed admin login attempt for user: ${user?.email || 'unknown'}`);
+        
+        // Check for suspicious activity
+        if (checkSuspiciousActivity(false, newAttempts)) {
+          toast({
+            title: "Security Alert",
+            description: "Suspicious login attempts detected. Please contact support if this wasn't you.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Admin auth error:", error);
@@ -162,7 +84,8 @@ export const useAdminAuth = (onVerified: () => void) => {
         variant: "destructive",
       });
       
-      recordAttempt(false);
+      const newAttempts = recordAttempt(false, loginAttempts, user?.id, user?.email);
+      setLoginAttempts(newAttempts);
     } finally {
       setIsSubmitting(false);
     }
@@ -181,7 +104,8 @@ export const useAdminAuth = (onVerified: () => void) => {
           description: "Welcome to the Admin Control Panel",
         });
         
-        recordAttempt(true);
+        const newAttempts = recordAttempt(true, loginAttempts, user?.id, user?.email);
+        setLoginAttempts(newAttempts);
         onVerified();
       } else {
         toast({
@@ -190,7 +114,8 @@ export const useAdminAuth = (onVerified: () => void) => {
           variant: "destructive",
         });
         
-        recordAttempt(false);
+        const newAttempts = recordAttempt(false, loginAttempts, user?.id, user?.email);
+        setLoginAttempts(newAttempts);
         console.log(`Failed MFA attempt for user: ${user?.email || 'unknown'}`);
       }
     } catch (error) {
@@ -201,7 +126,8 @@ export const useAdminAuth = (onVerified: () => void) => {
         variant: "destructive",
       });
       
-      recordAttempt(false);
+      const newAttempts = recordAttempt(false, loginAttempts, user?.id, user?.email);
+      setLoginAttempts(newAttempts);
     } finally {
       setIsSubmitting(false);
     }
