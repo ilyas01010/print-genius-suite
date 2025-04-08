@@ -1,13 +1,8 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { BadgeCheck, RefreshCw, AlertTriangle, ChevronRight, Key, Eye, EyeOff } from "lucide-react";
+import IntegrationCard from "./platform-integrations/IntegrationCard";
+import ApiKeyDialog from "./platform-integrations/ApiKeyDialog";
 
 // Mock integrations data
 const mockIntegrations = [
@@ -171,6 +166,12 @@ const PlatformIntegrations = () => {
     console.log(`Admin action: Synchronized ${integration.name} integration at ${new Date().toISOString()}`);
   };
 
+  // View details (placeholder for now)
+  const viewIntegrationDetails = (id: string) => {
+    console.log(`View details for integration: ${id}`);
+    // In a real app, this could navigate to a detailed view or open a modal
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Platform Integrations</h2>
@@ -180,133 +181,28 @@ const PlatformIntegrations = () => {
 
       <div className="grid gap-4">
         {integrations.map((integration) => (
-          <Card key={integration.id} className={integration.status === "error" ? "border-destructive" : ""}>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {integration.name}
-                    {integration.status === "connected" && <BadgeCheck className="h-5 w-5 text-green-600" />}
-                  </CardTitle>
-                  <CardDescription>{integration.description}</CardDescription>
-                </div>
-                <Switch
-                  id={`${integration.id}-toggle`}
-                  checked={integration.status === "connected"}
-                  onCheckedChange={() => toggleIntegration(integration.id)}
-                  disabled={integration.status === "error"}
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Key className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">API Key:</span>
-                    {integration.apiKey ? (
-                      <span className="font-mono text-xs">
-                        {showApiKey[integration.id] ? integration.apiKey : integration.apiKey.replace(/[^.]/g, '*')}
-                      </span>
-                    ) : (
-                      <span className="text-xs italic">Not set</span>
-                    )}
-                    {integration.apiKey && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => toggleApiKeyVisibility(integration.id)}
-                        className="h-6 px-2"
-                      >
-                        {showApiKey[integration.id] ? (
-                          <EyeOff className="h-3 w-3" />
-                        ) : (
-                          <Eye className="h-3 w-3" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEditApiKey(integration)}
-                  >
-                    {integration.apiKey ? "Change" : "Add"} API Key
-                  </Button>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <RefreshCw className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Last sync:</span>
-                    <span className="text-xs">{formatDate(integration.lastSync)}</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => syncIntegration(integration.id)}
-                    disabled={integration.status !== "connected"}
-                  >
-                    Sync Now
-                  </Button>
-                </div>
-                {integration.error && (
-                  <div className="flex items-start gap-2 bg-destructive/10 p-2 rounded">
-                    <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-destructive">Error</p>
-                      <p className="text-xs">{integration.error}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="justify-end border-t pt-4">
-              <Button variant="ghost" size="sm" className="gap-1">
-                View Details <ChevronRight className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
+          <IntegrationCard
+            key={integration.id}
+            integration={integration}
+            showApiKey={!!showApiKey[integration.id]}
+            onToggle={toggleIntegration}
+            onSync={syncIntegration}
+            onViewDetails={viewIntegrationDetails}
+            onEditApiKey={handleEditApiKey}
+            onToggleApiKeyVisibility={toggleApiKeyVisibility}
+            formatDate={formatDate}
+          />
         ))}
       </div>
 
-      {/* Edit API Key Dialog */}
-      <Dialog open={editApiKeyOpen} onOpenChange={setEditApiKeyOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedIntegration?.apiKey ? "Update" : "Add"} API Key
-            </DialogTitle>
-            <DialogDescription>
-              {selectedIntegration?.apiKey
-                ? `Change the API key for ${selectedIntegration?.name}.`
-                : `Add an API key to connect to ${selectedIntegration?.name}.`}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-key">API Key</Label>
-              <Input
-                id="api-key"
-                value={newApiKey}
-                onChange={(e) => setNewApiKey(e.target.value)}
-                placeholder="Enter API key"
-                className="font-mono"
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              API keys are encrypted and stored securely. Never share your API keys.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditApiKeyOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveApiKey} disabled={!newApiKey.trim()}>
-              Save API Key
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ApiKeyDialog
+        open={editApiKeyOpen}
+        onOpenChange={setEditApiKeyOpen}
+        selectedIntegration={selectedIntegration}
+        newApiKey={newApiKey}
+        setNewApiKey={setNewApiKey}
+        onSave={saveApiKey}
+      />
     </div>
   );
 };
