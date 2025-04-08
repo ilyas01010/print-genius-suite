@@ -1,51 +1,43 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { FileQuestion, MessageCircle, HelpCircle } from "lucide-react";
-import FaqTab from "@/components/support/FaqTab";
 import ContactTab from "@/components/support/ContactTab";
+import FaqTab from "@/components/support/FaqTab";
 import ResourcesTab from "@/components/support/ResourcesTab";
 
 const Support = () => {
+  const [activeTab, setActiveTab] = useState("faq");
+
   return (
     <Layout>
       <PageLayout>
-        <div className="space-y-6 animate-fade-in">
-          <Card className="p-4 md:p-6 bg-card/50 backdrop-blur border border-border/50">
-            <div className="flex flex-col gap-2">
-              <h1 className="font-bold text-2xl md:text-3xl">Support Center</h1>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Get help and support for your Print Genius account
-              </p>
-            </div>
-          </Card>
-
-          <Tabs defaultValue="faq" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="faq" className="flex items-center gap-2">
-                <FileQuestion className="h-4 w-4" /> FAQs
-              </TabsTrigger>
-              <TabsTrigger value="contact" className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" /> Contact
-              </TabsTrigger>
-              <TabsTrigger value="resources" className="flex items-center gap-2">
-                <HelpCircle className="h-4 w-4" /> Resources
-              </TabsTrigger>
+        <div className="space-y-6 animate-fade">
+          <div className="flex flex-col gap-2">
+            <h1 className="font-bold text-3xl">Support Center</h1>
+            <p className="text-muted-foreground">
+              Get help with Print Genius Suite and find answers to your questions
+            </p>
+          </div>
+          
+          <Tabs defaultValue="faq" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="faq">FAQ</TabsTrigger>
+              <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="contact">Contact Us</TabsTrigger>
             </TabsList>
             
             <TabsContent value="faq" className="space-y-4">
               <FaqTab />
             </TabsContent>
             
-            <TabsContent value="contact" className="space-y-4">
-              <ContactTab />
-            </TabsContent>
-            
             <TabsContent value="resources" className="space-y-4">
               <ResourcesTab />
+            </TabsContent>
+            
+            <TabsContent value="contact" className="space-y-4">
+              <ContactTab />
             </TabsContent>
           </Tabs>
         </div>
