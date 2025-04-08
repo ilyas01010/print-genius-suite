@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { 
@@ -43,12 +42,12 @@ const navItems = [
   },
   {
     title: "Copyright Checker",
-    href: "/copyright",
+    href: "/copyright-checker",
     icon: <ShieldCheck className="h-5 w-5" />
   },
   {
     title: "Platform Dashboard",
-    href: "/platform",
+    href: "/platforms",
     icon: <Store className="h-5 w-5" />
   },
   {
@@ -91,7 +90,6 @@ const navItems = [
 const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
   const { user } = useUser();
 
-  // Close sidebar when clicking outside or on escape key
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -108,7 +106,6 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
   
-  // Close sidebar when navigating to a new page
   const handleNavigation = () => {
     onClose();
   };
@@ -117,14 +114,12 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Overlay */}
       <div 
         className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
         onClick={onClose}
         aria-hidden="true"
       />
       
-      {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border p-4 shadow-lg transform transition-transform duration-300 ease-in-out">
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-semibold text-lg">Print Genius</h2>
