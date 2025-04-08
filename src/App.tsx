@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useUser } from "./context/UserContext";
-import Dashboard from "./pages/index"; // Corrected import to lowercase
+import Dashboard from "./pages/Dashboard"; // Renamed import
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import LearningHub from "./pages/LearningHub";
@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { checkAuthentication } from "./utils";
 
-// Import your new pages
+// Import your other pages
 import MultiPlatformManager from "./pages/MultiPlatformManager";
 import DesignGenerator from "./pages/DesignGenerator";
 import NicheResearch from "./pages/NicheResearch";
@@ -59,7 +59,7 @@ function App() {
       <Route path="/admin" element={<AdminPanel />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
       
-      {/* Add new POD business management routes */}
+      {/* Add business management routes */}
       <Route path="/platforms" element={<MultiPlatformManager />} />
       <Route path="/design" element={<DesignGenerator />} />
       <Route path="/niche-research" element={<NicheResearch />} />

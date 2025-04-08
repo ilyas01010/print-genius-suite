@@ -34,12 +34,12 @@ const navItems = [
   },
   {
     title: "Copyright Checker",
-    href: "/copyright",
+    href: "/copyright-checker",
     icon: <ShieldCheck className="h-5 w-5" />
   },
   {
     title: "Platform Dashboard",
-    href: "/platform",
+    href: "/platforms",
     icon: <Store className="h-5 w-5" />
   },
   {
