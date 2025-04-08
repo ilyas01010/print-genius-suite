@@ -12,18 +12,19 @@ import {
   Settings,
   HelpCircle,
   Book,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/",
     icon: <LayoutDashboard className="h-5 w-5" />
   },
   {
     title: "Design Generator",
-    href: "/design-generator",
+    href: "/design",
     icon: <Palette className="h-5 w-5" />
   },
   {
@@ -33,17 +34,17 @@ const navItems = [
   },
   {
     title: "Copyright Checker",
-    href: "/copyright-checker",
+    href: "/copyright",
     icon: <ShieldCheck className="h-5 w-5" />
   },
   {
     title: "Platform Dashboard",
-    href: "/platform-dashboard",
+    href: "/platform",
     icon: <Store className="h-5 w-5" />
   },
   {
     title: "Marketing Planner",
-    href: "/marketing-planner",
+    href: "/marketing",
     icon: <MessageSquare className="h-5 w-5" />
   },
   {
@@ -53,8 +54,13 @@ const navItems = [
   },
   {
     title: "Learning Hub",
-    href: "/learning-hub",
+    href: "/learning",
     icon: <Book className="h-5 w-5" />
+  },
+  {
+    title: "Admin Panel",
+    href: "/admin",
+    icon: <ShieldAlert className="h-5 w-5" />
   },
   {
     title: "Support",
@@ -71,8 +77,8 @@ const navItems = [
 const Sidebar = () => {
   return (
     <aside className="hidden md:flex border-r border-border w-64 flex-col fixed inset-y-0 pt-16 bg-background">
-      <div className="flex flex-col flex-1 p-4">
-        <nav className="mt-4 flex-1 space-y-1">
+      <div className="flex flex-col flex-1 p-4 overflow-y-auto">
+        <nav className="mt-2 flex-1 space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.href}

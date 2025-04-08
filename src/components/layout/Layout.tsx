@@ -12,23 +12,11 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   
   useEffect(() => {
     // Add animation delay for content loading
     const timer = setTimeout(() => setIsLoaded(true), 100);
-    
-    // Handle scroll detection for header shadow
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -38,10 +26,7 @@ const Layout = ({ children }: LayoutProps) => {
           <NewSidebar />
         </div>
         <div className="flex flex-1 flex-col w-full">
-          <Header 
-            onToggleSidebar={() => setSidebarOpen(true)} 
-            className={scrolled ? 'shadow-sm' : ''} 
-          />
+          <Header onToggleSidebar={() => setSidebarOpen(true)} />
           <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className={`flex-1 overflow-auto p-3 md:p-4 lg:p-5 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
             <div className="mx-auto max-w-6xl animate-fade-in">

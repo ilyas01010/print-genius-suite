@@ -3,11 +3,10 @@ import React from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  // Simple pass-through component without authentication checks
+  // Simple pass-through component without any authentication checks
   return <>{children}</>;
 };
 

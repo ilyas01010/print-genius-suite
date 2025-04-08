@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Bell, User, LogOut, Globe, Sparkles } from "lucide-react";
+import { Menu, Bell, Globe, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import {
@@ -23,31 +23,10 @@ interface HeaderProps {
 }
 
 const Header = ({ onToggleSidebar, className }: HeaderProps) => {
-  const { user, isAuthenticated, logout } = useUser();
+  const { user } = useUser();
   const { toast } = useToast();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [hasUnreadNotifications] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
-
-  // Add scroll detection for enhanced visual effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    await logout();
-    toast({
-      title: t("auth.logoutSuccess"),
-      description: "",
-    });
-  };
 
   const getUserInitials = () => {
     if (!user?.email) return "U";
@@ -66,7 +45,6 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
     <header 
       className={cn(
         "sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 sm:px-6 lg:px-8 transition-all duration-200",
-        scrolled ? "shadow-sm" : "",
         className
       )}
     >
@@ -146,45 +124,11 @@ const Header = ({ onToggleSidebar, className }: HeaderProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
         
-        {/* User Menu */}
-        {isAuthenticated ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 p-0 border-2 border-transparent hover:border-primary/20 transition-colors">
-                <Avatar className="h-full w-full">
-                  <AvatarImage src={user?.user_metadata?.avatar_url} />
-                  <AvatarFallback className="bg-primary/10 text-primary">{getUserInitials()}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                {user?.email || t("common.account")}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/settings" className="flex w-full cursor-pointer">
-                  {t("common.settings")}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                {t("common.profile")}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                {t("common.support")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                {t("common.signOut")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button asChild variant="default" size="sm" className="rounded-full">
-            <Link to="/auth">{t("common.signIn")}</Link>
-          </Button>
-        )}
+        {/* User Profile */}
+        <Avatar className="h-9 w-9">
+          <AvatarImage src={user?.user_metadata?.avatar_url} />
+          <AvatarFallback className="bg-primary/10 text-primary">{getUserInitials()}</AvatarFallback>
+        </Avatar>
       </div>
     </header>
   );

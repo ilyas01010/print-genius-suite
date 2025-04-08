@@ -4,11 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Layout from "@/components/layout/Layout";
-import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Index";
 import AdminPanel from "@/pages/AdminPanel";
-import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
 // Import other pages
 import DesignGenerator from "@/pages/DesignGenerator";
@@ -29,10 +27,6 @@ function App() {
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <Router>
         <Routes>
-          {/* Auth pages */}
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
-          
           {/* Root route */}
           <Route 
             path="/" 
@@ -134,7 +128,6 @@ function App() {
             } 
           />
           
-          {/* Admin route without protection */}
           <Route 
             path="/admin" 
             element={
