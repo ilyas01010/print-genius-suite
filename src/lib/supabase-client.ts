@@ -148,6 +148,38 @@ export const initializeSupabase = async () => {
   try {
     await createStorageBucketIfNotExists('designs');
     console.log('Supabase initialization completed');
+    
+    // Set up RLS policies for the designs bucket if not already done
+    try {
+      const { data: bucketPolicies } = await supabase.storage.from('designs').getPolicies();
+      
+      // If no policies exist, create default ones
+      if (!bucketPolicies || bucketPolicies.length === 0) {
+        // Allow authenticated users to upload their own files
+        await supabase.storage.from('designs').createPolicy('authenticated_uploads', {
+          name: 'authenticated_uploads',
+          definition: {
+            role: 'authenticated',
+            statement: 'insert',
+            resource: 'designs/*',
+          },
+        });
+        
+        // Allow public access for reading files
+        await supabase.storage.from('designs').createPolicy('public_read', {
+          name: 'public_read',
+          definition: {
+            role: '*',
+            statement: 'select',
+            resource: 'designs/*',
+          },
+        });
+        
+        console.log('Default storage policies created');
+      }
+    } catch (policyError) {
+      console.warn('Error setting up storage policies:', policyError);
+    }
   } catch (err) {
     console.error('Error initializing Supabase:', err);
   }

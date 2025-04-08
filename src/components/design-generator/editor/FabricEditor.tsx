@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
-import { Canvas, Path, Rect, Circle, Text } from "fabric";
+import { fabric } from "fabric";
 import { Card, CardContent } from "@/components/ui/card";
 import EditorToolbar from "./EditorToolbar";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +9,7 @@ import { SaveIcon } from "lucide-react";
 
 const FabricEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [canvas, setCanvas] = useState<Canvas | null>(null);
+  const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [activeMode, setActiveMode] = useState<'select' | 'draw' | 'rect' | 'circle' | 'text'>('select');
   const { toast } = useToast();
   const [isDrawing, setIsDrawing] = useState(false);
@@ -18,7 +18,8 @@ const FabricEditor = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
     
-    const canvasInstance = new Canvas(canvasRef.current, {
+    // Initialize Fabric.js canvas
+    const canvasInstance = new fabric.Canvas(canvasRef.current, {
       width: 800,
       height: 500,
       backgroundColor: "#ffffff",
@@ -26,7 +27,7 @@ const FabricEditor = () => {
     });
 
     // Initialize with basic background
-    const background = new Rect({
+    const background = new fabric.Rect({
       left: 0,
       top: 0,
       width: 800,
@@ -77,7 +78,7 @@ const FabricEditor = () => {
     
     switch (type) {
       case 'rect':
-        shape = new Rect({
+        shape = new fabric.Rect({
           left: 100,
           top: 100,
           width: 100,
@@ -88,7 +89,7 @@ const FabricEditor = () => {
         });
         break;
       case 'circle':
-        shape = new Circle({
+        shape = new fabric.Circle({
           left: 100,
           top: 100,
           radius: 50,
@@ -108,7 +109,7 @@ const FabricEditor = () => {
   const addText = () => {
     if (!canvas) return;
     
-    const text = new Text('Edit this text', {
+    const text = new fabric.IText('Edit this text', {
       left: 100,
       top: 100,
       fontSize: 20,
@@ -129,7 +130,7 @@ const FabricEditor = () => {
       .forEach(obj => canvas.remove(obj));
       
     // Re-add white background
-    const background = new Rect({
+    const background = new fabric.Rect({
       left: 0,
       top: 0,
       width: 800,

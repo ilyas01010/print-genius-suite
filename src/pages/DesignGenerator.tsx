@@ -23,14 +23,19 @@ const DesignGenerator = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-3">
+          <TabsList className="grid grid-cols-4">
             <TabsTrigger value="editor">Editor</TabsTrigger>
+            <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="gallery">My Designs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="editor" className="space-y-4">
             <FabricEditor />
+          </TabsContent>
+          
+          <TabsContent value="upload" className="space-y-4">
+            <DesignUploader />
           </TabsContent>
           
           <TabsContent value="templates" className="space-y-4">

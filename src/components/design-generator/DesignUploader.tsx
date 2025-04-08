@@ -10,15 +10,46 @@ import {
 } from "@/components/ui/card";
 import { useUser } from "@/context/UserContext";
 import SecureFileUpload from "@/components/security/SecureFileUpload";
+import { useDesigns } from "@/hooks/use-designs";
+import { useToast } from "@/hooks/use-toast";
 
 const DesignUploader = () => {
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, user } = useUser();
+  const { uploadDesign } = useDesigns();
+  const { toast } = useToast();
 
   // Create an async function to handle file selection that returns a Promise
   const handleFileSelected = async (file: File, secureFileName: string): Promise<void> => {
-    console.log("File selected:", file, secureFileName);
-    // This returns a Promise since it's an async function
-    return Promise.resolve();
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upload designs",
+        variant: "destructive",
+      });
+      return Promise.resolve();
+    }
+    
+    try {
+      // Upload the file to Supabase through our hooks
+      const result = await uploadDesign(file, secureFileName);
+      
+      if (result) {
+        toast({
+          title: "Design uploaded",
+          description: "Your design has been successfully uploaded and saved",
+        });
+      }
+      
+      return Promise.resolve();
+    } catch (error: any) {
+      console.error("Error uploading design:", error);
+      toast({
+        title: "Upload failed",
+        description: error.message || "Could not upload the design",
+        variant: "destructive",
+      });
+      return Promise.resolve();
+    }
   };
 
   return (
