@@ -23,19 +23,14 @@ const DesignGenerator = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-4">
+          <TabsList className="grid grid-cols-3">
             <TabsTrigger value="editor">Editor</TabsTrigger>
-            <TabsTrigger value="photopea">Photopea Integration</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="gallery">My Designs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="editor" className="space-y-4">
             <FabricEditor />
-          </TabsContent>
-          
-          <TabsContent value="photopea" className="space-y-4">
-            <DesignUploader />
           </TabsContent>
           
           <TabsContent value="templates" className="space-y-4">

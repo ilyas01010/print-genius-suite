@@ -9,7 +9,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { useUser } from "@/context/UserContext";
-import PhotopeaEditor from "./editor/PhotopeaEditor";
+import { SecureFileUpload } from "@/components/security/SecureFileUpload";
 
 const DesignUploader = () => {
   const { isAuthenticated } = useUser();
@@ -17,13 +17,23 @@ const DesignUploader = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Photopea Design Editor</CardTitle>
+        <CardTitle>Design File Uploader</CardTitle>
         <CardDescription>
-          Create and customize professional designs with our integrated Photopea editor
+          Upload your design files to customize and manage them
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <PhotopeaEditor />
+        <div className="p-6 border-2 border-dashed border-muted rounded-lg flex flex-col items-center justify-center">
+          <p className="text-center text-muted-foreground mb-4">
+            Drag and drop your design files here or click to browse
+          </p>
+          <SecureFileUpload 
+            accept=".png,.jpg,.jpeg,.svg"
+            maxFileSize={5}
+            onFileSelected={(file) => console.log("File selected:", file)}
+            buttonText="Upload Design"
+          />
+        </div>
       </CardContent>
       {!isAuthenticated && (
         <CardFooter className="bg-muted/50 px-6 py-3 text-sm text-muted-foreground">
