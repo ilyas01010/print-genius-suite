@@ -14,6 +14,7 @@ import {
   Book,
   ChevronLeft,
   ChevronRight,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,11 @@ const navItems = [
     icon: <Book className="h-5 w-5" />
   },
   {
+    title: "Admin Panel",
+    href: "/admin",
+    icon: <ShieldAlert className="h-5 w-5" />
+  },
+  {
     title: "Support",
     href: "/support",
     icon: <HelpCircle className="h-5 w-5" />
@@ -109,7 +115,7 @@ const NewSidebar = () => {
       <SidebarHeader className="flex h-16 items-center px-4 relative">
         <div className="flex items-center space-x-2">
           <div className="bg-gradient-to-r from-primary to-primary/60 h-8 w-8 rounded-full flex items-center justify-center">
-            <span className="font-bold text-primary-foreground text-lg">M</span>
+            <span className="font-bold text-primary-foreground text-lg">P</span>
           </div>
           <h1 className={cn("text-lg font-semibold transition-opacity", 
             state === "collapsed" ? "opacity-0" : "opacity-100"

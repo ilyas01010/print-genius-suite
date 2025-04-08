@@ -13,6 +13,7 @@ import {
   HelpCircle,
   X,
   Book,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -61,6 +62,11 @@ const navItems = [
     title: "Learning Hub",
     href: "/learning",
     icon: <Book className="h-5 w-5" />
+  },
+  {
+    title: "Admin Panel",
+    href: "/admin",
+    icon: <ShieldAlert className="h-5 w-5" />
   },
   {
     title: "Support",
