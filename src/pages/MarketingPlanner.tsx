@@ -12,7 +12,7 @@ import {
   Copy, 
   Plus, 
   SendHorizonal, 
-  Template, 
+  FileText,
   Upload,
   ArrowRight,
   BarChart3,
@@ -358,7 +358,7 @@ const MarketingPlanner = () => {
                                 <span className="sr-only">Copy</span>
                               </Button>
                               <Button variant="secondary" size="icon" onClick={() => handleTemplateSelect(template)}>
-                                <Template className="h-4 w-4" />
+                                <FileText className="h-4 w-4" />
                                 <span className="sr-only">Use Template</span>
                               </Button>
                             </div>
