@@ -2,18 +2,16 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/context/UserContext";
-import { logSecurityEvent, detectSuspiciousLogin } from "@/lib/security/auth";
-
-// You should set this in an environment variable or secure storage in a real app
-// This is just for demonstration
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+import { logSecurityEvent } from "@/lib/security/auth";
 
 export interface LoginAttempt {
   timestamp: number;
   success: boolean;
   ip?: string;
 }
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 export const useAdminAuth = (onVerified: () => void) => {
   const { toast } = useToast();
@@ -27,7 +25,7 @@ export const useAdminAuth = (onVerified: () => void) => {
   const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
   const { user } = useUser();
 
-  // Check if account is locked
+  // Check lockout status
   useEffect(() => {
     const checkLockStatus = () => {
       // Get attempts in the last 15 minutes
@@ -39,7 +37,7 @@ export const useAdminAuth = (onVerified: () => void) => {
       const failedAttempts = recentAttempts.filter(attempt => !attempt.success).length;
       
       if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-        // Calculate when the lockout ends
+        // Calculate lockout end time
         const latestAttempt = Math.max(...recentAttempts.map(a => a.timestamp));
         const lockoutEnd = latestAttempt + LOCKOUT_DURATION_MS;
         
@@ -70,14 +68,14 @@ export const useAdminAuth = (onVerified: () => void) => {
     return () => clearInterval(interval);
   }, [loginAttempts, lockoutEndTime]);
 
-  // Format remaining lockout time
+  // Format time
   const formatLockoutTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Record login attempt
+  // Record login attempts with security logging
   const recordAttempt = (success: boolean) => {
     const attempt: LoginAttempt = {
       timestamp: Date.now(),
@@ -86,7 +84,6 @@ export const useAdminAuth = (onVerified: () => void) => {
     
     setLoginAttempts(prev => [...prev, attempt]);
     
-    // Log security event
     if (user?.id) {
       logSecurityEvent(
         success ? "admin_login_success" : "admin_login_failure", 
@@ -98,12 +95,12 @@ export const useAdminAuth = (onVerified: () => void) => {
       );
     }
     
-    // Check if the login attempts are suspicious
+    // Check for suspicious activity
     const recentAttempts = [...loginAttempts, attempt].filter(
       a => (Date.now() - a.timestamp) < 60000 * 5 // Last 5 minutes
     );
     
-    if (!success && detectSuspiciousLogin(recentAttempts.length, 5)) {
+    if (!success && recentAttempts.length >= 3) {
       toast({
         title: "Security Alert",
         description: "Suspicious login attempts detected. Please contact support if this wasn't you.",
@@ -112,7 +109,7 @@ export const useAdminAuth = (onVerified: () => void) => {
     }
   };
 
-  // Handle password submission
+  // Password verification
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -128,9 +125,8 @@ export const useAdminAuth = (onVerified: () => void) => {
     }
     
     try {
-      // In a real implementation, you would verify this against a secure backend endpoint with proper hashing
-      // NEVER hardcode passwords in production code
-      if (password === "admin123") { // This is just for demo - use a secure password in production
+      // For demo purposes - in production this would be a secure API call
+      if (password === "admin123") {
         toast({
           title: "Password verified",
           description: "Please enter the MFA code sent to your device",
@@ -138,7 +134,6 @@ export const useAdminAuth = (onVerified: () => void) => {
         setStep("mfa");
         
         // Simulate sending MFA code
-        // In a real app, you'd call your backend to trigger an MFA code delivery
         console.log("Sending MFA code to admin...");
         
         toast({
@@ -146,7 +141,6 @@ export const useAdminAuth = (onVerified: () => void) => {
           description: `A verification code has been sent to your device.`,
         });
         
-        // Record successful password attempt
         recordAttempt(true);
       } else {
         toast({
@@ -155,10 +149,7 @@ export const useAdminAuth = (onVerified: () => void) => {
           variant: "destructive",
         });
         
-        // Record failed attempt
         recordAttempt(false);
-        
-        // In a real app, you would log this failed attempt
         console.log(`Failed admin login attempt for user: ${user?.email}`);
       }
     } catch (error) {
@@ -169,28 +160,25 @@ export const useAdminAuth = (onVerified: () => void) => {
         variant: "destructive",
       });
       
-      // Record failed attempt
       recordAttempt(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle MFA submission
+  // MFA verification
   const handleMfaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // In a real implementation, you would verify this against a secure backend endpoint
-      // For this demo, we'll accept any 6-digit code
+      // Simple validation - in production, this would verify against a backend
       if (mfaCode.length === 6) {
         toast({
           title: "Access granted",
           description: "Welcome to the Admin Control Panel",
         });
         
-        // Record successful MFA attempt
         recordAttempt(true);
         onVerified();
       } else {
@@ -200,10 +188,7 @@ export const useAdminAuth = (onVerified: () => void) => {
           variant: "destructive",
         });
         
-        // Record failed attempt
         recordAttempt(false);
-        
-        // In a real app, you would log this failed attempt
         console.log(`Failed MFA attempt for user: ${user?.email}`);
       }
     } catch (error) {
@@ -214,7 +199,6 @@ export const useAdminAuth = (onVerified: () => void) => {
         variant: "destructive",
       });
       
-      // Record failed attempt
       recordAttempt(false);
     } finally {
       setIsSubmitting(false);

@@ -14,10 +14,12 @@ import {
   Book,
   ChevronLeft,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/UserContext";
 import {
   Sidebar,
   SidebarContent,
@@ -109,6 +111,14 @@ const SidebarToggle = () => {
 
 const NewSidebar = () => {
   const { state } = useSidebar();
+  const { user } = useUser();
+
+  const displayName = user?.user_metadata?.display_name || 'User';
+  const userInitials = displayName
+    .split(' ')
+    .map(name => name.charAt(0))
+    .join('')
+    .toUpperCase();
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-r bg-background">
@@ -148,16 +158,35 @@ const NewSidebar = () => {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+
+          {user?.id === 'demo-user' && (
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip={state === "collapsed" ? "Sign In" : undefined}>
+                <NavLink
+                  to="/auth"
+                  className={({ isActive }) => cn(
+                    "flex items-center gap-2 w-full mt-4 bg-primary/10",
+                    isActive 
+                      ? "bg-primary text-primary-foreground" 
+                      : "hover:bg-primary/20 text-primary hover:text-primary"
+                  )}
+                >
+                  <LogIn className="h-5 w-5" />
+                  <span>Sign In / Sign Up</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarContent>
       
       <SidebarFooter className="border-t">
         <div className="p-4 flex items-center gap-2">
-          <div className="size-8 rounded-full bg-muted flex items-center justify-center">
-            <span className="font-medium text-sm">JD</span>
+          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="font-medium text-sm text-primary">{userInitials}</span>
           </div>
           <div className={cn("transition-opacity", state === "collapsed" ? "opacity-0" : "opacity-100")}>
-            <p className="text-sm font-medium">John Doe</p>
+            <p className="text-sm font-medium">{displayName}</p>
             <p className="text-xs text-muted-foreground">Pro Plan</p>
           </div>
         </div>

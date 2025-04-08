@@ -9,6 +9,8 @@ import Layout from "@/components/layout/Layout";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Index";
 import AdminPanel from "@/pages/AdminPanel";
+import Auth from "@/pages/Auth";
+import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
 // Import other pages
 import DesignGenerator from "@/pages/DesignGenerator";
@@ -34,6 +36,10 @@ function App() {
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
           <Router>
             <Routes>
+              {/* Authentication route */}
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+              
               {/* Root route */}
               <Route 
                 path="/" 
@@ -44,7 +50,7 @@ function App() {
                 } 
               />
               
-              {/* Public routes */}
+              {/* Public routes with Layout */}
               <Route 
                 path="/design" 
                 element={

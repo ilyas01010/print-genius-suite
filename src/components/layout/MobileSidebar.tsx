@@ -13,9 +13,11 @@ import {
   HelpCircle,
   X,
   Book,
-  ShieldAlert
+  ShieldAlert,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/context/UserContext";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -81,6 +83,8 @@ const navItems = [
 ];
 
 const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
+  const { user } = useUser();
+
   // Close sidebar when clicking outside or on escape key
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
@@ -144,6 +148,22 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
               <span className="ml-3 font-medium">{item.title}</span>
             </NavLink>
           ))}
+          
+          {user?.id === 'demo-user' && (
+            <NavLink
+              to="/auth"
+              onClick={handleNavigation}
+              className={({ isActive }) => cn(
+                "flex items-center py-2 px-3 text-sm rounded-md transition-colors mt-4 bg-primary/10",
+                isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-primary/20 text-primary hover:text-primary"
+              )}
+            >
+              <LogIn className="h-5 w-5" />
+              <span className="ml-3 font-medium">Sign In / Sign Up</span>
+            </NavLink>
+          )}
         </nav>
       </aside>
     </>
