@@ -14,7 +14,8 @@ import {
   X,
   Book,
   ShieldAlert,
-  LogIn
+  LogIn,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/context/UserContext";
@@ -74,6 +75,11 @@ const navItems = [
     title: "Support",
     href: "/support",
     icon: <HelpCircle className="h-5 w-5" />
+  },
+  {
+    title: "Profile",
+    href: "/profile",
+    icon: <User className="h-5 w-5" />
   },
   {
     title: "Settings",

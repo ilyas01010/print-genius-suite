@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
-  LogIn
+  LogIn,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,11 @@ const navItems = [
     title: "Support",
     href: "/support",
     icon: <HelpCircle className="h-5 w-5" />
+  },
+  {
+    title: "Profile",
+    href: "/profile",
+    icon: <User className="h-5 w-5" />
   },
   {
     title: "Settings",

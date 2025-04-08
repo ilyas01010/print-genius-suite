@@ -12,6 +12,8 @@ export interface LoginAttempt {
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const ADMIN_EMAIL = "digifyer@gmail.com";
+const ADMIN_PASSWORD = "walkBYfaith!43!";
 
 export const useAdminAuth = (onVerified: () => void) => {
   const { toast } = useToast();
@@ -89,7 +91,7 @@ export const useAdminAuth = (onVerified: () => void) => {
         success ? "admin_login_success" : "admin_login_failure", 
         user.id,
         {
-          email: user.email,
+          email: user.email || ADMIN_EMAIL,
           timestamp: new Date().toISOString(),
         }
       );
@@ -125,8 +127,8 @@ export const useAdminAuth = (onVerified: () => void) => {
     }
     
     try {
-      // For demo purposes - in production this would be a secure API call
-      if (password === "admin123") {
+      // Check admin credentials
+      if (password === ADMIN_PASSWORD) {
         toast({
           title: "Password verified",
           description: "Please enter the MFA code sent to your device",
@@ -150,7 +152,7 @@ export const useAdminAuth = (onVerified: () => void) => {
         });
         
         recordAttempt(false);
-        console.log(`Failed admin login attempt for user: ${user?.email}`);
+        console.log(`Failed admin login attempt for user: ${user?.email || 'unknown'}`);
       }
     } catch (error) {
       console.error("Admin auth error:", error);
@@ -166,7 +168,7 @@ export const useAdminAuth = (onVerified: () => void) => {
     }
   };
 
-  // MFA verification
+  // MFA verification - for demo purposes, any 6-digit code will work
   const handleMfaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -189,7 +191,7 @@ export const useAdminAuth = (onVerified: () => void) => {
         });
         
         recordAttempt(false);
-        console.log(`Failed MFA attempt for user: ${user?.email}`);
+        console.log(`Failed MFA attempt for user: ${user?.email || 'unknown'}`);
       }
     } catch (error) {
       console.error("MFA verification error:", error);

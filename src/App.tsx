@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Index";
 import AdminPanel from "@/pages/AdminPanel";
 import Auth from "@/pages/Auth";
+import Profile from "@/pages/Profile";
 import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
 // Import other pages
@@ -23,6 +24,7 @@ import LearningHub from "@/pages/LearningHub";
 import Analytics from "@/pages/Analytics";
 import Support from "@/pages/Support";
 import CustomerService from "@/pages/CustomerService";
+import ProtectedRoute from "@/components/security/ProtectedRoute";
 
 import "./App.css";
 
@@ -36,119 +38,38 @@ function App() {
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
           <Router>
             <Routes>
-              {/* Authentication route */}
+              {/* Authentication route - no layout */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
-              {/* Root route */}
-              <Route 
-                path="/" 
-                element={
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                } 
-              />
-              
-              {/* Public routes with Layout */}
-              <Route 
-                path="/design" 
-                element={
-                  <Layout>
-                    <DesignGenerator />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/settings" 
-                element={
-                  <Layout>
-                    <Settings />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/platform" 
-                element={
-                  <Layout>
-                    <PlatformDashboard />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/niche-research" 
-                element={
-                  <Layout>
-                    <NicheResearch />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/copyright" 
-                element={
-                  <Layout>
-                    <CopyrightChecker />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/marketing" 
-                element={
-                  <Layout>
-                    <MarketingPlanner />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/learning" 
-                element={
-                  <Layout>
-                    <LearningHub />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/analytics" 
-                element={
-                  <Layout>
-                    <Analytics />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/support" 
-                element={
-                  <Layout>
-                    <Support />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/customer-service" 
-                element={
-                  <Layout>
-                    <CustomerService />
-                  </Layout>
-                } 
-              />
-              
-              <Route 
-                path="/admin" 
-                element={
-                  <Layout>
-                    <AdminPanel />
-                  </Layout>
-                } 
-              />
+              {/* All routes with Layout */}
+              <Route element={<Layout />}>
+                {/* Root route */}
+                <Route path="/" element={<Dashboard />} />
+                
+                {/* Regular routes */}
+                <Route path="/design" element={<DesignGenerator />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/platform" element={<PlatformDashboard />} />
+                <Route path="/niche-research" element={<NicheResearch />} />
+                <Route path="/copyright" element={<CopyrightChecker />} />
+                <Route path="/marketing" element={<MarketingPlanner />} />
+                <Route path="/learning" element={<LearningHub />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/customer-service" element={<CustomerService />} />
+                <Route path="/profile" element={<Profile />} />
+                
+                {/* Admin route with protection */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  } 
+                />
+              </Route>
               
               {/* Catch all */}
               <Route path="*" element={<NotFound />} />

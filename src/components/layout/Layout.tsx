@@ -1,15 +1,12 @@
 
 import React, { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import MobileSidebar from "./MobileSidebar";
 import NewSidebar from "./NewSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   
@@ -30,7 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
           <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className={`flex-1 overflow-auto p-3 md:p-4 lg:p-5 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
             <div className="mx-auto max-w-6xl animate-fade-in">
-              {children}
+              <Outlet />
             </div>
           </main>
         </div>

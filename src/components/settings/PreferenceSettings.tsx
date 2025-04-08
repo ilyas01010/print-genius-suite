@@ -4,7 +4,7 @@ import { Card, CardHeader, CardContent, CardDescription, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Check, Moon, Bell, Mail } from "lucide-react";
+import { Check, Bell, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { 
@@ -17,8 +17,6 @@ import {
 import { useSettings } from "@/context/SettingsContext";
 
 interface PreferenceSettingsProps {
-  darkMode: boolean;
-  setDarkMode: (value: boolean) => void;
   pushNotifications: boolean;
   setPushNotifications: (value: boolean) => void;
   emailNotifications: boolean;
@@ -28,8 +26,6 @@ interface PreferenceSettingsProps {
 }
 
 const PreferenceSettings = ({
-  darkMode,
-  setDarkMode,
   pushNotifications,
   setPushNotifications,
   emailNotifications,
@@ -40,20 +36,6 @@ const PreferenceSettings = ({
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  const handleDarkModeChange = (checked: boolean) => {
-    try {
-      // Apply immediately to prevent flickering
-      setDarkMode(checked);
-    } catch (error) {
-      console.error("Error changing dark mode:", error);
-      toast({
-        title: "Error",
-        description: "Failed to change theme. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="space-y-4">
       <Card>
@@ -63,21 +45,7 @@ const PreferenceSettings = ({
             Customize your Print Genius experience
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Moon className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium">Dark Mode</p>
-                <p className="text-sm text-muted-foreground">Switch to dark theme</p>
-              </div>
-            </div>
-            <Switch 
-              checked={darkMode} 
-              onCheckedChange={handleDarkModeChange} 
-            />
-          </div>
-          
+        <CardContent className="space-y-4">          
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Bell className="h-5 w-5 text-muted-foreground" />

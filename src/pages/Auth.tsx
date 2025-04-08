@@ -21,6 +21,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<{
     score: number;
@@ -101,7 +102,11 @@ const Auth = () => {
       
       // Success - redirect
       setLoginAttempts(0);
-      navigate(from);
+      toast({
+        title: "Welcome back!",
+        description: "You have been signed in successfully",
+      });
+      navigate("/");
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast({
@@ -116,7 +121,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!email || !password || !displayName) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -267,6 +272,18 @@ const Auth = () => {
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4 px-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="display-name">Display Name</Label>
+                      <Input 
+                        id="display-name" 
+                        type="text" 
+                        placeholder="Your name" 
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        required
+                        className="h-12"
+                      />
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>
                       <Input 
