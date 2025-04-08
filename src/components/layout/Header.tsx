@@ -36,7 +36,8 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
     navigate('/auth');
   };
   
-  const handleThemeChange = (newTheme: string) => {
+  // Fix: Type Theme instead of string for the newTheme parameter
+  const handleThemeChange = (newTheme: "dark" | "light" | "system") => {
     setTheme(newTheme);
     toast({
       title: `Theme changed to ${newTheme}`,
