@@ -132,7 +132,7 @@ export function useCustomerService() {
     const inquiry = inquiries.find(i => i.id === id);
     if (inquiry && inquiry.status === "Open") {
       const updatedInquiries = inquiries.map(i => 
-        i.id === id ? {...i, status: "In Progress"} : i
+        i.id === id ? {...i, status: "In Progress" as const} : i
       );
       setInquiries(updatedInquiries);
     }
@@ -154,7 +154,7 @@ export function useCustomerService() {
     });
     
     const updatedInquiries = inquiries.map(i => 
-      i.id === activeInquiry ? {...i, status: "Resolved"} : i
+      i.id === activeInquiry ? {...i, status: "Resolved" as const} : i
     );
     setInquiries(updatedInquiries);
     setReplyText("");

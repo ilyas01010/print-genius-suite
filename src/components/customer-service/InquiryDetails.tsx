@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Inquiry, CannedResponse, useCustomerService } from "@/hooks/use-customer-service";
-import { User, Package, Inbox, SendHorizonal } from "lucide-react";
+import { User, Package, Inbox, SendHorizonal, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface InquiryDetailsProps {
   selectedInquiry: Inquiry | undefined;
@@ -139,23 +140,5 @@ const InquiryDetails: React.FC<InquiryDetailsProps> = ({ selectedInquiry }) => {
     </Card>
   );
 };
-
-// Missing component imports
-const Badge = ({ children, variant, className }: any) => (
-  <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${className} ${
-    variant === 'default' ? 'bg-primary text-primary-foreground' : 
-    variant === 'secondary' ? 'bg-secondary text-secondary-foreground' : 
-    'bg-background border text-foreground'
-  }`}>
-    {children}
-  </div>
-);
-
-const Clock = ({ className }: any) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="12 6 12 12 16 14"></polyline>
-  </svg>
-);
 
 export default InquiryDetails;

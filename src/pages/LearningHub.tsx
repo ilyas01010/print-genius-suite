@@ -79,7 +79,7 @@ const LearningHub = () => {
   return (
     <Layout>
       <PageLayout>
-        <div className="space-y-4 sm:space-y-5 animate-fade">
+        <div className="space-y-4 sm:space-y-5 animate-fade-in">
           <div className="flex flex-col gap-1 sm:gap-2">
             <h1 className="font-bold text-2xl sm:text-3xl">Learning Hub</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
