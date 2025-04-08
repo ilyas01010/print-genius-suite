@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useUser } from "./context/UserContext";
-import Dashboard from "./pages/index"; // Changed from IndexPage to Dashboard
+import Dashboard from "./pages/index"; // Corrected import to lowercase
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import LearningHub from "./pages/LearningHub";
