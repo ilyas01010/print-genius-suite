@@ -14,6 +14,13 @@ import SecureFileUpload from "@/components/security/SecureFileUpload";
 const DesignUploader = () => {
   const { isAuthenticated } = useUser();
 
+  // Create an async function to handle file selection that returns a Promise
+  const handleFileSelected = async (file: File, secureFileName: string): Promise<void> => {
+    console.log("File selected:", file, secureFileName);
+    // This returns a Promise since it's an async function
+    return Promise.resolve();
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -30,7 +37,7 @@ const DesignUploader = () => {
           <SecureFileUpload 
             acceptedFileTypes={[".png", ".jpg", ".jpeg", ".svg"]}
             maxSizeMB={5}
-            onFileSelected={(file, secureFileName) => console.log("File selected:", file, secureFileName)}
+            onFileSelected={handleFileSelected}
             label="Upload Design"
           />
         </div>
